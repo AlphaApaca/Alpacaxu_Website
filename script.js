@@ -314,7 +314,7 @@ const getPreferredLanguage = () => {
     return savedLanguage;
   }
 
-  return "zh";
+  return "en";
 };
 
 const setText = (selector, attribute, language) => {
