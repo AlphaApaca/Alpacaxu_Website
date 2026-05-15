@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="zh-CN" data-page="articleBuild">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="从简历网站扩展到个人博客的思路。" data-i18n-meta="articleBuild.meta.description">
+    <title>从简历网站到个人博客 | Mingyang Xu</title>
+    <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="../styles.css">
+  </head>
+  <body class="article-page">
+    <header class="site-header">
+      <a class="brand" href="../index.html" aria-label="Mingyang Xu home" data-i18n-aria-label="common.homeLabel"><span class="brand-mark">MX</span><span data-i18n="common.name">Mingyang Xu</span></a>
+      <nav class="nav-links" aria-label="Primary navigation" data-i18n-aria-label="common.primaryNav">
+        <a href="../index.html#projects" data-i18n="nav.projects">项目</a>
+        <a href="../index.html#cpd" data-i18n="nav.cpd">CPD</a>
+        <a href="../index.html#posts" data-i18n="nav.posts">文章</a>
+        <a href="../index.html#about" data-i18n="nav.about">技能</a>
+      </nav>
+      <div class="header-actions">
+        <button class="lang-toggle" type="button" aria-label="Switch language" title="Switch language">EN</button>
+        <button class="icon-button theme-toggle" type="button" aria-label="切换深色模式" title="切换深色模式" data-i18n-aria-label="common.themeToggle" data-i18n-title="common.themeToggle">
+          <span class="sun" aria-hidden="true">☀</span>
+          <span class="moon" aria-hidden="true">☾</span>
+        </button>
+      </div>
+    </header>
+
+    <main class="article-shell">
+      <p class="eyebrow" data-i18n="articleBuild.eyebrow">博客 / 工作流</p>
+      <h1 data-i18n="articleBuild.title">从简历网站到个人博客：我想沉淀什么</h1>
+      <p class="article-lead" data-i18n="articleBuild.lead">简历负责概括经历，博客负责解释过程。两者结合，才能更完整地呈现研究和工程能力。</p>
+
+      <article class="article-content">
+        <h2 data-i18n="articleBuild.h2a">第一步：保留简历的清晰结构</h2>
+        <p data-i18n="articleBuild.p1">首页需要快速说明身份、方向、经历和项目，让访问者在一分钟内理解我正在做什么，以及我适合哪些研究或工程机会。</p>
+
+        <h2 data-i18n="articleBuild.h2b">第二步：用文章补足项目细节</h2>
+        <p data-i18n="articleBuild.p2">简历中的 41.7x、15% 这类结果需要更完整的背景、方法和实验记录。博客文章可以承接这些解释。</p>
+
+        <h2 data-i18n="articleBuild.h2c">第三步：让内容长期可维护</h2>
+        <p data-i18n="articleBuild.p3">当前版本先保持静态页面，等内容稳定后再迁移到 Markdown/MDX 工作流，把文章发布变成低成本动作。</p>
+
+        <h2 data-i18n="articleBuild.h2d">下一步</h2>
+        <p data-i18n-html="articleBuild.p4">这个项目当前是零依赖静态版本。等结构满意后，可以迁移到 <code>Astro</code> 或 <code>Next.js</code>，把文章改成 Markdown/MDX 自动生成。</p>
+      </article>
+    </main>
+
+    <script src="../script.js"></script>
+  </body>
+</html>

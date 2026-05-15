@@ -1,0 +1,329 @@
+<!doctype html>
+<html lang="zh-CN" data-page="home">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Mingyang Xu 的个人网站，记录机器人、机器学习、智能系统和工程实践。" data-i18n-meta="home.meta.description">
+    <title>Mingyang Xu | Robotics & Intelligent Systems</title>
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="index.html" aria-label="Mingyang Xu home" data-i18n-aria-label="common.homeLabel">
+        <span class="brand-mark">MX</span>
+        <span data-i18n="common.name">Mingyang Xu</span>
+      </a>
+      <nav class="nav-links" aria-label="Primary navigation" data-i18n-aria-label="common.primaryNav">
+        <a href="#profile" data-i18n="nav.profile">简介</a>
+        <a href="#projects" data-i18n="nav.projects">项目</a>
+        <a href="#cpd" data-i18n="nav.cpd">CPD</a>
+        <a href="#posts" data-i18n="nav.posts">文章</a>
+      </nav>
+      <div class="header-actions">
+        <button class="lang-toggle" type="button" aria-label="Switch language" title="Switch language">EN</button>
+        <button class="icon-button theme-toggle" type="button" aria-label="切换深色模式" title="切换深色模式" data-i18n-aria-label="common.themeToggle" data-i18n-title="common.themeToggle">
+          <span class="sun" aria-hidden="true">☀</span>
+          <span class="moon" aria-hidden="true">☾</span>
+        </button>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero" aria-label="Introduction" data-i18n-aria-label="home.hero.sectionLabel">
+        <img class="hero-image" src="assets/hero-workspace.png" alt="安静的技术写作桌面插画" data-i18n-alt="home.hero.alt">
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+          <p class="eyebrow" data-i18n="home.hero.eyebrow">Robotics · Embodied AI · Machine Learning</p>
+          <h1 data-i18n="common.name">Mingyang Xu</h1>
+          <p class="hero-copy">
+            <span data-i18n="home.hero.copy">曼彻斯特大学机器人学硕士在读，具有软件工程背景，专注于基于 ROS2 的自主系统、机器人感知、具身智能和应用机器学习。</span>
+          </p>
+          <div class="hero-actions">
+            <a class="button primary" href="#projects" data-i18n="home.hero.primary">查看项目</a>
+            <a class="button ghost" href="#cpd" data-i18n="home.hero.secondary">CPD 反思</a>
+            <a class="button ghost" href="https://github.com/AlphApaca" target="_blank" rel="noreferrer">GitHub</a>
+          </div>
+        </div>
+      </section>
+
+      <section class="section profile-section" id="profile">
+        <div>
+          <p class="section-kicker" data-i18n="home.profile.kicker">Profile</p>
+          <h2 data-i18n="home.profile.heading">Robotics and AI portfolio with CPD evidence.</h2>
+        </div>
+        <div class="profile-card">
+          <img src="assets/avatar.jpg" alt="Mingyang Xu portrait" data-i18n-alt="home.profile.avatarAlt">
+          <div>
+            <p data-i18n="home.profile.p1">我目前在曼彻斯特大学攻读机器人学硕士，具备福州大学和梅努斯大学的软件工程学习背景。</p>
+            <p data-i18n="home.profile.p2">我的当前工作重点包括自主机器人、ROS2 系统集成、机器人感知、控制和应用 AI。我的主要职业目标是进入具身智能或机器人公司，次要方向是科技公司的 AI 与机器学习工程岗位。</p>
+            <p data-i18n="home.profile.p3">本网站展示我的代表项目、技术证据和 CPD 反思，说明我如何通过机器人、AI 和软件项目发展工程能力。</p>
+            <div class="contact-row">
+              <a href="mailto:xumingyang0111@yeah.net">xumingyang0111@yeah.net</a>
+              <a href="https://github.com/AlphApaca" target="_blank" rel="noreferrer">GitHub</a>
+              <span data-i18n="common.location">英国曼彻斯特</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section objective-section" id="objective">
+        <div class="section-heading simple">
+          <div>
+            <p class="section-kicker" data-i18n="home.objective.kicker">Career Objective</p>
+            <h2 data-i18n="home.objective.heading">职业目标</h2>
+          </div>
+        </div>
+
+        <div class="objective-grid">
+          <article>
+            <p data-i18n="home.objective.primary.label">Primary Direction</p>
+            <h3 data-i18n="home.objective.primary.title">具身智能与机器人公司</h3>
+            <span data-i18n="home.objective.primary.copy">希望参与自主机器人、具身智能和机器人系统工程相关工作。</span>
+          </article>
+          <article>
+            <p data-i18n="home.objective.focus.label">Technical Focus</p>
+            <h3 data-i18n="home.objective.focus.title">ROS2、感知、导航与集成</h3>
+            <span data-i18n="home.objective.focus.copy">ROS2、机器人感知、导航、运动规划、机器学习评估和系统集成。</span>
+          </article>
+          <article>
+            <p data-i18n="home.objective.secondary.label">Secondary Direction</p>
+            <h3 data-i18n="home.objective.secondary.title">AI 与机器学习工程</h3>
+            <span data-i18n="home.objective.secondary.copy">科技公司的 AI 与机器学习工程岗位。</span>
+          </article>
+        </div>
+      </section>
+
+      <section class="section projects-section" id="projects">
+        <div class="section-heading simple">
+          <div>
+            <p class="section-kicker" data-i18n="home.projects.kicker">Selected Projects</p>
+            <h2 data-i18n="home.projects.heading">项目证据</h2>
+          </div>
+        </div>
+
+        <div class="project-grid">
+          <article class="project-card">
+            <div class="media-slot">
+              <img src="assets/leo-rover-demo.jpg" alt="Leo Rover autonomous mobile manipulation project evidence" data-i18n-alt="home.projects.leo.imageAlt">
+            </div>
+            <p data-i18n="home.projects.leo.type">Featured Robotics Project</p>
+            <h3 data-i18n="home.projects.leo.title">Leo Rover Autonomous Mobile Manipulation</h3>
+            <span data-i18n="home.projects.leo.summary">基于 Leo Rover 平台的团队机器人项目，开发自主移动操作流程，结合 ROS2、SLAM 导航、感知、任务状态逻辑与抓取放置。</span>
+            <div class="project-detail">
+              <strong data-i18n="home.projects.label.contribution">My contribution</strong>
+              <span data-i18n="home.projects.leo.contribution">我的贡献集中在理解 ROS2 系统结构、记录软件架构和任务执行流程、支持感知到行为的集成、准备测试证据，并反思系统层面的限制。我也帮助将团队实现转化为清晰的图表和说明，用于最终项目证据。</span>
+            </div>
+            <div class="project-detail">
+              <strong data-i18n="home.projects.label.reflection">Reflection</strong>
+              <span data-i18n="home.projects.leo.reflection">该项目让我理解到，自主机器人不仅依赖单个算法选择，更依赖感知、导航、操作和状态管理的可靠集成。</span>
+            </div>
+            <div class="evidence-links">
+              <a href="#" target="_blank" rel="noreferrer" data-i18n="home.links.demo">Demo Video</a>
+              <a href="#" target="_blank" rel="noreferrer" data-i18n="home.links.github">GitHub Repository</a>
+              <a href="#" target="_blank" rel="noreferrer" data-i18n="home.links.report">Report</a>
+              <a href="#" target="_blank" rel="noreferrer" data-i18n="home.links.architecture">Architecture Diagram</a>
+            </div>
+            <div class="tags">
+              <span>ROS2</span><span>Nav2</span><span>SLAM</span><span>RealSense D435</span><span>Gazebo</span><span>RViz</span><span>Mobile Manipulation</span>
+            </div>
+          </article>
+          <article class="project-card">
+            <div class="media-slot">
+              <img src="assets/uav-control-diagram.png" alt="UAV feedback control diagram" data-i18n-alt="home.projects.uav.imageAlt">
+            </div>
+            <p data-i18n="home.projects.uav.type">Control Project</p>
+            <h3 data-i18n="home.projects.uav.title">UAV Feedback Control for Position and Yaw Stabilisation</h3>
+            <span data-i18n="home.projects.uav.summary">面向无人机位置和偏航稳定的反馈控制项目。控制器比较当前状态与目标位姿，并生成 x、y、z 和偏航角速度命令。</span>
+            <div class="project-detail">
+              <strong data-i18n="home.projects.label.contribution">My contribution</strong>
+              <span data-i18n="home.projects.uav.contribution">我独立完成 controller_simple.py，包括用于仿真测试和真实平台实验的核心反馈控制逻辑。</span>
+            </div>
+            <div class="evidence-links">
+              <a href="#" target="_blank" rel="noreferrer" data-i18n="home.links.code">Code</a>
+              <a href="#" target="_blank" rel="noreferrer" data-i18n="home.links.demo">Demo Video</a>
+              <a href="#" target="_blank" rel="noreferrer" data-i18n="home.links.report">Report</a>
+            </div>
+            <div class="tags">
+              <span>Feedback Control</span><span>UAV</span><span>Python</span><span>Tello</span><span>Simulation</span><span>Real-World Testing</span>
+            </div>
+          </article>
+          <article class="project-card">
+            <p data-i18n="home.projects.bytedance.type">Machine Learning / NLP Internship</p>
+            <h3 data-i18n="home.projects.bytedance.title">ByteDance Machine Learning Internship: Chinese NLP Model Optimisation</h3>
+            <span data-i18n="home.projects.bytedance.summary">一项机器学习实习项目，聚焦中文语言任务中的 NLP 模型实现与优化，涉及 Skip-gram、LSTM 和 BERT-wwm，并关注中文阅读理解和模型性能提升。</span>
+            <div class="project-detail">
+              <strong data-i18n="home.projects.label.contribution">My contribution</strong>
+              <span data-i18n="home.projects.bytedance.contribution">我的贡献包括实现模型流程、实验不同 NLP 架构、支持中文阅读理解优化，并分析模型表现。这段经历加强了我对机器学习工作流、模型评估以及研究模型与实际 AI 应用之间关系的理解。</span>
+            </div>
+            <div class="project-detail">
+              <strong data-i18n="home.projects.label.focus">Technical focus</strong>
+              <span data-i18n="home.projects.bytedance.focus">项目涉及自然语言处理、表示学习、序列建模、基于 Transformer 的语言模型，以及中文 NLP 任务中的性能评估。</span>
+            </div>
+            <div class="evidence-links">
+              <a href="#" target="_blank" rel="noreferrer" data-i18n="home.links.projectNotes">Project Notes</a>
+              <a href="#" target="_blank" rel="noreferrer" data-i18n="home.links.modelResults">Model Results</a>
+              <a href="#" target="_blank" rel="noreferrer" data-i18n="home.links.internshipReflection">Internship Reflection</a>
+            </div>
+            <div class="tags">
+              <span>Python</span><span>PyTorch</span><span>NLP</span><span>BERT-wwm</span><span>LSTM</span><span>Skip-gram</span><span>Model Evaluation</span>
+            </div>
+          </article>
+          <article class="project-card">
+            <p data-i18n="home.projects.gis.type">Geospatial Engineering</p>
+            <h3 data-i18n="home.projects.gis.title">GIS and Spatiotemporal Data Engineering</h3>
+            <span data-i18n="home.projects.gis.summary">涉及空间数据处理、加权重分配方法和性能敏感 Python 实现的地理空间数据项目。</span>
+            <div class="project-detail">
+              <strong data-i18n="home.projects.label.focus">Technical focus</strong>
+              <span data-i18n="home.projects.gis.focus">使用 GeoPandas、Rasterio、NumPy 和 Shapely 进行地理空间处理，关注坐标系统、栅格-矢量操作和计算效率。</span>
+            </div>
+            <div class="evidence-links">
+              <a href="#" target="_blank" rel="noreferrer" data-i18n="home.links.report">Report</a>
+              <a href="#" target="_blank" rel="noreferrer" data-i18n="home.links.code">Code</a>
+              <a href="#" target="_blank" rel="noreferrer" data-i18n="home.links.notesShort">Notes</a>
+            </div>
+            <div class="tags">
+              <span>Python</span><span>GIS</span><span>GeoPandas</span><span>Rasterio</span><span>Spatial Analysis</span><span>Performance Optimization</span>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="section skill-education" id="about">
+        <div>
+          <p class="section-kicker" data-i18n="home.skills.kicker">Skills</p>
+          <h2 data-i18n="home.skills.heading">Technical Skills and Engineering Practice</h2>
+        </div>
+        <div class="skill-columns">
+          <article>
+            <h3 data-i18n="home.skills.roboticsTitle">Robotics and Embodied Systems</h3>
+            <p>ROS2, Nav2, SLAM, Gazebo, RViz, TF, robot system integration, mobile manipulation.</p>
+          </article>
+          <article>
+            <h3 data-i18n="home.skills.perceptionTitle">Robot Perception and AI</h3>
+            <p>RGB-D sensing, RealSense D435, computer vision, OpenCV, NLP, BERT-wwm, LSTM and machine learning evaluation.</p>
+          </article>
+          <article>
+            <h3 data-i18n="home.skills.softwareTitle">Software Engineering</h3>
+            <p>Python, C++, JavaScript, Git, Linux, modular design, debugging, documentation.</p>
+          </article>
+          <article>
+            <h3 data-i18n="home.skills.practiceTitle">Professional Practice</h3>
+            <p>Technical reporting, project diagrams, presentation, CPD reflection, requirement-based evaluation.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section cpd-section" id="cpd">
+        <div class="section-heading simple">
+          <div>
+            <p class="section-kicker" data-i18n="home.cpd.kicker">CPD Evidence</p>
+            <h2 data-i18n="home.cpd.heading">CPD Reflection and UK-SPEC Evidence</h2>
+          </div>
+        </div>
+        <p class="section-intro" data-i18n="home.cpd.intro">This website supports my CPD Reflection submission and provides evidence for selected UK-SPEC competencies.</p>
+        <div class="cpd-grid">
+          <article>
+            <p>A2</p>
+            <h3 data-i18n="home.cpd.a2.title">A2 — Complex robotics problem-solving</h3>
+            <strong data-i18n="home.cpd.label.focus">Focus</strong>
+            <span data-i18n="home.cpd.a2.focus">Developing stronger ability to solve complex technical problems in embodied intelligence and robotics systems.</span>
+            <strong data-i18n="home.cpd.label.evidence">Evidence</strong>
+            <span data-i18n="home.cpd.a2.evidence">Leo Rover ROS2 integration, navigation/perception/manipulation pipeline, system debugging and mission-state logic.</span>
+          </article>
+          <article>
+            <p>B3</p>
+            <h3 data-i18n="home.cpd.b3.title">B3 — Implementation, testing and evaluation</h3>
+            <strong data-i18n="home.cpd.label.focus">Focus</strong>
+            <span data-i18n="home.cpd.b3.focus">Improving how I implement engineering solutions and evaluate them against requirements.</span>
+            <strong data-i18n="home.cpd.label.evidence">Evidence</strong>
+            <span data-i18n="home.cpd.b3.evidence">Leo Rover mission testing, UAV controller implementation, simulation and controlled testing, requirements-based reflection.</span>
+          </article>
+          <article>
+            <p>D2</p>
+            <h3 data-i18n="home.cpd.d2.title">D2 — Technical communication and portfolio presentation</h3>
+            <strong data-i18n="home.cpd.label.focus">Focus</strong>
+            <span data-i18n="home.cpd.d2.focus">Presenting proposals, design decisions and conclusions more clearly.</span>
+            <strong data-i18n="home.cpd.label.evidence">Evidence</strong>
+            <span data-i18n="home.cpd.d2.evidence">Software architecture diagrams, mission execution flow, video scripts, project reports and this rebuilt portfolio website.</span>
+          </article>
+        </div>
+      </section>
+
+      <section class="section" id="posts">
+        <div class="section-heading">
+          <div>
+            <p class="section-kicker" data-i18n="home.posts.kicker">Writing</p>
+            <h2 data-i18n="home.posts.heading">Robotics, AI and CPD Notes</h2>
+          </div>
+          <label class="search-box">
+            <span class="visually-hidden" data-i18n="home.posts.searchLabel">搜索文章</span>
+            <input type="search" id="postSearch" placeholder="搜索标题、标签或摘要" data-i18n-placeholder="home.posts.searchPlaceholder">
+          </label>
+        </div>
+
+        <div class="post-list" id="postList">
+          <article class="post-card" data-search="ros2 mobile manipulation engineering evidence robotics cpd portfolio">
+            <div class="post-meta">
+              <time datetime="2026-05-15">2026.05.15</time>
+              <span data-i18n="home.posts.read6">6 分钟阅读</span>
+            </div>
+            <h3><a href="articles/build-personal-blog.html" data-i18n="home.posts.post1.title">What I Learned from Building a ROS2 Mobile-Manipulation System</a></h3>
+            <p data-i18n="home.posts.post1.copy">A short reflection on integrating perception, navigation, manipulation and mission-state logic into one robotics pipeline.</p>
+            <div class="tags">
+              <span>Blog</span>
+              <span>Frontend</span>
+              <span>Workflow</span>
+            </div>
+          </article>
+
+          <article class="post-card" data-search="coursework demo engineering evidence requirements testing cpd">
+            <div class="post-meta">
+              <time datetime="2026-05-12">2026.05.12</time>
+              <span data-i18n="home.posts.read5">5 分钟阅读</span>
+            </div>
+            <h3><a href="articles/choose-stack.html" data-i18n="home.posts.post2.title">From Coursework Demo to Engineering Evidence</a></h3>
+            <p data-i18n="home.posts.post2.copy">How I turn project outputs into evidence by recording requirements, tests, diagrams, limitations and reflection.</p>
+            <div class="tags">
+              <span>Astro</span>
+              <span>Next.js</span>
+              <span>Static Site</span>
+            </div>
+          </article>
+
+          <article class="post-card" data-search="portfolio website cpd reflection uk spec technical communication">
+            <div class="post-meta">
+              <time datetime="2026-05-08">2026.05.08</time>
+              <span data-i18n="home.posts.read3">3 分钟阅读</span>
+            </div>
+            <h3><a href="articles/notes-system.html" data-i18n="home.posts.post3.title">How I Use a Portfolio Website to Record CPD</a></h3>
+            <p data-i18n="home.posts.post3.copy">Using a portfolio structure to connect project artefacts, personal contribution and UK-SPEC competence evidence.</p>
+            <div class="tags">
+              <span>Notes</span>
+              <span>Writing</span>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="section notes-section" id="notes">
+        <div>
+          <p class="section-kicker" data-i18n="home.notes.kicker">Now</p>
+          <h2 data-i18n="home.notes.heading">Current Focus</h2>
+        </div>
+        <div class="note-grid">
+          <p data-i18n="home.notes.item1">具身智能、自主机器人和 ROS2 系统集成。</p>
+          <p data-i18n="home.notes.item2">机器人感知、RGB-D 传感、目标检测和机器学习评估。</p>
+          <p data-i18n="home.notes.item3">作品集建设、技术沟通和 CPD 证据整理。</p>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p data-i18n="common.footer">© 2026 Mingyang Xu。轻量静态个人网站。</p>
+      <a href="mailto:xumingyang0111@yeah.net">xumingyang0111@yeah.net</a>
+    </footer>
+
+    <script src="script.js"></script>
+  </body>
+</html>
