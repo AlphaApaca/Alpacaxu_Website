@@ -9,7 +9,7 @@
 - `styles.css`：全站样式和响应式布局
 - `script.js`：中英双语、深色模式和文章搜索
 - `assets/hero-workspace.png`：首屏视觉资产
-- `assets/avatar.jpg`：来自原简历网站的头像资产
+- `assets/avatar.png`：个人证件照
 
 ## 本地预览
 
