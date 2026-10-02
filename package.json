@@ -12,6 +12,7 @@
     "build": "astro build",
     "preview": "astro preview",
     "check": "astro check",
+    "test": "node --test scripts/*.test.mjs",
     "sync:repytorch": "node scripts/sync-repytorch.mjs",
     "sync:repytorch:check": "node scripts/sync-repytorch.mjs --check"
   },

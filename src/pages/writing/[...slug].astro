@@ -28,6 +28,8 @@ const { Content } = await render(post);
   lang={post.data.lang}
   sourceUrl={post.data.sourceUrl}
   sourceCommit={post.data.sourceCommit}
+  comments={post.data.comments}
+  commentTerm={`/writing/${post.data.permalink}/`}
 >
   <Content />
 </ArticleLayout>

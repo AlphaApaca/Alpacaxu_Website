@@ -1,0 +1,43 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import GiscusComments from "../components/GiscusComments.astro";
+
+const description = "Mingyang Xu 的个人介绍、研究方向与留言板。";
+---
+
+<BaseLayout title="About | Mingyang Xu" description={description} lang="zh-CN" page="about" bodyClass="about-page">
+  <Fragment slot="head">
+    <meta name="giscus:backlink" content="https://www.alpacaxu.cn/about/" />
+  </Fragment>
+  <main class="article-shell about-shell">
+    <a class="article-back" href="/">← 首页 / Home</a>
+    <p class="eyebrow">About / 关于我</p>
+    <h1>Mingyang Xu</h1>
+    <p class="article-lead">机器人、AI、软件工程，以及持续学习中的笔记。</p>
+
+    <div class="about-profile">
+      <img src="/assets/avatar.png" alt="Mingyang Xu 个人照片" width="180" height="225" />
+      <div class="article-content">
+        <p>我目前在曼彻斯特大学攻读机器人学硕士，预计于 2026 年 12 月毕业。本科阶段取得福州大学软件工程与梅努斯大学 Computer Science &amp; Software Engineering 双学位。</p>
+        <p>我关注具身智能、Robot Learning 与可靠机器人系统。这个网站既展示项目，也记录学习过程、技术笔记和思考。</p>
+        <div class="contact-row">
+          <a href="mailto:mingyang.xu.0111@outlook.com">Email ↗</a>
+          <a href="https://github.com/AlphaApaca" target="_blank" rel="noopener noreferrer">GitHub ↗</a>
+          <span>Manchester, UK</span>
+        </div>
+      </div>
+    </div>
+
+    <section class="article-content about-focus" aria-labelledby="about-focus-heading">
+      <h2 id="about-focus-heading">正在探索</h2>
+      <p>硕士论文通过 MuJoCo 任务评估本地 LLM 能否在执行前识别可行、不可行或有歧义的指令。在 V.I.S.O.R. 团队项目中，我主要负责 Leo Rover 的 SLAM 与 Nav2 导航验证和调优。</p>
+      <p>目前也在学习 PyTorch 基础，逐步建立训练、验证和评估闭环，并进一步理解机器人模仿学习。</p>
+      <div class="about-links">
+        <a href="/#projects">项目 / Projects →</a>
+        <a href="/writing/">文章 / Writing →</a>
+      </div>
+    </section>
+
+    <GiscusComments term="about-guestbook" guestbook />
+  </main>
+</BaseLayout>

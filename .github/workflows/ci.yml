@@ -1,0 +1,74 @@
+name: Site checks
+
+on:
+  push:
+    branches: [main, "codex/**"]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: site-checks-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      ASTRO_TELEMETRY_DISABLED: "1"
+      CI: "true"
+    steps:
+      - name: Check out the exact revision
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4, verified 2026-10-03
+        with:
+          persist-credentials: false
+      - name: Set up Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4, verified 2026-10-03
+        with:
+          node-version-file: .nvmrc
+      - name: Install locked dependencies
+        run: npx --yes pnpm@11.19.0 install --frozen-lockfile
+      - name: Run script regression tests
+        run: node --test scripts/*.test.mjs
+      - name: Validate the committed source snapshot
+        run: npm run sync:repytorch:check
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+      - name: Check Astro and build the static site
+        run: |
+          npm run check
+          npm run build
+
+  preview-http:
+    name: Exact-commit preview HTTP 404 and noindex
+    needs: validate
+    if: github.repository == 'AlphaApaca/Alpacaxu_Website' && github.event_name == 'push' && startsWith(github.ref, 'refs/heads/codex/')
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    permissions:
+      contents: read
+      deployments: read
+    steps:
+      - name: Check out the exact pushed revision
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4, verified 2026-10-03
+        with:
+          persist-credentials: false
+      - name: Set up Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4, verified 2026-10-03
+        with:
+          node-version-file: .nvmrc
+      - name: Find this commit's successful preview and check it
+        run: node scripts/check-preview.mjs --github-deployment
+        env:
+          PREVIEW_COMMIT: ${{ github.sha }}
+          PREVIEW_BRANCH: ${{ github.ref_name }}
+          GITHUB_TOKEN: ${{ github.token }}
+      - name: Record exact-commit acceptance
+        if: success()
+        env:
+          CHECKED_COMMIT: ${{ github.sha }}
+        run: printf 'Preview HTTP acceptance passed for commit %s (not a moving branch alias).\n' "$CHECKED_COMMIT" >> "$GITHUB_STEP_SUMMARY"

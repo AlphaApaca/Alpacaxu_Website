@@ -5,7 +5,7 @@
  *
  * The source repository remains the source of truth. This script resolves the
  * requested ref to an immutable commit, validates every publishable document,
- * rewrites repository-relative links, and atomically replaces the generated
+ * rewrites repository-relative links, and replaces the generated
  * `src/content/posts/repytorch` directory.
  */
 
@@ -27,6 +27,7 @@ const SITE_ROUTE_PREFIX = "/writing";
 const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url));
 const PROJECT_ROOT = resolve(SCRIPT_DIR, "..");
 const OUTPUT_DIR = join(PROJECT_ROOT, "src/content/posts/repytorch");
+const SNAPSHOT_FILE = "snapshot.json";
 const markdownProcessor = unified().use(remarkParse).use(remarkGfm).use(remarkStringify, {
   bullet: "-",
   fences: true,
@@ -72,7 +73,11 @@ async function githubJson(url) {
   let response;
 
   try {
-    response = await fetch(url, { headers: apiHeaders() });
+    response = await fetch(url, {
+      headers: apiHeaders(),
+      redirect: "error",
+      signal: AbortSignal.timeout(20_000),
+    });
   } catch (error) {
     throw new Error(`Could not reach GitHub while requesting ${url}: ${error.message}`, { cause: error });
   }
@@ -182,6 +187,18 @@ function normalizeDate(value, sourcePath) {
   throw new Error(`${sourcePath}: date must be a real calendar date in YYYY-MM-DD form.`);
 }
 
+function normalizeLanguageTag(value, sourcePath) {
+  if (typeof value !== "string" || !value.trim()) {
+    throw new Error(`${sourcePath}: lang must be a non-empty BCP-47 language tag.`);
+  }
+
+  try {
+    return Intl.getCanonicalLocales(value.trim())[0];
+  } catch {
+    throw new Error(`${sourcePath}: lang must be a valid BCP-47 language tag, such as zh-CN or en.`);
+  }
+}
+
 function validateMetadata(data, sourcePath) {
   const requiredString = (key) => {
     if (typeof data[key] !== "string" || !data[key].trim()) {
@@ -222,7 +239,7 @@ function findLocalPaths(content) {
 
   for (const pattern of patterns) {
     for (const match of content.matchAll(pattern)) {
-      const index = match.index ?? 0;
+      const index = (match.index ?? 0) + match[0].length - match[0].trimStart().length;
       hits.push(content.slice(0, index).split("\n").length);
     }
   }
@@ -295,19 +312,11 @@ function rewriteMarkdownLinks(tree, context) {
       return;
     }
 
-    if (node.type !== "html" || typeof node.value !== "string") return;
-    if (/<\s*(?:script|style|iframe|object|embed|form|meta|link)\b/i.test(node.value) || /\son[a-z]+\s*=/i.test(node.value)) {
-      throw new Error(`${context.sourcePath}: published Markdown contains unsafe raw HTML.`);
+    // Automated imports accept Markdown, not executable or parser-dependent HTML.
+    // Literal HTML remains available inside fenced/inline code examples.
+    if (node.type === "html") {
+      throw new Error(`${context.sourcePath}: raw HTML is not allowed in published Markdown. Use Markdown syntax or a fenced code example.`);
     }
-
-    node.value = node.value.replace(
-      /(<(?:a|img|video|source)\b[^>]*?\b(?:href|src)=["'])([^"']+)(["'])/gi,
-      (_full, opening, target, closing) => {
-        const image = /^<(?:img|video|source)\b/i.test(opening);
-        const nextTarget = rewriteTarget({ ...context, rawTarget: target, image });
-        return `${opening}${nextTarget}${closing}`;
-      },
-    );
   });
 }
 
@@ -354,7 +363,36 @@ async function assertDirectoriesEqual(expectedRoot, actualRoot) {
   }
 }
 
+function snapshotManifest(commit, published) {
+  return {
+    sourceRepo: repository,
+    sourceCommit: commit,
+    articles: published.map((document) => ({
+      sourcePath: document.sourcePath,
+      permalink: document.slug,
+    })),
+  };
+}
+
+function snapshotCommitFromManifest(manifest) {
+  if (manifest?.sourceRepo !== repository || !/^[a-f\d]{40}$/i.test(manifest?.sourceCommit ?? "") ||
+      !Array.isArray(manifest.articles) || manifest.articles.some((article) =>
+        typeof article?.sourcePath !== "string" || !isAllowlistedMarkdown(article.sourcePath) ||
+        !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(article?.permalink ?? ""))) {
+    throw new Error("Generated repytorch snapshot manifest is invalid. Run the sync command.");
+  }
+  return manifest.sourceCommit;
+}
+
 async function pinnedSnapshotCommit() {
+  // Retain provenance even when the author unpublishes the last article.
+  try {
+    const manifest = JSON.parse(await readFile(join(OUTPUT_DIR, SNAPSHOT_FILE), "utf8"));
+    return snapshotCommitFromManifest(manifest);
+  } catch (error) {
+    if (error.code !== "ENOENT") throw error;
+  }
+
   const files = (await listFiles(OUTPUT_DIR)).filter((path) => path.endsWith(".md"));
   if (files.length === 0) {
     throw new Error("No generated repytorch snapshot exists. Run the sync command first.");
@@ -433,10 +471,7 @@ async function main() {
       const tree = markdownProcessor.parse(document.content);
       const title = markdownTitle(tree, document.sourcePath);
       const slug = normalizeSlug(document.data.slug, document.sourcePath);
-      const lang = document.data.lang ?? "zh-CN";
-      if (typeof lang !== "string" || !lang.trim()) {
-        throw new Error(`${document.sourcePath}: lang must be a non-empty language tag.`);
-      }
+      const lang = normalizeLanguageTag(document.data.lang ?? "zh-CN", document.sourcePath);
       const localPathLines = findLocalPaths(document.content);
       if (localPathLines.length > 0) {
         throw new Error(
@@ -446,7 +481,7 @@ async function main() {
         );
       }
 
-      return { ...document, ...metadata, tree, title, slug, lang: lang.trim() };
+      return { ...document, ...metadata, tree, title, slug, lang };
     });
 
   const publishedByPath = new Map();
@@ -499,6 +534,8 @@ async function main() {
       await writeFile(destination, output.endsWith("\n") ? output : `${output}\n`, "utf8");
     }
 
+    await writeFile(join(temporaryOutput, SNAPSHOT_FILE), `${JSON.stringify(snapshotManifest(commit, published), null, 2)}\n`, "utf8");
+
     if (dryRun) {
       console.log(`Validated ${published.length} published article(s) from ${repository}@${commit}.`);
       return;
@@ -518,4 +555,22 @@ async function main() {
   }
 }
 
-await main();
+export {
+  findLocalPaths,
+  isAllowlistedMarkdown,
+  markdownProcessor,
+  markdownTitle,
+  normalizeDate,
+  normalizeLanguageTag,
+  normalizeSlug,
+  removeFirstH1,
+  resolveRepoTarget,
+  rewriteMarkdownLinks,
+  snapshotCommitFromManifest,
+  snapshotManifest,
+  validateMetadata,
+};
+
+if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  await main();
+}

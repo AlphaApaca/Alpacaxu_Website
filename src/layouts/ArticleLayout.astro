@@ -1,5 +1,6 @@
 ---
 import BaseLayout from "./BaseLayout.astro";
+import GiscusComments from "../components/GiscusComments.astro";
 import { categoryLabel } from "../lib/content";
 
 interface Props {
@@ -11,6 +12,8 @@ interface Props {
   lang?: string;
   sourceUrl?: string;
   sourceCommit?: string;
+  comments?: boolean;
+  commentTerm: string;
 }
 
 const {
@@ -21,7 +24,9 @@ const {
   tags,
   lang = "zh-CN",
   sourceUrl,
-  sourceCommit
+  sourceCommit,
+  comments = false,
+  commentTerm
 } = Astro.props;
 
 const formattedDate = new Intl.DateTimeFormat(lang, {
@@ -33,6 +38,9 @@ const formattedDate = new Intl.DateTimeFormat(lang, {
 ---
 
 <BaseLayout title={`${title} | Mingyang Xu`} description={summary} lang={lang} page="writing" bodyClass="article-page" pageType="article">
+  <Fragment slot="head">
+    {comments && <meta name="giscus:backlink" content={new URL(commentTerm, Astro.site ?? "https://www.alpacaxu.cn")} />}
+  </Fragment>
   <main class="article-shell synced-article">
     <a class="article-back" href="/#posts">← Writing</a>
     <p class="eyebrow">{categoryLabel(category)}</p>
@@ -53,5 +61,6 @@ const formattedDate = new Intl.DateTimeFormat(lang, {
         </p>
       )
     }
+    {comments && <GiscusComments term={commentTerm} lang={lang} />}
   </main>
 </BaseLayout>

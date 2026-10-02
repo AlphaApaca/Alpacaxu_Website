@@ -100,3 +100,121 @@
 .not-found-shell .section-intro {
   max-width: 650px;
 }
+
+.comments-section {
+  margin-top: 64px;
+  padding-top: 32px;
+  border-top: 1px solid var(--line);
+  scroll-margin-top: 110px;
+}
+
+.comments-section h2 {
+  margin: 0 0 12px;
+  font-size: 1.7rem;
+}
+
+.comments-intro,
+.comments-status {
+  color: var(--muted);
+  font-size: 0.94rem;
+}
+
+.comments-intro {
+  max-width: 620px;
+  margin: 0 0 20px;
+}
+
+.comments-status:empty {
+  display: none;
+}
+
+.comments-actions,
+.about-links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+}
+
+.comments-actions a,
+.about-links a {
+  color: var(--accent);
+  font-size: 0.94rem;
+}
+
+.comments-load {
+  min-height: 44px;
+  padding: 8px 16px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.comments-load:hover:not(:disabled) {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.comments-load:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+.comments-load:focus-visible,
+.comments-actions a:focus-visible,
+.about-links a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+}
+
+.giscus {
+  margin-top: 24px;
+  min-width: 0;
+}
+
+.giscus:empty {
+  margin-top: 0;
+}
+
+.about-profile {
+  display: grid;
+  grid-template-columns: 180px minmax(0, 1fr);
+  align-items: start;
+  gap: 32px;
+}
+
+.about-profile > img {
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+}
+
+.about-focus {
+  margin-top: 44px;
+}
+
+@media (max-width: 760px) {
+  .nav-links {
+    gap: 12px;
+  }
+
+  .about-profile {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .about-profile > img {
+    width: 132px;
+    height: 165px;
+  }
+}
+
+@media (max-width: 560px) {
+  .nav-links {
+    gap: 8px;
+  }
+}
