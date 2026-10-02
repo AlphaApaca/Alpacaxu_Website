@@ -1,0 +1,22 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout
+  title="Page not found | Mingyang Xu"
+  description="The requested page could not be found."
+  page="not-found"
+  bodyClass="not-found-page"
+  canonical={false}
+  noindex={true}
+>
+  <main class="section not-found-shell">
+    <p class="section-kicker">404 · Signal lost</p>
+    <h1>This page is outside the mapped environment.</h1>
+    <p class="section-intro">页面不存在，或者链接已经移动。你可以回到主页，或继续浏览写作。</p>
+    <div class="hero-actions">
+      <a class="button primary" href="/">Back home</a>
+      <a class="button ghost" href="/writing/">View writing</a>
+    </div>
+  </main>
+</BaseLayout>

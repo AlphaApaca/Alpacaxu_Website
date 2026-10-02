@@ -1,0 +1,75 @@
+---
+import SiteHeader from "../components/SiteHeader.astro";
+import SiteFooter from "../components/SiteFooter.astro";
+
+interface Props {
+  title: string;
+  description: string;
+  lang?: string;
+  page?: string;
+  bodyClass?: string;
+  legacyI18n?: boolean;
+  pageType?: "website" | "article";
+  canonical?: boolean;
+  noindex?: boolean;
+}
+
+const {
+  title,
+  description,
+  lang = "en",
+  page = "content",
+  bodyClass,
+  legacyI18n = false,
+  pageType = "website",
+  canonical = true,
+  noindex = false
+} = Astro.props;
+
+const canonicalUrl = new URL(Astro.url.pathname, Astro.site ?? "https://www.alpacaxu.cn");
+---
+
+<!doctype html>
+<html lang={lang} data-page={page}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description} data-i18n-meta={legacyI18n ? "home.meta.description" : undefined} />
+    <title>{title}</title>
+    {canonical && <link rel="canonical" href={canonicalUrl} />}
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
+    <meta property="og:type" content={pageType} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    {canonical && <meta property="og:url" content={canonicalUrl} />}
+    <meta name="twitter:card" content="summary" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/styles.css" />
+    <link rel="stylesheet" href="/astro.css" />
+    <slot name="head" />
+  </head>
+  <body class={bodyClass}>
+    <SiteHeader showLanguageToggle={legacyI18n} />
+    <slot />
+    <SiteFooter legacyI18n={legacyI18n} />
+    {
+      legacyI18n ? (
+        <script is:inline src="/script.js"></script>
+      ) : (
+        <script is:inline>
+          const root = document.documentElement;
+          const storageKey = "alpaca-theme";
+          const savedTheme = localStorage.getItem(storageKey);
+          if (savedTheme || window.matchMedia("(prefers-color-scheme: dark)").matches) {
+            root.dataset.theme = savedTheme || "dark";
+          }
+          document.querySelector(".theme-toggle")?.addEventListener("click", () => {
+            const nextTheme = root.dataset.theme === "dark" ? "light" : "dark";
+            root.dataset.theme = nextTheme;
+            localStorage.setItem(storageKey, nextTheme);
+          });
+        </script>
+      )
+    }
+  </body>
+</html>

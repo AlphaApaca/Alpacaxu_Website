@@ -1,0 +1,32 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { categoryLabel, postPath } from "../../lib/content";
+
+const posts = (await getCollection("posts", ({ data }) => data.publish)).sort(
+  (left, right) => right.data.date.localeCompare(left.data.date)
+);
+---
+
+<BaseLayout title="Writing | Mingyang Xu" description="Learning logs and technical notes by Mingyang Xu." page="writing">
+  <main class="section writing-index">
+    <p class="section-kicker">Writing</p>
+    <h1>Learning logs and technical notes</h1>
+    <p class="section-intro">Published from the public repytorch repository.</p>
+    <div class="post-list">
+      {
+        posts.map((post) => (
+          <article class="post-card">
+            <div class="post-meta">
+              <time datetime={post.data.date}>{post.data.date}</time>
+              <span>{categoryLabel(post.data.category)}</span>
+            </div>
+            <h2><a href={postPath(post.data.permalink)}>{post.data.title}</a></h2>
+            <p>{post.data.summary}</p>
+            <div class="tags">{post.data.tags.map((tag) => <span>{tag}</span>)}</div>
+          </article>
+        ))
+      }
+    </div>
+  </main>
+</BaseLayout>

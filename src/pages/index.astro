@@ -1,0 +1,56 @@
+---
+import legacyDocument from "../../index.html?raw";
+import { getCollection } from "astro:content";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { categoryLabel, postPath } from "../lib/content";
+
+const mainMatch = legacyDocument.match(/<main>([\s\S]*?)<\/main>/i);
+
+if (!mainMatch) {
+  throw new Error("Could not find the homepage <main> element in index.html.");
+}
+
+const escapeHtml = (value: string) => value
+  .replaceAll("&", "&amp;")
+  .replaceAll("<", "&lt;")
+  .replaceAll(">", "&gt;")
+  .replaceAll('"', "&quot;")
+  .replaceAll("'", "&#39;");
+
+const posts = (await getCollection("posts", ({ data }) => data.publish)).sort(
+  (left, right) => right.data.date.localeCompare(left.data.date)
+);
+
+const syncedCards = posts.map((post) => {
+  const search = [post.data.title, post.data.summary, post.data.category, ...post.data.tags].join(" ");
+  const tags = post.data.tags.map((tag) => `<span>${escapeHtml(tag)}</span>`).join("");
+
+  return `
+    <article class="post-card" data-search="${escapeHtml(search)}">
+      <div class="post-meta"><time datetime="${escapeHtml(post.data.date)}">${escapeHtml(post.data.date)}</time><span>${escapeHtml(categoryLabel(post.data.category))}</span></div>
+      <h3><a href="${postPath(post.data.permalink)}">${escapeHtml(post.data.title)}</a></h3>
+      <p>${escapeHtml(post.data.summary)}</p>
+      <div class="tags">${tags}</div>
+    </article>`;
+}).join("");
+
+let homepageMarkup = mainMatch[1]
+  .replaceAll('src="assets/', 'src="/assets/')
+  .replaceAll('href="articles/', 'href="/articles/');
+
+if (syncedCards) {
+  homepageMarkup = homepageMarkup.replace(
+    '<div class="post-list" id="postList">',
+    `<div class="post-list" id="postList">${syncedCards}`
+  );
+}
+---
+
+<BaseLayout
+  title="Mingyang Xu | Robot Planning & ROS2"
+  description="Mingyang Xu's work on environment-aware LLM planning in MuJoCo and ROS2 mobile robot navigation."
+  page="home"
+  legacyI18n={true}
+>
+  <main set:html={homepageMarkup} />
+</BaseLayout>
