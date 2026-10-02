@@ -14,7 +14,7 @@
 
 ## 本地开发
 
-要求 Node.js 22.12 或更高版本、pnpm 11.19。
+要求 Node.js 22.13 或更高版本、pnpm 11.19（pnpm 11 的最低 Node 要求是 22.13）。
 
 ```bash
 pnpm install
