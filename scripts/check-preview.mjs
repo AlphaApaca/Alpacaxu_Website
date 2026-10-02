@@ -129,7 +129,7 @@ async function fetchPage(url, { fetchImpl, timeoutMs }) {
         if (!location) throw new Error("Preview returned a redirect without Location.");
         const next = new URL(location, current);
         if (next.protocol !== "https:" || next.origin !== url.origin || next.username || next.password) {
-          throw new Error("Preview redirected outside its HTTPS origin; refusing to follow it.");
+          throw new Error(`Preview redirected outside its HTTPS origin to ${next.origin}; refusing to follow it. A Vercel login redirect means preview protection must be reviewed before unauthenticated cloud acceptance.`);
         }
         await response.body?.cancel();
         current = next;
