@@ -1,10 +1,38 @@
 {
   "sourceRepo": "AlphaApaca/repytorch",
-  "sourceCommit": "d9dca50351b75a0818685afd1cf30630a7125a55",
+  "sourceCommit": "4afeb222e921d9eb3610c09e06a4d07b4a2f9ae5",
   "articles": [
+    {
+      "sourcePath": "learning_log/2026-09-21-setup.md",
+      "permalink": "2026-09-21-setup"
+    },
+    {
+      "sourcePath": "learning_log/2026-09-30-quickstart.md",
+      "permalink": "2026-09-30-quickstart"
+    },
+    {
+      "sourcePath": "learning_log/2026-10-01-tensors.md",
+      "permalink": "2026-10-01-tensors"
+    },
     {
       "sourcePath": "learning_log/2026-10-02-datasets-and-dataloaders.md",
       "permalink": "2026-10-02-datasets-and-dataloaders"
+    },
+    {
+      "sourcePath": "learning_log/2026-10-03-transforms.md",
+      "permalink": "2026-10-03-transforms"
+    },
+    {
+      "sourcePath": "notes/datasets-and-dataloaders.md",
+      "permalink": "datasets-and-dataloaders"
+    },
+    {
+      "sourcePath": "notes/tensors.md",
+      "permalink": "tensors"
+    },
+    {
+      "sourcePath": "notes/transforms.md",
+      "permalink": "transforms"
     }
   ]
 }
