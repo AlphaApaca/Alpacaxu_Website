@@ -1,4 +1,6 @@
 ---
+import { site } from "../data/site.mjs";
+
 interface Props {
   showLanguageToggle?: boolean;
 }
@@ -7,19 +9,19 @@ const { showLanguageToggle = true } = Astro.props;
 ---
 
 <header class="site-header">
-  <a class="brand" href="/" aria-label="Mingyang Xu home" data-i18n-aria-label={showLanguageToggle ? "common.homeLabel" : undefined}>
-    <span class="brand-mark">MX</span>
-    <span data-i18n={showLanguageToggle ? "common.name" : undefined}>Mingyang Xu</span>
+  <a class="brand" href="/" aria-label={`${site.name} home`} data-astro-prefetch>
+    <img class="brand-avatar" src={site.avatar} alt="" width="40" height="40" decoding="async" />
+    <span><span>{site.name}</span><small class="workspace-brand-caption">/ personal workspace</small></span>
   </a>
-  <nav class="nav-links" aria-label="Primary navigation" data-i18n-aria-label={showLanguageToggle ? "common.primaryNav" : undefined}>
-    <a href="/#projects" data-i18n={showLanguageToggle ? "nav.projects" : undefined}>Projects</a>
-    <a href="/#experience" data-i18n={showLanguageToggle ? "nav.experience" : undefined}>Experience</a>
-    <a href="/writing/" aria-current={Astro.url.pathname.startsWith("/writing/") ? "page" : undefined} data-i18n={showLanguageToggle ? "nav.posts" : undefined}>Writing</a>
-    <a href="/about/" data-i18n={showLanguageToggle ? "nav.about" : undefined}>About</a>
+  <nav class="nav-links" aria-label="Primary navigation" data-workspace-aria-zh="主导航" data-workspace-aria-en="Primary navigation">
+    <a href="/#projects" data-astro-prefetch data-workspace-zh="项目" data-workspace-en="Projects">Projects</a>
+    <a href="/writing/" data-astro-prefetch aria-current={Astro.url.pathname.startsWith("/writing/") ? "page" : undefined} data-workspace-zh="文章" data-workspace-en="Writing">Writing</a>
+    <a href="/about/" data-astro-prefetch aria-current={Astro.url.pathname === "/about/" ? "page" : undefined} data-workspace-zh="关于" data-workspace-en="About">About</a>
   </nav>
   <div class="header-actions">
-    {showLanguageToggle && <button class="lang-toggle" type="button" aria-label="切换到中文" title="切换到中文">中文</button>}
-    <button class="icon-button theme-toggle" type="button" aria-label="Toggle dark mode" title="Toggle dark mode" data-i18n-aria-label={showLanguageToggle ? "common.themeToggle" : undefined} data-i18n-title={showLanguageToggle ? "common.themeToggle" : undefined}>
+    <button class="workspace-command-trigger" type="button" aria-controls="site-command" aria-haspopup="dialog" aria-label="打开快捷导航" data-workspace-aria-zh="打开快捷导航" data-workspace-aria-en="Open quick navigation" hidden>⌘ K</button>
+    {showLanguageToggle && <button class="lang-toggle" type="button" aria-label="切换到中文" title="切换到中文" hidden>中文</button>}
+    <button class="icon-button theme-toggle" type="button" aria-label="Toggle theme" title="Toggle theme" data-workspace-aria-zh="切换主题" data-workspace-aria-en="Toggle theme" data-workspace-title-zh="切换主题" data-workspace-title-en="Toggle theme">
       <span class="sun" aria-hidden="true">☀</span>
       <span class="moon" aria-hidden="true">☾</span>
     </button>

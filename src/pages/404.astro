@@ -1,10 +1,16 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+import { site } from "../data/site.mjs";
+const localizedMeta = {
+  zh: { title: `页面不存在 | ${site.name}`, description: "没有找到请求的页面。" },
+  en: { title: `Page not found | ${site.name}`, description: "The requested page could not be found." },
+};
 ---
 
 <BaseLayout
-  title="Page not found | Mingyang Xu"
+  title={`Page not found | ${site.name}`}
   description="The requested page could not be found."
+  localizedMeta={localizedMeta}
   page="not-found"
   bodyClass="not-found-page"
   canonical={false}
@@ -12,11 +18,11 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 >
   <main class="section not-found-shell">
     <p class="section-kicker">404 · Signal lost</p>
-    <h1>This page is outside the mapped environment.</h1>
-    <p class="section-intro">页面不存在，或者链接已经移动。你可以回到主页，或继续浏览写作。</p>
+    <h1 data-workspace-zh="这里还没有被探索过。" data-workspace-en="This page is outside the mapped environment.">This page is outside the mapped environment.</h1>
+    <p class="section-intro" data-workspace-zh="页面不存在，或者链接已经移动。你可以回到主页，或继续浏览写作。" data-workspace-en="This page does not exist, or its link has moved. Head home or browse the writing archive.">页面不存在，或者链接已经移动。你可以回到主页，或继续浏览写作。</p>
     <div class="hero-actions">
-      <a class="button primary" href="/">Back home</a>
-      <a class="button ghost" href="/writing/">View writing</a>
+      <a class="button primary" href="/" data-workspace-zh="返回首页" data-workspace-en="Back home">Back home</a>
+      <a class="button ghost" href="/writing/" data-workspace-zh="浏览文章" data-workspace-en="View writing">View writing</a>
     </div>
   </main>
 </BaseLayout>

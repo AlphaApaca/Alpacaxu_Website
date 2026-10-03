@@ -1,54 +1,68 @@
 ---
 import legacyDocument from "../../index.html?raw";
 import BaseLayout from "../layouts/BaseLayout.astro";
-import { categoryLabel, postPath, getPublishedPosts } from "../lib/content";
+import { categoryLabel, getWritingPosts } from "../lib/content";
 import { writingFilterUrl } from "../lib/writing.mjs";
+import { homeCopy } from "../data/site.mjs";
 
-const mainMatch = legacyDocument.match(/<main>([\s\S]*?)<\/main>/i);
-
-if (!mainMatch) {
-  throw new Error("Could not find the homepage <main> element in index.html.");
-}
-
-const escapeHtml = (value: string) => value
-  .replaceAll("&", "&amp;")
-  .replaceAll("<", "&lt;")
-  .replaceAll(">", "&gt;")
-  .replaceAll('"', "&quot;")
-  .replaceAll("'", "&#39;");
-
-const posts = await getPublishedPosts();
-
-const syncedCards = posts.map((post) => {
-  const search = [post.data.title, post.data.summary, post.data.category, ...post.data.tags].join(" ");
-  const tags = post.data.tags.map((tag) => `<a href="${escapeHtml(writingFilterUrl({ tag }))}">${escapeHtml(tag)}</a>`).join("");
-
-  return `
-    <article class="post-card" data-search="${escapeHtml(search)}">
-      <div class="post-meta"><time datetime="${escapeHtml(post.data.date)}">${escapeHtml(post.data.date)}</time><span>${escapeHtml(categoryLabel(post.data.category))}</span></div>
-      <h3><a href="${postPath(post.data.permalink)}">${escapeHtml(post.data.title)}</a></h3>
-      <p>${escapeHtml(post.data.summary)}</p>
-      <div class="tags">${tags}</div>
-    </article>`;
-}).join("");
-
-let homepageMarkup = mainMatch[1]
-  .replaceAll('src="assets/', 'src="/assets/')
-  .replaceAll('href="articles/', 'href="/articles/');
-
-if (syncedCards) {
-  homepageMarkup = homepageMarkup.replace(
-    '<div class="post-list" id="postList">',
-    `<div class="post-list" id="postList">${syncedCards}`
-  );
-}
+// Preserve the verified evidence copy while retiring the old hero bridge.
+const section = (id: string) => {
+  const match = legacyDocument.match(new RegExp(`<section\\b[^>]*\\bid="${id}"[^>]*>[\\s\\S]*?<\\/section>`));
+  if (!match) throw new Error(`Missing original homepage section: ${id}`);
+  return match[0].replaceAll('src="assets/', 'src="/assets/');
+};
+let projects = section("projects")
+  .replace('class="project-card research-card"', 'class="project-card research-card" id="planning-project"')
+  .replace('class="project-card rover-card"', 'class="project-card rover-card" id="navigation-project"');
+projects = projects.replace(/(<div class="(?:metric-row|project-detail)">[\s\S]*?)(?=<div class="evidence-links">)/g, (_match, evidence) =>
+  `<details class="workspace-project-detail"><summary><span data-workspace-zh="方法、贡献与边界" data-workspace-en="Method, contribution & limits">方法、贡献与边界</span><span aria-hidden="true">+</span></summary>${evidence}</details>`
+);
+const posts = (await getWritingPosts()).slice(0, 4);
 ---
 
-<BaseLayout
-  title="Mingyang Xu | Robot Planning & ROS2"
-  description="Mingyang Xu's work on environment-aware LLM planning in MuJoCo and ROS2 mobile robot navigation."
-  page="home"
-  legacyI18n={true}
->
-  <main set:html={homepageMarkup} />
+<BaseLayout title={homeCopy.zh.title} description={homeCopy.zh.description} localizedMeta={homeCopy} lang="zh-CN" page="home" bodyClass="workspace-home" legacyI18n={true}>
+  <main class="workspace-main" id="home">
+    <section class="workspace-hero" aria-labelledby="workspace-title">
+      <div class="workspace-intro">
+        <p class="workspace-kicker"><span aria-hidden="true">■</span> ROBOTICS · CODE · NOTES</p>
+        <h1 id="workspace-title"><span data-workspace-zh={homeCopy.zh.heading[0]} data-workspace-en={homeCopy.en.heading[0]}>{homeCopy.zh.heading[0]}</span><span class="workspace-title-muted" data-workspace-zh={homeCopy.zh.heading[1]} data-workspace-en={homeCopy.en.heading[1]}>{homeCopy.zh.heading[1]}</span></h1>
+        <p class="workspace-intro-copy" data-workspace-zh={homeCopy.zh.intro} data-workspace-en={homeCopy.en.intro}>{homeCopy.zh.intro}</p>
+        <div class="workspace-hero-actions">
+          <a class="workspace-primary" href="#projects"><span data-workspace-zh="探索项目" data-workspace-en="Explore projects">探索项目</span><span aria-hidden="true">↗</span></a>
+          <a class="workspace-inline-link" href="#posts"><span data-workspace-zh="读一点记录" data-workspace-en="Read a few notes">读一点记录</span><span aria-hidden="true">→</span></a>
+        </div>
+        <p class="workspace-footnote">MuJoCo / ROS2 / PyTorch learning</p>
+      </div>
+      <div class="workspace-map" data-workspace-map>
+        <div class="workspace-map-heading"><span>CONTENT MAP</span><span data-workspace-zh="内容导航" data-workspace-en="Explore by topic">内容导航</span></div>
+        <div class="workspace-map-field">
+          <svg class="workspace-map-lines" viewBox="0 0 600 186" preserveAspectRatio="none" aria-hidden="true"><path d="M300 45V100M100 100H500M100 100V140M300 100V140M500 100V140" /></svg>
+          <span class="workspace-map-root">alpaca / workspace</span>
+          <nav class="workspace-map-nodes" aria-label="内容主题" data-workspace-aria-zh="内容主题" data-workspace-aria-en="Content topics">
+            <a href="#planning-project" data-workspace-topic="planning" aria-current="true"><span class="workspace-node-symbol" aria-hidden="true">[ p ]</span><span data-workspace-zh="规划评测" data-workspace-en="Planning">规划评测</span></a>
+            <a href="#navigation-project" data-workspace-topic="navigation"><span class="workspace-node-symbol" aria-hidden="true">[ n ]</span><span data-workspace-zh="机器人导航" data-workspace-en="Navigation">机器人导航</span></a>
+            <a href="#posts" data-workspace-topic="learning"><span class="workspace-node-symbol" aria-hidden="true">[ l ]</span><span data-workspace-zh="学习记录" data-workspace-en="Learning">学习记录</span></a>
+          </nav>
+        </div>
+        <div class="workspace-map-detail" aria-live="polite" aria-atomic="true">
+          <div data-workspace-panel="planning"><span class="workspace-path">/#planning-project</span><h2 data-workspace-zh="语言与环境之间，计划是否可行？" data-workspace-en="Between language and environment: is the plan feasible?">语言与环境之间，计划是否可行？</h2><p data-workspace-zh="用 MuJoCo 场景评测本地 LLM 的规划可行性，区分执行、拒绝与澄清。" data-workspace-en="A MuJoCo benchmark for local LLM planning: execute, reject, or clarify.">用 MuJoCo 场景评测本地 LLM 的规划可行性，区分执行、拒绝与澄清。</p><a href="#planning-project"><span data-workspace-zh="查看项目与证据" data-workspace-en="View project & evidence">查看项目与证据</span> ↗</a></div>
+          <div data-workspace-panel="navigation" hidden><span class="workspace-path">/#navigation-project</span><h2 data-workspace-zh="让机器人在真实空间里找到路。" data-workspace-en="Finding a way through real space.">让机器人在真实空间里找到路。</h2><p data-workspace-zh="V.I.S.O.R. 团队项目里的 SLAM、Nav2 与 Leo Rover 导航验证和调优。" data-workspace-en="SLAM, Nav2, and Leo Rover navigation testing and tuning in the V.I.S.O.R. team project.">V.I.S.O.R. 团队项目里的 SLAM、Nav2 与 Leo Rover 导航验证和调优。</p><a href="#navigation-project"><span data-workspace-zh="查看项目与贡献" data-workspace-en="View project & contribution">查看项目与贡献</span> ↗</a></div>
+          <div data-workspace-panel="learning" hidden><span class="workspace-path">/writing/</span><h2 data-workspace-zh="先理解，再把理解写下来。" data-workspace-en="Understand it. Then write it down.">先理解，再把理解写下来。</h2><p data-workspace-zh="学习日志、技术笔记与杂文。中英混写，不强制每篇翻译。" data-workspace-en="Learning logs, technical notes, and essays. Chinese and English can share the same space.">学习日志、技术笔记与杂文。中英混写，不强制每篇翻译。</p><a href="/writing/" data-astro-prefetch><span data-workspace-zh="浏览全部文章" data-workspace-en="Browse all writing">浏览全部文章</span> ↗</a></div>
+        </div>
+        <div class="workspace-map-footer"><span data-workspace-zh="选择一个内容节点" data-workspace-en="Choose a content node">选择一个内容节点</span><span data-workspace-zh="项目与笔记的关联" data-workspace-en="Projects ↔ notes">项目与笔记的关联</span></div>
+      </div>
+    </section>
+    <div class="workspace-evidence" set:html={projects} />
+    <section class="workspace-writing" id="posts" aria-labelledby="workspace-writing-heading">
+      <header class="workspace-section-heading"><div><p class="workspace-kicker">WRITING / <span data-workspace-zh="留下的记录" data-workspace-en="Field notes">留下的记录</span></p><h2 id="workspace-writing-heading" data-workspace-zh="一点点建立自己的理解。" data-workspace-en="Building understanding, one note at a time.">一点点建立自己的理解。</h2></div><a class="workspace-inline-link" href="/writing/" data-astro-prefetch><span data-workspace-zh="全部文章" data-workspace-en="All writing">全部文章</span> →</a></header>
+      <div class="workspace-posts">
+        {posts.map((post) => <article class="workspace-post"><div class="workspace-post-meta">{post.date && <time datetime={post.date}>{post.date}</time>}<a href={writingFilterUrl({ category: post.category })}>{categoryLabel(post.category)}</a></div><div class="workspace-post-body"><h3><a href={post.url} data-astro-prefetch>{post.title}</a></h3><p>{post.summary}</p><div class="workspace-post-tags">{post.tags.map((tag) => <a href={writingFilterUrl({ tag })}>{tag}</a>)}</div></div><a class="workspace-post-open" href={post.url} data-astro-prefetch aria-label={`阅读：${post.title}`} data-workspace-article-open>↗</a></article>)}
+      </div>
+      <nav class="workspace-writing-topics" aria-label="文章分类" data-workspace-aria-zh="文章分类" data-workspace-aria-en="Writing categories"><a href={writingFilterUrl({ category: "learning-log" })} data-workspace-zh="学习日志" data-workspace-en="Learning logs">学习日志</a><span aria-hidden="true">/</span><a href={writingFilterUrl({ category: "note" })} data-workspace-zh="技术笔记" data-workspace-en="Technical notes">技术笔记</a><span aria-hidden="true">/</span><a href={writingFilterUrl({ category: "essay" })} data-workspace-zh="杂文" data-workspace-en="Essays">杂文</a></nav>
+    </section>
+    <div class="workspace-profile" set:html={section("profile")} />
+    <p class="workspace-about-link"><a href="/about/" data-astro-prefetch><span data-workspace-zh="更多关于我 / 留言板" data-workspace-en="More about me / Guestbook">更多关于我 / 留言板</span> →</a></p>
+    <div class="workspace-background" set:html={section("experience")} />
+    <details class="workspace-notebook"><summary><span>BACKGROUND / <span data-workspace-zh="方向、技能与工程反思" data-workspace-en="Focus, skills & engineering reflections">方向、技能与工程反思</span></span><span aria-hidden="true">+</span></summary><div set:html={section("objective") + section("about") + section("cpd") + section("notes")} /></details>
+  </main>
 </BaseLayout>

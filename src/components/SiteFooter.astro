@@ -1,12 +1,10 @@
 ---
-interface Props {
-  legacyI18n?: boolean;
-}
+import { site } from "../data/site.mjs";
 
-const { legacyI18n = false } = Astro.props;
 ---
 
 <footer class="site-footer">
-  <p data-i18n={legacyI18n ? "common.footer" : undefined}>© 2026 Mingyang Xu. Robotics, AI and CPD portfolio.</p>
-  <a href="mailto:mingyang.xu.0111@outlook.com">mingyang.xu.0111@outlook.com</a>
+  <p>© 2026 {site.name}. Robotics, code &amp; notes.</p>
+  <span class="workspace-footer-note">Build things. Leave notes.</span>
+  <a href={`mailto:${site.email}`}>Email ↗</a>
 </footer>

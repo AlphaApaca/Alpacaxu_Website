@@ -1,0 +1,555 @@
+/* A reading-first archive. Content and filtering remain owned by the index. */
+.editorial-writing .writing-index {
+  width: min(1120px, calc(100% - 64px));
+  padding: clamp(56px, 7vw, 96px) 0 72px;
+}
+
+.editorial-writing .writing-heading {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 200px;
+  align-items: end;
+  gap: 44px;
+  padding-bottom: 48px;
+}
+
+.editorial-writing .writing-heading-copy,
+.editorial-writing .writing-entry-body {
+  min-width: 0;
+}
+
+.editorial-writing .writing-heading .section-kicker {
+  margin-bottom: 24px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.74rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+}
+
+.editorial-writing .writing-heading h1 {
+  margin: 0 0 24px;
+  font-size: clamp(2.4rem, 4.7vw, 4.4rem);
+  font-weight: 500;
+  line-height: 1.22;
+  letter-spacing: -0.055em;
+}
+
+.editorial-writing .writing-heading h1 span:last-child {
+  font-family: "Songti SC", "Noto Serif CJK SC", "Source Han Serif SC", ui-serif, Georgia, serif;
+  font-weight: 400;
+  letter-spacing: -0.035em;
+}
+
+.editorial-writing .writing-heading .section-intro {
+  max-width: 600px;
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.85;
+}
+
+.editorial-writing .writing-margin {
+  display: grid;
+  align-content: end;
+  gap: 6px;
+  padding: 10px 0 8px 24px;
+  border-left: 1px solid var(--line);
+  color: var(--muted);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.78rem;
+}
+
+.editorial-writing .writing-margin small {
+  margin-top: 12px;
+  font-family: inherit;
+  font-size: 0.76rem;
+}
+
+.editorial-writing .writing-controls {
+  grid-template-columns: minmax(0, 1fr) minmax(170px, 230px) auto;
+  gap: 20px;
+  padding: 22px 0 26px;
+  border: 0;
+  border-top: 1px solid var(--line);
+  border-radius: 0;
+  background: transparent;
+}
+
+.editorial-writing .writing-controls label > span {
+  color: var(--muted);
+  font-size: 0.84rem;
+}
+
+.editorial-writing .writing-controls input:not([type="hidden"]),
+.editorial-writing .writing-controls select {
+  height: 48px;
+  padding: 0 14px;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--surface) 48%, var(--bg));
+  color: var(--text);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", "PingFang SC", "Noto Sans SC", "Microsoft YaHei", sans-serif;
+  font-size: 0.94rem;
+  font-weight: 400;
+  line-height: 1.4;
+  letter-spacing: 0;
+  transition: border-color 140ms ease, background-color 140ms ease;
+}
+
+/* Keep the native select semantics/menu; only its closed control is restyled. */
+.editorial-writing .writing-tag-select {
+  position: relative;
+}
+
+.editorial-writing .writing-controls select {
+  -webkit-appearance: none;
+  appearance: none;
+  padding-inline-end: 42px;
+  cursor: pointer;
+}
+
+.editorial-writing .writing-tag-select::after {
+  content: "";
+  position: absolute;
+  inset-inline-end: 17px;
+  bottom: 22px;
+  width: 7px;
+  height: 7px;
+  border-right: 1.5px solid var(--muted);
+  border-bottom: 1.5px solid var(--muted);
+  transform: rotate(45deg);
+  pointer-events: none;
+}
+
+.editorial-writing .writing-controls select option {
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: 400;
+  background: var(--surface);
+  color: var(--text);
+}
+
+.editorial-writing .writing-controls input:not([type="hidden"]):focus-visible,
+.editorial-writing .writing-controls select:focus-visible {
+  border-color: var(--accent);
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.editorial-writing .writing-controls select:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+
+.editorial-writing .writing-controls input::placeholder {
+  color: var(--muted);
+  opacity: 1;
+}
+
+.editorial-writing .writing-reset {
+  min-height: 48px;
+  padding: 10px 14px;
+  border-radius: 3px;
+  background: transparent;
+  font-size: 0.84rem;
+}
+
+.editorial-writing .writing-categories {
+  gap: 8px 24px;
+  padding: 0 0 14px;
+}
+
+.editorial-writing .writing-categories a {
+  min-height: 44px;
+  padding: 6px 1px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  font-size: 0.9rem;
+}
+
+.editorial-writing .writing-categories a[aria-current="true"] {
+  border-bottom-color: var(--accent);
+  background: transparent;
+  color: var(--text);
+}
+
+.editorial-writing .writing-categories a:not([aria-current]):hover {
+  border-bottom-color: var(--line);
+}
+
+.editorial-writing .writing-categories a > span:not([data-workspace-zh]) {
+  color: var(--muted);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.73rem;
+  opacity: 1;
+}
+
+.editorial-writing .writing-list-heading {
+  padding: 22px 0;
+  font-size: 0.76rem;
+}
+
+.editorial-writing .writing-list-heading p {
+  font-size: 0.85rem;
+}
+
+.editorial-writing .writing-entries {
+  gap: 0;
+  border-top: 1px solid var(--line);
+}
+
+.editorial-writing .writing-index .writing-entry {
+  display: grid;
+  grid-template-columns: 160px minmax(0, 1fr);
+  gap: 32px;
+  padding: 30px 0;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  transform: none;
+  transition: none;
+}
+
+.editorial-writing .writing-index .writing-entry-lead {
+  padding: 36px 0 34px;
+}
+
+.editorial-writing .writing-entry .post-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  gap: 0;
+  font-size: 0.8rem;
+}
+
+.editorial-writing .writing-entry .post-meta time,
+.editorial-writing .writing-entry .post-meta > span {
+  display: block;
+  margin-bottom: 5px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.76rem;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.6;
+}
+
+.editorial-writing .writing-entry .post-meta a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
+
+.editorial-writing .writing-entry .writing-entry-label {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  margin: 0 0 10px;
+  color: var(--accent-strong);
+  font-size: 0.76rem;
+}
+
+.editorial-writing .writing-entry-label span {
+  color: var(--muted);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.7rem;
+}
+
+.editorial-writing .writing-index .writing-entry h2 {
+  margin: 0 0 10px;
+  font-size: clamp(1.26rem, 2vw, 1.65rem);
+  font-weight: 500;
+  line-height: 1.5;
+  letter-spacing: -0.025em;
+}
+
+.editorial-writing .writing-index .writing-entry-lead h2 {
+  font-size: clamp(1.5rem, 2.6vw, 2.05rem);
+}
+
+.editorial-writing .writing-entry h2 a {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 14px;
+  min-height: 44px;
+  max-width: 100%;
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.22em;
+  transition: color 160ms ease, text-decoration-color 160ms ease;
+}
+
+.editorial-writing .writing-entry h2 a:hover {
+  text-decoration-color: var(--accent);
+}
+
+.editorial-writing .writing-entry-arrow {
+  flex: 0 0 auto;
+  color: var(--accent);
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-size: 0.85em;
+}
+
+.editorial-writing .writing-entry .writing-entry-summary {
+  max-width: 750px;
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.94rem;
+  line-height: 1.85;
+}
+
+.editorial-writing .writing-entry .tags {
+  gap: 0 18px;
+  margin-top: 9px;
+}
+
+.editorial-writing .writing-entry .tags a {
+  max-width: 100%;
+  min-height: 44px;
+  padding: 4px 0;
+  border: 0;
+  border-radius: 0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.76rem;
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-underline-offset: 0.2em;
+}
+
+.editorial-writing .writing-entry .tags a::before {
+  content: "#";
+  margin-right: 3px;
+  color: var(--accent);
+}
+
+.editorial-writing .writing-entry .tags a:hover {
+  text-decoration-color: var(--accent);
+}
+
+.editorial-writing .writing-empty {
+  padding: 56px 20px;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  border-radius: 0;
+}
+
+.editorial-writing .writing-index .writing-empty h2 {
+  font-weight: 500;
+}
+
+.editorial-writing .writing-empty .section-kicker {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-weight: 500;
+  font-size: 0.73rem;
+}
+
+.editorial-writing .writing-index-footer {
+  align-items: center;
+  margin-top: 28px;
+  padding-top: 0;
+  border: 0;
+  font-size: 0.78rem;
+}
+
+.editorial-writing .writing-index-footer a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
+
+@media (max-width: 760px) {
+  .editorial-writing .writing-index {
+    width: calc(100% - 40px);
+    padding-top: 48px;
+  }
+
+  .editorial-writing .writing-heading {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 26px;
+    padding-bottom: 32px;
+  }
+
+  .editorial-writing .writing-margin {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 16px;
+    padding: 0;
+    border: 0;
+    font-size: 0.72rem;
+  }
+
+  .editorial-writing .writing-margin small {
+    display: none;
+  }
+
+  .editorial-writing .writing-controls {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 18px;
+  }
+
+  .editorial-writing .writing-search {
+    grid-column: 1 / -1;
+  }
+
+  .editorial-writing .writing-index .writing-entry {
+    grid-template-columns: 125px minmax(0, 1fr);
+    gap: 22px;
+  }
+}
+
+@media (max-width: 540px) {
+  .editorial-writing .writing-index {
+    width: calc(100% - 36px);
+    padding-top: 38px;
+  }
+
+  .editorial-writing .writing-heading h1 {
+    font-size: clamp(2.15rem, 8vw, 2.9rem);
+  }
+
+  .editorial-writing .writing-controls {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+  }
+
+  .editorial-writing .writing-reset {
+    justify-self: start;
+  }
+
+  .editorial-writing .writing-categories {
+    gap: 4px 18px;
+  }
+
+  .editorial-writing .writing-list-heading {
+    gap: 8px;
+  }
+
+  .editorial-writing .writing-index .writing-entry {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+    padding: 26px 0;
+  }
+
+  .editorial-writing .writing-entry .post-meta {
+    flex-direction: row;
+    align-items: center;
+    gap: 8px 16px;
+  }
+
+  .editorial-writing .writing-entry .post-meta time,
+  .editorial-writing .writing-entry .post-meta > span {
+    margin-bottom: 0;
+  }
+
+  .editorial-writing .writing-entry .tags {
+    gap: 0 14px;
+  }
+
+  .editorial-writing .writing-entry h2 a {
+    gap: 10px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .editorial-writing .writing-entry h2 a,
+  .editorial-writing .writing-controls input:not([type="hidden"]),
+  .editorial-writing .writing-controls select {
+    transition: none;
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .editorial-writing .writing-controls select:not(:disabled):hover {
+    border-color: var(--muted);
+    background-color: var(--surface);
+  }
+}
+
+/* Enhance the browser's own picker where supported; touch keeps its OS picker. */
+@supports (appearance: base-select) and selector(::picker(select)) {
+  @media (pointer: fine) and (hover: hover) and (forced-colors: none) {
+    .editorial-writing .writing-controls select,
+    .editorial-writing .writing-controls select::picker(select) {
+      appearance: base-select;
+    }
+
+    .editorial-writing .writing-controls select {
+      align-items: center;
+      justify-content: flex-start;
+    }
+
+    .editorial-writing .writing-controls select::picker-icon {
+      display: none;
+    }
+
+    .editorial-writing .writing-controls select::picker(select) {
+      margin-block-start: 6px;
+      padding: 5px;
+      max-height: min(320px, 60dvh);
+      overflow-y: auto;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      background: var(--surface);
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", "PingFang SC", "Noto Sans SC", "Microsoft YaHei", sans-serif;
+      font-size: 0.94rem;
+      font-weight: 400;
+      line-height: 1.4;
+      box-shadow: 0 12px 28px color-mix(in srgb, var(--text) 12%, transparent);
+    }
+
+    .editorial-writing .writing-controls select option {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-height: 40px;
+      padding: 9px 10px;
+      border-radius: 2px;
+      white-space: normal;
+      overflow-wrap: anywhere;
+      cursor: pointer;
+    }
+
+    .editorial-writing .writing-controls select option:hover,
+    .editorial-writing .writing-controls select option:focus-visible {
+      background: var(--surface-soft);
+      color: var(--text);
+    }
+
+    .editorial-writing .writing-controls select option:focus-visible {
+      outline: 1px solid var(--accent);
+      outline-offset: -1px;
+    }
+
+    .editorial-writing .writing-controls select option:checked {
+      background: color-mix(in srgb, var(--accent) 9%, var(--surface));
+      color: var(--accent);
+    }
+
+    .editorial-writing .writing-controls select option::checkmark {
+      order: 1;
+      margin-inline-start: auto;
+      color: var(--accent);
+    }
+  }
+}
+
+@media (forced-colors: active) {
+  .editorial-writing .writing-controls select {
+    -webkit-appearance: auto;
+    appearance: auto;
+    padding-inline-end: 14px;
+    border-color: ButtonText;
+    background: Canvas;
+    color: CanvasText;
+  }
+
+  .editorial-writing .writing-tag-select::after {
+    content: none;
+  }
+
+  .editorial-writing .writing-controls select:focus-visible {
+    border-color: Highlight;
+    outline-color: Highlight;
+  }
+}

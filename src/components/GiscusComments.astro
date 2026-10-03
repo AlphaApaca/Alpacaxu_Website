@@ -7,22 +7,26 @@ interface Props {
 
 const { term, lang = "zh-CN", guestbook = false } = Astro.props;
 const isChinese = lang.toLowerCase().startsWith("zh");
-const title = guestbook ? "留言板" : isChinese ? "评论" : "Discussion";
-const description = guestbook
+const titleZh = guestbook ? "留言板" : "评论";
+const titleEn = guestbook ? "Guestbook" : "Discussion";
+const title = isChinese ? titleZh : titleEn;
+const descriptionZh = guestbook
   ? "欢迎留下想法、问题或一句问候。留言公开保存在 GitHub Discussions，发表前需要登录 GitHub。"
-  : isChinese
-    ? "欢迎交流这篇文章。评论公开保存在 GitHub Discussions，发表前需要登录 GitHub。"
-    : "Share a question or thought about this article. Comments are public on GitHub Discussions; a GitHub account is required to post.";
+  : "欢迎交流这篇文章。评论公开保存在 GitHub Discussions，发表前需要登录 GitHub。";
+const descriptionEn = guestbook
+  ? "Leave a thought, a question, or a hello. Messages are public on GitHub Discussions; sign in with GitHub to post."
+  : "Share a question or thought about this article. Comments are public on GitHub Discussions; a GitHub account is required to post.";
+const description = isChinese ? descriptionZh : descriptionEn;
 ---
 
 <section class="comments-section" aria-labelledby="discussion-heading" data-giscus data-term={term} data-lang={isChinese ? "zh-CN" : "en"}>
   <p class="section-kicker">{guestbook ? "Guestbook" : "Conversation"}</p>
-  <h2 id="discussion-heading">{title}</h2>
-  <p class="comments-intro">{description}</p>
+  <h2 id="discussion-heading" data-workspace-zh={titleZh} data-workspace-en={titleEn}>{title}</h2>
+  <p class="comments-intro" data-workspace-zh={descriptionZh} data-workspace-en={descriptionEn}>{description}</p>
   <div class="comments-actions">
-    <button type="button" class="comments-load">{isChinese ? "加载评论" : "Load comments"}</button>
+    <button type="button" class="comments-load" data-workspace-zh="加载评论" data-workspace-en="Load comments">{isChinese ? "加载评论" : "Load comments"}</button>
     <a href="https://github.com/AlphaApaca/Alpacaxu_Website/discussions" target="_blank" rel="noopener noreferrer">
-      {isChinese ? "在 GitHub 查看讨论 ↗" : "View discussions on GitHub ↗"}
+      <span data-workspace-zh="在 GitHub 查看讨论 ↗" data-workspace-en="View discussions on GitHub ↗">{isChinese ? "在 GitHub 查看讨论 ↗" : "View discussions on GitHub ↗"}</span>
     </a>
   </div>
   <p class="comments-status" role="status" aria-live="polite"></p>
@@ -37,28 +41,40 @@ const description = guestbook
     const button = section.querySelector<HTMLButtonElement>(".comments-load");
     const status = section.querySelector<HTMLElement>(".comments-status");
     const container = section.querySelector<HTMLElement>(".giscus");
-    const isChinese = section.dataset.lang === "zh-CN";
     if (!button || !status || !container) return;
 
+    const language = () => document.documentElement.dataset.lang === "zh" ? "zh-CN" : "en";
+    const isChinese = () => language() === "zh-CN";
+    let phase: "idle" | "loading" | "loaded" | "error" = "idle";
+    const updateStatus = () => {
+      status.textContent = phase === "loading"
+        ? isChinese() ? "正在连接 GitHub 评论区…" : "Connecting to GitHub discussions…"
+        : phase === "error"
+          ? isChinese() ? "评论暂时无法加载，请重试或打开 GitHub 讨论区。" : "Comments could not load. Please retry or open GitHub discussions."
+          : "";
+    };
     const theme = () => document.documentElement.dataset.theme === "dark" ? "dark" : "light";
-    const updateTheme = () => {
+    const updatePresentation = () => {
+      section.dataset.lang = language();
+      updateStatus();
       section.querySelector<HTMLIFrameElement>("iframe.giscus-frame")?.contentWindow?.postMessage(
-        { giscus: { setConfig: { theme: theme() } } },
+        { giscus: { setConfig: { theme: theme(), lang: language() } } },
         giscusOrigin
       );
     };
 
-    new MutationObserver(updateTheme).observe(document.documentElement, {
+    updatePresentation();
+    new MutationObserver(updatePresentation).observe(document.documentElement, {
       attributes: true,
-      attributeFilter: ["data-theme"]
+      attributeFilter: ["data-theme", "data-lang", "lang"]
     });
 
     const frameObserver = new MutationObserver(() => {
       const frame = container.querySelector<HTMLIFrameElement>("iframe.giscus-frame");
       if (!frame) return;
       frame.addEventListener("load", () => {
-        updateTheme();
-        status.textContent = "";
+        phase = "loaded";
+        updatePresentation();
       });
       frameObserver.disconnect();
     });
@@ -66,7 +82,8 @@ const description = guestbook
 
     button.addEventListener("click", () => {
       button.disabled = true;
-      status.textContent = isChinese ? "正在连接 GitHub 评论区…" : "Connecting to GitHub discussions…";
+      phase = "loading";
+      updateStatus();
 
       const script = document.createElement("script");
       script.src = `${giscusOrigin}/client.js`;
@@ -84,7 +101,7 @@ const description = guestbook
         "emit-metadata": "0",
         "input-position": "bottom",
         theme: theme(),
-        lang: section.dataset.lang ?? "zh-CN",
+        lang: language(),
         loading: "lazy"
       };
       Object.entries(config).forEach(([key, value]) => script.setAttribute(`data-${key}`, value));
@@ -92,9 +109,8 @@ const description = guestbook
       script.addEventListener("error", () => {
         script.remove();
         button.disabled = false;
-        status.textContent = isChinese
-          ? "评论暂时无法加载，请重试或打开 GitHub 讨论区。"
-          : "Comments could not load. Please retry or open GitHub discussions.";
+        phase = "error";
+        updateStatus();
       });
       container.append(script);
     });

@@ -22,7 +22,7 @@ const progressLabel = chinese ? "阅读进度" : "Reading progress";
       <progress data-reader-bar max="100" value="0" aria-label={progressLabel}>0%</progress>
     </div>
     <nav class="reader-toc" data-reader-nav aria-label={title} hidden={outline.length === 0}>
-      <ol>
+      <ol lang={lang}>
         {outline.map(({ depth, slug, text }) => (
           <li class="reader-item" data-depth={depth}>
             <a data-reader-link href={`#${slug}`}>{text}</a>
