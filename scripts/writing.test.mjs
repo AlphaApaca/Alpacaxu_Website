@@ -1,7 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { assertUniqueWritingPaths, categoryLabel, matchesWriting, normalizeSearch, readWritingFilters, sortWriting, writingFilterUrl, writingSearchText } from "../src/lib/writing.mjs";
-import { LEGACY_POSTS } from "../src/data/legacy-posts.mjs";
 
 const post = {
   category: "learning-log", tags: ["PyTorch", "DataLoader", "中文标签"],
@@ -24,15 +23,18 @@ test("category and exact tag combine with search without matching partial tags",
   assert.equal(matchesWriting(post, { category: "unknown", tag: "unknown" }), false);
 });
 
-test("legacy search includes every displayed title, summary and tag alongside English aliases", () => {
-  const indexed = LEGACY_POSTS.map((post) => ({ ...post, searchText: writingSearchText(post) }));
-  for (const q of ["简历", "局限", "Workflow", "降低", "Keeping a Note"]) {
-    assert.equal(indexed.filter((post) => matchesWriting(post, { q })).length, 1, q);
+test("published Markdown search includes its title, summary, readable category and tags", () => {
+  const article = {
+    title: "2026-10-02 · Datasets & DataLoaders",
+    summary: "理解 Dataset 与 DataLoader 的职责，并完成 FashionMNIST 数据加载练习。",
+    category: "learning-log",
+    tags: ["PyTorch", "DataLoader"],
+  };
+  const indexed = { ...article, searchText: writingSearchText(article) };
+  for (const q of [article.title, "职责", "FashionMNIST", "学习日志", "Learning Log", ...article.tags]) {
+    assert.equal(matchesWriting(indexed, { q }), true, q);
   }
-  for (const post of indexed) {
-    assert.equal(matchesWriting(post, { q: post.title }), true);
-    for (const tag of post.tags) assert.equal(matchesWriting(post, { q: tag }), true);
-  }
+  assert.equal(matchesWriting(indexed, { q: "retired demo" }), false);
 });
 
 test("query state round-trips Chinese, spaces, punctuation without HTML or URL injection", () => {
@@ -45,18 +47,18 @@ test("query state round-trips Chinese, spaces, punctuation without HTML or URL i
   assert.deepEqual(readWritingFilters("?utm_source=test"), { q: "", category: "", tag: "" });
 });
 
-test("undated old articles sort after dated writing without invented timestamps", () => {
+test("published writing sorts newest first with deterministic URL tie-breaks", () => {
   const posts = [
-    { url: "/articles/old.html", date: null },
+    { url: "/writing/z-note/", date: "2026-10-02" },
     { url: "/writing/earlier/", date: "2026-10-01" },
     { url: "/writing/latest/", date: "2026-10-02" },
   ];
-  assert.deepEqual(sortWriting(posts).map((post) => post.url), ["/writing/latest/", "/writing/earlier/", "/articles/old.html"]);
-  assert.equal(posts[0].date, null);
+  assert.deepEqual(sortWriting(posts).map((post) => post.url), ["/writing/latest/", "/writing/z-note/", "/writing/earlier/"]);
+  assert.equal(posts[0].url, "/writing/z-note/", "Sorting must not mutate the caller's list");
 });
 
 test("duplicate published URLs fail instead of silently shadowing a synced article", () => {
-  assertUniqueWritingPaths([{ url: "/writing/one/" }, { url: "/articles/old.html" }]);
+  assertUniqueWritingPaths([{ url: "/writing/one/" }, { url: "/writing/two/" }]);
   assert.throws(() => assertUniqueWritingPaths([{ url: "/writing/one/" }, { url: "/writing/one/" }]), /Duplicate published article URL/);
 });
 

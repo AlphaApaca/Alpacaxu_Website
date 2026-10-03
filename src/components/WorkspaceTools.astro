@@ -1,0 +1,22 @@
+---
+import { getWritingPosts } from "../lib/content";
+const posts = await getWritingPosts();
+const destinations = [
+  { url: "/#projects", title: "Projects", zh: "项目与证据", en: "Projects & evidence", search: "projects 项目 规划 navigation mujoco ros2 visor" },
+  { url: "/writing/", title: "Writing", zh: "日志、笔记与杂文", en: "Logs, notes & essays", search: "writing 文章 日志 笔记 杂文 pytorch" },
+  { url: "/about/", title: "About", zh: "个人介绍与留言板", en: "About & guestbook", search: "about 关于 留言板 个人 profile" },
+  { url: "/#experience", title: "Background", zh: "经历与论文", en: "Experience & publication", search: "experience background 经历 实习 论文 publication" },
+];
+---
+<dialog class="workspace-command" id="site-command" aria-labelledby="workspace-command-title">
+  <div class="workspace-command-heading"><h2 id="workspace-command-title" data-workspace-zh="快速去一个地方" data-workspace-en="Go somewhere">快速去一个地方</h2><form method="dialog"><button type="submit" aria-label="关闭快捷导航" data-workspace-aria-zh="关闭快捷导航" data-workspace-aria-en="Close quick navigation">×</button></form></div>
+  <label for="workspace-command-search" data-workspace-zh="搜索页面、文章标题或标签" data-workspace-en="Search pages, article titles, or tags">搜索页面、文章标题或标签</label>
+  <input id="workspace-command-search" type="search" autocomplete="off" placeholder="Projects, Writing, PyTorch…" />
+  <nav class="workspace-command-results" aria-label="快捷导航结果" data-workspace-aria-zh="快捷导航结果" data-workspace-aria-en="Quick navigation results">
+    {destinations.map((item) => <a href={item.url} data-astro-prefetch data-command-result data-command-search={item.search}><span>{item.title}</span><small data-workspace-zh={item.zh} data-workspace-en={item.en}>{item.zh}</small><span aria-hidden="true">↗</span></a>)}
+    {posts.map((post) => <a href={post.url} data-astro-prefetch data-command-result data-command-search={post.searchText}><span>{post.title}</span><small>{post.date}</small><span aria-hidden="true">↗</span></a>)}
+  </nav>
+  <p class="workspace-command-empty" data-command-empty hidden data-workspace-zh="没有匹配的页面或文章。" data-workspace-en="No matching pages or articles.">没有匹配的页面或文章。</p>
+  <p class="workspace-command-status" data-command-status role="status" aria-live="polite" aria-atomic="true"></p>
+  <p class="workspace-command-hint">⌘ / Ctrl + K <span data-workspace-zh="打开 · Esc 关闭" data-workspace-en="to open · Esc to close">打开 · Esc 关闭</span></p>
+</dialog>

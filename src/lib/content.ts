@@ -1,5 +1,4 @@
 import { getCollection } from "astro:content";
-import { LEGACY_POSTS } from "../data/legacy-posts.mjs";
 import { assertUniqueWritingPaths, categoryLabel, sortWriting, writingSearchText } from "./writing.mjs";
 
 export { categoryLabel };
@@ -10,9 +9,9 @@ export interface WritingPost {
   summary: string;
   category: string;
   tags: string[];
-  date: string | null;
+  date: string;
   searchText: string;
-  kind: "markdown" | "legacy";
+  kind: "markdown";
 }
 
 export function postPath(permalink: string) {
@@ -37,11 +36,6 @@ export async function getWritingPosts(): Promise<WritingPost[]> {
     searchText: writingSearchText(data),
     kind: "markdown",
   }));
-  entries.push(...LEGACY_POSTS.map((post) => ({
-    ...post,
-    searchText: writingSearchText(post),
-    kind: "legacy" as const,
-  })));
   assertUniqueWritingPaths(entries);
   return sortWriting(entries);
 }

@@ -1,6 +1,6 @@
-# Mingyang Xu Personal Website
+# Alpaca Personal Website
 
-基于 Astro 的个人网站，保留中英双语首页，展示机器人规划评测、ROS2 导航项目、实习、论文与技术笔记。同步脚本从公开仓库 [`AlphaApaca/repytorch`](https://github.com/AlphaApaca/repytorch) 导入明确标记为可发布的 Markdown，形成已提交快照；普通构建和浏览器阅读正文时不会再请求源仓库。评论与留言板按需连接 Giscus。
+基于 Astro 的个人网站，提供中英界面切换，展示机器人规划评测、ROS2 导航项目、实习、论文与技术笔记。同步脚本从公开仓库 [`AlphaApaca/repytorch`](https://github.com/AlphaApaca/repytorch) 导入明确标记为可发布的 Markdown，形成已提交快照；普通构建和浏览器阅读正文时不会再请求源仓库。评论与留言板按需连接 Giscus。
 
 ## 技术结构
 
@@ -11,8 +11,13 @@
 - `scripts/sync-repytorch.mjs`：从固定 GitHub 提交读取、校验并转换文章
 - `src/content/posts/repytorch/snapshot.json`：来源提交与文章网址清单，包括零篇已发布文章的情况
 - `.github/workflows/`：回归检查、定时同步提 PR、真实预览 HTTP 验收
-- `public/`：样式、脚本、图片与保留的旧文章 URL
-- 根目录的 `index.html`、`styles.css`、`script.js`：第一阶段迁移桥接源；首页外观与双语交互继续沿用这些内容
+- `public/`：样式、脚本与图片
+- `src/data/site.mjs`：昵称、顶栏头像和首页开场文案；自行编辑说明见 `docs/site-editing.md`
+- `src/pages/index.astro`、`public/workspace.css`、`public/workspace.js`：实验工作台首页、主题导航与快捷导航；根目录 `index.html` 暂保留原始项目/经历证据文案
+- 根目录的 `styles.css`、`script.js` 与 public 两份：首页证据区的样式和双语桥接；翻译修改必须保持两份一致
+- `public/writing-editorial.css`：文章优先的索引排版，继续使用原有分类、标签和关键词筛选
+- `public/interface-state.js`、`public/workspace.js`：共享中英界面状态、日期与界面文案；首页证据文案继续由原有双语脚本维护
+- `public/pointer-effects.js`、`public/pointer-effects.css`：短暂的点击几何脉冲，不替换系统指针，不拦截导航
 
 ## 本地开发
 
@@ -32,6 +37,16 @@ pnpm build
 ```
 
 静态产物生成到 `dist/`。
+
+## 工作台视觉预览
+
+首页以个人自述、项目与笔记的主题导航、可展开的项目证据、文章记录为主；照片、实习、论文、技能与 CPD 内容仍保留。原有 `#projects`、`#posts`、`#experience` 等锚点保持有效，指向折叠内容的旧书签会自动展开对应区域。
+
+Astro 页面的顶栏提供 `⌘ / Ctrl + K` 快捷导航，搜索已有页面、发布文章标题与标签。它不执行命令、不请求搜索接口；关闭菜单支持 Esc 并返回触发按钮。没有 JavaScript 时，正常导航、文章链接、原生项目折叠仍可用。
+
+各页面顶栏提供中英切换，记住同一浏览器的选择。首页、文章索引、About、阅读工具与评论提示随之切换；文章标题、简介、正文、标签和目录中的原始章节标题不做自动翻译。切换语言不清空文章筛选条件。点击特效只用于支持精细鼠标的桌面设备；触屏、减少动态效果、输入框、文本选择和拖动均不触发或会取消特效。
+
+三篇硬编码示例文章已撤下，其旧网址返回 404，可从 Git 历史恢复。真实 Markdown 文章、稳定网址、同步来源、目录/阅读进度及 Giscus 关联键不变。顶栏使用卡通头像，页面展示名为 Alpaca，首页和 About 保留个人照片。跨页使用浏览器原生短淡化、选择性预加载和提前恢复主题；不支持动画或减少动态效果时照常导航。此轮的本地验收记录见 [`docs/workbench-preview.md`](docs/workbench-preview.md)。
 
 ## 从 repytorch 发布文章
 
@@ -77,15 +92,15 @@ pnpm build
 
 ## 文章索引
 
-`/writing/` 统一展示已发布的本地文章、GitHub 同步文章与保留的旧文章。分类包括学习日志、技术笔记和杂文；标签可以筛选，关键词搜索匹配标题、简介和标签，暂不搜索正文。分类、标签和关键词可以组合使用，筛选状态保留在网址参数 `category`、`tag`、`q` 中，便于分享同一组结果。
+`/writing/` 统一展示已发布的本地文章与 GitHub 同步文章。分类包括学习日志、技术笔记和杂文；标签可以筛选，关键词搜索匹配标题、简介和标签，暂不搜索正文。分类、标签和关键词可以组合使用，筛选状态保留在网址参数 `category`、`tag`、`q` 中，便于分享同一组结果。
 
-旧文章仍使用原来的 `/articles/*.html` 网址，未记录发布日期的文章标为“旧文”，不会补造日期。没有 JavaScript 时仍能浏览全部文章和正文，交互筛选需要 JavaScript。已有分类以外的新 `category` 值也会自动出现在索引里；同一标签的大小写和全角差异按同一个筛选值处理。
+没有 JavaScript 时仍能浏览全部已发布文章和正文，交互筛选需要 JavaScript。已有分类以外的新 `category` 值也会自动出现在索引里；同一标签的大小写和全角差异按同一个筛选值处理。
 
 工作流固定使用 `ubuntu-24.04` 和完整提交 SHA 的 Node 24 兼容 Actions，避免运行环境静默升级；网站构建本身仍使用 `.nvmrc` 指定的 Node 22.13.0。定时同步、权限、草稿 PR 与手动合并规则均保持不变。
 
 ## 文章阅读工具
 
-Markdown 文章和三篇旧文章共用文章目录、阅读进度和当前章节高亮。目录收录正文的二、三级标题，使用真实标题锚点；Markdown 的既有锚点不改动。桌面目录固定在正文右侧，手机目录可展开与收起，点击章节后自动收起。旧文章切换中英文时目录文字同步，网址锚点保持稳定。
+Markdown 文章提供文章目录、阅读进度和当前章节高亮。目录收录正文的二、三级标题，使用真实标题锚点；既有锚点不改动。桌面目录固定在正文右侧，手机目录可展开与收起，点击章节后自动收起。
 
 进度只计算 `.article-content` 正文，不把来源链接、评论或页脚算进去；短文正文底部进入视口时显示 100%，并非阅读时间或已读证明。目录链接在 JavaScript 不可用时仍可使用；实时进度和章节高亮需要 JavaScript。减少动态效果的系统偏好会关闭文章页面的平滑滚动。
 
@@ -118,6 +133,6 @@ GitHub Actions 自带令牌的机器人 push 不触发其他 push 工作流；�
 
 ## 评论与留言板
 
-网站仓库的 Discussions 承载 Giscus 评论。每篇 Markdown 文章通过 `comments: true/false` 控制显示，默认开启；保留的三篇旧静态 HTML 文章暂未接入评论。
+网站仓库的 Discussions 承载 Giscus 评论。每篇 Markdown 文章通过 `comments: true/false` 控制显示，默认开启；三篇旧静态示例文章已撤下。
 
-评论点击“加载评论”后连接 Giscus，发布需要 GitHub 登录。文章关联稳定的 `/writing/{permalink}/` 键，About 留言板使用独立的 `about-guestbook` 键，预览与正式站不会因主机名不同而拆散评论。严格匹配开启，backlink 指向正式域名，评论主题跟随网站切换。无需为验收发送测试评论或回应；新 Discussion 会在第一次真正评论或回应时创建。
+评论点击“加载评论”后连接 Giscus，发布需要 GitHub 登录。文章关联稳定的 `/writing/{permalink}/` 键，About 留言板使用独立的 `about-guestbook` 键，预览与正式站不会因主机名不同而拆散评论。严格匹配开启，backlink 指向正式域名，评论主题和语言跟随网站切换，不修改关联键。无需为验收发送测试评论或回应；新 Discussion 会在第一次真正评论或回应时创建。

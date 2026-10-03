@@ -2,6 +2,7 @@
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import { getWritingPosts, categoryLabel } from "../../lib/content";
 import { DEFAULT_CATEGORIES, normalizeSearch, writingFilterUrl } from "../../lib/writing.mjs";
+import { site } from "../../data/site.mjs";
 
 const posts = await getWritingPosts();
 const categories = [...new Set([...DEFAULT_CATEGORIES, ...posts.map((post) => post.category)])];
@@ -10,69 +11,96 @@ posts.forEach((post) => post.tags.forEach((tag) => {
   if (!uniqueTags.has(normalizeSearch(tag))) uniqueTags.set(normalizeSearch(tag), tag);
 }));
 const tags = [...uniqueTags.values()].sort((left, right) => left.localeCompare(right, "zh-CN"));
+const newestDatedPost = posts[0];
+const localizedMeta = {
+  zh: { title: `文章 | ${site.name}`, description: `${site.name} 的学习日志、技术笔记与杂文。按分类、标签和关键词浏览全部文章。` },
+  en: { title: `Writing | ${site.name}`, description: `${site.name}'s learning logs, technical notes and personal essays. Browse published writing by category, tag or keyword.` },
+};
+const categoryCopy: Record<string, { zh: string; en: string }> = {
+  "learning-log": { zh: "学习日志", en: "Learning logs" },
+  note: { zh: "技术笔记", en: "Technical notes" },
+  essay: { zh: "杂文", en: "Personal essays" },
+};
+const localizedCategory = (category: string) => Object.hasOwn(categoryCopy, category)
+  ? categoryCopy[category]
+  : { zh: categoryLabel(category), en: categoryLabel(category) };
 ---
 
-<BaseLayout title="Writing · 文章 | Mingyang Xu" description="Mingyang Xu 的学习日志、技术笔记与杂文。按分类、标签和关键词浏览全部文章。" lang="zh-CN" page="writing">
+<BaseLayout title={localizedMeta.zh.title} description={localizedMeta.zh.description} localizedMeta={localizedMeta} lang="zh-CN" page="writing" bodyClass="editorial-writing">
+  <Fragment slot="head">
+    <link rel="stylesheet" href="/writing-editorial.css" />
+  </Fragment>
   <main class="section writing-index" data-writing-index>
     <header class="writing-heading">
-      <p class="section-kicker">Writing / Archive</p>
-      <h1>记录、整理，<br />偶尔想远一点。</h1>
-      <p class="section-intro">学习日志、技术笔记，还有一些随想。中英混写，留在同一个地方。</p>
+      <div class="writing-heading-copy">
+        <p class="section-kicker" data-workspace-zh="文章 / 私人档案" data-workspace-en="Writing / Personal archive">文章 / 私人档案</p>
+        <h1><span data-workspace-zh="记录、整理，" data-workspace-en="Keep notes.">记录、整理，</span><br /><span data-workspace-zh="偶尔想远一点。" data-workspace-en="Let thoughts wander.">偶尔想远一点。</span></h1>
+        <p class="section-intro" data-workspace-zh="学习日志、技术笔记，还有一些随想。中英混写，留在同一个地方。" data-workspace-en="Learning logs, technical notes, and the occasional stray thought. Chinese and English, in the same place.">学习日志、技术笔记，还有一些随想。中英混写，留在同一个地方。</p>
+      </div>
+      <div class="writing-margin" aria-hidden="true">
+        <span data-workspace-zh="学习日志" data-workspace-en="Learning logs">学习日志</span>
+        <span data-workspace-zh="技术笔记" data-workspace-en="Technical notes">技术笔记</span>
+        <span data-workspace-zh="杂文随想" data-workspace-en="Personal essays">杂文随想</span>
+        <small data-workspace-zh="理解、记录、回看。" data-workspace-en="Understand. Write. Revisit.">理解、记录、回看。</small>
+      </div>
     </header>
 
     <form class="writing-controls" method="get" action="/writing/" data-writing-enhanced hidden>
       <label class="writing-search" for="writingSearch">
-        <span>搜索文章 <small>SEARCH</small></span>
-        <input id="writingSearch" name="q" type="search" placeholder="搜索标题、摘要或标签" autocomplete="off" />
+        <span><span data-workspace-zh="搜索文章" data-workspace-en="Search writing">搜索文章</span> <small>SEARCH</small></span>
+        <input id="writingSearch" name="q" type="search" placeholder="搜索标题、摘要或标签" data-workspace-placeholder-zh="搜索标题、摘要或标签" data-workspace-placeholder-en="Search titles, summaries or tags" autocomplete="off" />
       </label>
       <label class="writing-tag-select" for="writingTag">
-        <span>标签 <small>TAG</small></span>
+        <span><span data-workspace-zh="标签" data-workspace-en="Tag">标签</span> <small>TAG</small></span>
         <select id="writingTag" name="tag">
-          <option value="">全部标签</option>
+          <option value="" data-workspace-zh="全部标签" data-workspace-en="All tags">全部标签</option>
           {tags.map((tag) => <option value={tag}>{tag}</option>)}
         </select>
       </label>
       <input type="hidden" name="category" value="" />
-      <button class="writing-reset" type="reset">清除筛选</button>
+      <button class="writing-reset" type="reset" data-workspace-zh="清除筛选" data-workspace-en="Clear filters">清除筛选</button>
     </form>
 
-    <nav class="writing-categories" aria-label="文章分类" data-writing-enhanced hidden>
-      <a href="/writing/" data-writing-category="" aria-current="true">全部 <span>{posts.length}</span></a>
+    <nav class="writing-categories" aria-label="文章分类" data-workspace-aria-zh="文章分类" data-workspace-aria-en="Writing categories" data-writing-enhanced hidden>
+      <a href="/writing/" data-writing-category="" aria-current="true"><span data-workspace-zh="全部" data-workspace-en="All">全部</span> <span>{posts.length}</span></a>
       {categories.map((category) => (
         <a href={writingFilterUrl({ category })} data-writing-category={category}>
-          {categoryLabel(category)} <span>{posts.filter((post) => post.category === category).length}</span>
+          <span data-workspace-zh={localizedCategory(category).zh} data-workspace-en={localizedCategory(category).en}>{localizedCategory(category).zh}</span> <span>{posts.filter((post) => post.category === category).length}</span>
         </a>
       ))}
     </nav>
 
     <div class="writing-list-heading">
       <p id="writingResults" role="status" aria-live="polite" aria-atomic="true">共 {posts.length} 篇文章</p>
-      <span>有日期的文章按新到旧排列 · 无日期旧文列于后方</span>
+      <span data-workspace-zh="按文章日期，从新到旧排列" data-workspace-en="Newest first, by article date">按文章日期，从新到旧排列</span>
     </div>
-    <noscript><p class="writing-noscript">以下为全部已发布文章。分类、标签和关键词筛选需要启用 JavaScript；文章阅读不受影响。</p></noscript>
+    <noscript><p class="writing-noscript">以下为全部已发布文章。分类、标签和关键词筛选需要启用 JavaScript；文章阅读不受影响。 / All published writing is shown below. Filtering requires JavaScript; reading does not.</p></noscript>
 
-    <div class="post-list" id="writingList">
+    <div class="post-list writing-entries" id="writingList">
       {posts.map((post) => (
-        <article class="post-card" data-writing-post data-category={post.category} data-tags={JSON.stringify(post.tags)} data-search={post.searchText}>
+        <article class:list={["post-card", "writing-entry", { "writing-entry-lead": post.url === newestDatedPost?.url }]} data-writing-post data-category={post.category} data-tags={JSON.stringify(post.tags)} data-search={post.searchText}>
           <div class="post-meta">
-            {post.date ? <time datetime={post.date}>{post.date}</time> : <span>旧文 · Archive</span>}
-            <a href={writingFilterUrl({ category: post.category })} data-writing-category={post.category}>{categoryLabel(post.category)}</a>
+            <time datetime={post.date}>{post.date}</time>
+            <a href={writingFilterUrl({ category: post.category })} data-writing-category={post.category} data-workspace-zh={localizedCategory(post.category).zh} data-workspace-en={localizedCategory(post.category).en}>{localizedCategory(post.category).zh}</a>
           </div>
-          <h2><a href={post.url}>{post.title}</a></h2>
-          <p>{post.summary}</p>
-          <div class="tags">{post.tags.map((tag) => <a href={writingFilterUrl({ tag })} data-writing-tag={tag}>{tag}</a>)}</div>
+          <div class="writing-entry-body">
+            {post.url === newestDatedPost?.url && <p class="writing-entry-label" data-workspace-zh="最新记录" data-workspace-en="Latest entry">最新记录</p>}
+            <h2><a href={post.url} data-astro-prefetch>{post.title}<span class="writing-entry-arrow" aria-hidden="true">↗</span></a></h2>
+            <p class="writing-entry-summary">{post.summary}</p>
+            <div class="tags">{post.tags.map((tag) => <a href={writingFilterUrl({ tag })} data-writing-tag={tag}>{tag}</a>)}</div>
+          </div>
         </article>
       ))}
     </div>
     <div class="writing-empty" id="writingEmpty" hidden>
-      <p class="section-kicker">No matching entries</p>
-      <h2>这里暂时还没有文章。</h2>
+      <p class="section-kicker" data-workspace-zh="没有匹配的文章" data-workspace-en="No matching entries">没有匹配的文章</p>
+      <h2 data-workspace-zh="这里暂时还没有文章。" data-workspace-en="Nothing here just yet.">这里暂时还没有文章。</h2>
       <p id="writingEmptyHint">换个关键词，或清除分类和标签试试。</p>
-      <button class="writing-reset" type="button" data-writing-clear>查看全部文章</button>
+      <button class="writing-reset" type="button" data-writing-clear data-workspace-zh="查看全部文章" data-workspace-en="View all writing">查看全部文章</button>
     </div>
     <footer class="writing-index-footer">
-      <span>学习日志来自 repytorch，杂文独立记录。只展示明确发布的文章。</span>
-      <a href="/about/">关于我 / About →</a>
+      <span data-workspace-zh="学习日志来自 repytorch，杂文独立记录。只展示明确发布的文章。" data-workspace-en="Learning logs come from repytorch; essays live here. Only explicitly published writing is shown.">学习日志来自 repytorch，杂文独立记录。只展示明确发布的文章。</span>
+      <a href="/about/" data-workspace-zh="关于我 →" data-workspace-en="About →">关于我 →</a>
     </footer>
   </main>
 </BaseLayout>
@@ -96,6 +124,7 @@ const tags = [...uniqueTags.values()].sort((left, right) => left.localeCompare(r
       searchText: element.dataset.search!,
     }));
 
+    const chinese = () => (document.documentElement.dataset.lang ?? document.documentElement.lang).toLowerCase().startsWith("zh");
     const state = () => ({ q: search.value, category: category.value, tag: tag.value });
     const render = () => {
       const filters = state();
@@ -104,11 +133,13 @@ const tags = [...uniqueTags.values()].sort((left, right) => left.localeCompare(r
         post.element.hidden = !matchesWriting(post, filters);
         if (!post.element.hidden) count += 1;
       });
-      results.textContent = `显示 ${count} / ${cards.length} 篇文章`;
+      results.textContent = chinese()
+        ? `显示 ${count} / ${cards.length} 篇文章`
+        : `Showing ${count} of ${cards.length} ${cards.length === 1 ? "article" : "articles"}`;
       empty.hidden = count > 0;
       emptyHint.textContent = filters.category === "essay" && !filters.q && !filters.tag
-        ? "这里还没有已发布的杂文。留一些位置，给以后的随想。"
-        : "换个关键词，或清除分类和标签试试。";
+        ? chinese() ? "这里还没有已发布的杂文。留一些位置，给以后的随想。" : "No published essays yet. Leaving a little room for future thoughts."
+        : chinese() ? "换个关键词，或清除分类和标签试试。" : "Try another keyword, or clear the category and tag filters.";
       index.querySelectorAll<HTMLAnchorElement>(".writing-categories [data-writing-category]").forEach((link) => {
         if (link.dataset.writingCategory === filters.category) link.setAttribute("aria-current", "true");
         else link.removeAttribute("aria-current");
@@ -124,7 +155,7 @@ const tags = [...uniqueTags.values()].sort((left, right) => left.localeCompare(r
       tag.querySelectorAll("[data-transient]").forEach((option) => option.remove());
       const matching = [...tag.options].find((option) => normalizeSearch(option.value) === normalizeSearch(value));
       if (value && !matching) {
-        const option = new Option(`${value}（未收录）`, value);
+        const option = new Option(chinese() ? `${value}（未收录）` : `${value} (not indexed)`, value);
         option.dataset.transient = "true";
         tag.add(option);
       }
@@ -177,6 +208,8 @@ const tags = [...uniqueTags.values()].sort((left, right) => left.localeCompare(r
       update("pushState");
     });
     window.addEventListener("popstate", () => { clearTimeout(searchTimer); restore(); });
+    // Translate only the archive interface; authored titles, summaries and filter values stay unchanged.
+    window.addEventListener("site:language-change", () => { setTag(tag.value); render(); });
     restore();
     index.querySelectorAll<HTMLElement>("[data-writing-enhanced]").forEach((element) => { element.hidden = false; });
   }

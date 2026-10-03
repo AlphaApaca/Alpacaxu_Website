@@ -1,0 +1,72 @@
+/* The native pointer, focus ring, hit areas and document geometry stay unchanged. */
+.pointer-effects-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483000;
+  overflow: hidden;
+  pointer-events: none;
+  contain: strict;
+}
+.pointer-effects-layer *, .pointer-effects-layer *::before, .pointer-effects-layer *::after {
+  pointer-events: none;
+}
+.pointer-click-pulse {
+  position: absolute;
+  left: var(--pointer-x);
+  top: var(--pointer-y);
+  display: grid;
+  place-items: center;
+  width: 68px;
+  height: 68px;
+  transform: translate(-50%, -50%);
+}
+.pointer-click-pulse > span { position: absolute; }
+.pointer-pulse-outer {
+  width: 58px;
+  height: 58px;
+  border: 1px solid var(--accent);
+  border-radius: 50%;
+  animation: pointer-ring-outer 480ms ease-out both;
+}
+.pointer-pulse-inner {
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--accent-strong);
+  border-radius: 50%;
+  animation: pointer-ring-inner 480ms ease-out both;
+}
+.pointer-pulse-crosshair {
+  width: 42px;
+  height: 42px;
+  animation: pointer-crosshair 480ms ease-out both;
+}
+.pointer-pulse-crosshair::before, .pointer-pulse-crosshair::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: calc(50% - 0.5px);
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(to right, var(--accent) 0 24%, transparent 24% 76%, var(--accent) 76% 100%);
+}
+.pointer-pulse-crosshair::after { transform: rotate(90deg); }
+@keyframes pointer-ring-outer {
+  from { opacity: 0.7; transform: scale(0.18); }
+  to { opacity: 0; transform: scale(1.08); }
+}
+@keyframes pointer-ring-inner {
+  from { opacity: 0.72; transform: scale(0.18); }
+  to { opacity: 0; transform: scale(1.15); }
+}
+@keyframes pointer-crosshair {
+  from { opacity: 0.65; transform: scale(0.42) rotate(-15deg); }
+  to { opacity: 0; transform: scale(1.12) rotate(15deg); }
+}
+@media (pointer: fine) and (hover: hover) and (prefers-reduced-motion: no-preference) {
+  :where(.lang-toggle, .icon-button, .workspace-command-trigger):active {
+    box-shadow: inset 0 0 0 1px var(--accent);
+  }
+}
+@media (prefers-reduced-motion: reduce), (pointer: coarse), (hover: none) {
+  .pointer-effects-layer { display: none; }
+}

@@ -1,34 +1,37 @@
 const root = document.documentElement;
 const themeStorageKey = "alpaca-theme";
 const langStorageKey = "alpaca-lang";
-const savedTheme = localStorage.getItem(themeStorageKey);
+const readPreference = (key) => {
+  try { return localStorage.getItem(key); } catch { return null; }
+};
+const savePreference = (key, value) => {
+  try { localStorage.setItem(key, value); } catch { /* Preferences still work for this visit. */ }
+};
+const savedTheme = readPreference(themeStorageKey);
 const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
 
-if (savedTheme || prefersDark) {
-  root.dataset.theme = savedTheme || "dark";
-}
+root.dataset.theme = savedTheme === "dark" || savedTheme === "light"
+  ? savedTheme
+  : prefersDark ? "dark" : "light";
 
 const translations = {
   zh: {
     pageTitles: {
-      home: "许明阳 | 机器人规划与 ROS2",
-      articleBuild: "从简历网站到机器人作品集 | Mingyang Xu",
-      articleStack: "机器人方向个人网站技术栈选择 | Mingyang Xu",
-      articleNotes: "让笔记系统保持轻量 | Mingyang Xu"
+      home: "Alpaca | 机器人、代码与记录",
     },
-    "common.name": "Mingyang Xu",
-    "common.homeLabel": "Mingyang Xu 首页",
+    "common.name": "Alpaca",
+    "common.homeLabel": "Alpaca 首页",
     "common.primaryNav": "主导航",
     "common.location": "英国曼彻斯特",
     "common.themeToggle": "切换深色模式",
-    "common.footer": "© 2026 Mingyang Xu。机器人、AI 与 CPD 作品集。",
+    "common.footer": "© 2026 Alpaca。机器人、代码与记录。",
     "nav.profile": "简介",
     "nav.projects": "项目",
     "nav.experience": "经历",
     "nav.cpd": "CPD",
     "nav.posts": "文章",
     "nav.about": "关于",
-    "home.meta.description": "许明阳的 MuJoCo 环境可行性规划评测、ROS2 自主移动机器人导航项目与研究经历。",
+    "home.meta.description": "Alpaca 的个人空间：机器人规划、仿真实验、软件工程，以及学习过程中的记录。",
     "home.hero.alt": "安静的技术写作桌面插画",
     "home.hero.sectionLabel": "个人介绍",
     "home.hero.eyebrow": "机器人规划 · MuJoCo · ROS2",
@@ -37,7 +40,7 @@ const translations = {
     "home.hero.secondary": "联系我",
     "home.profile.kicker": "关于我",
     "home.profile.heading": "让机器人规划接受环境约束检验。",
-    "home.profile.avatarAlt": "Mingyang Xu 头像",
+    "home.profile.avatarAlt": "Alpaca 头像",
     "home.profile.p1": "我在曼彻斯特大学攻读机器人学硕士（预计 2026 年 12 月毕业）；本科阶段取得福州大学软件工程与梅努斯大学 Computer Science & Software Engineering 双学位。",
     "home.profile.p2": "硕士论文通过 MuJoCo 任务评估本地 LLM 能否在执行前识别可行、不可行或有歧义的指令。在 V.I.S.O.R. 团队项目中，我主要负责 Leo Rover 的 SLAM 与 Nav2 导航验证和调优。",
     "home.profile.p3": "我关注具身智能、Robot Learning 与可靠机器人系统。这里区分已完成的项目工作和仍在学习的方向。",
@@ -113,68 +116,29 @@ const translations = {
     "home.posts.searchLabel": "搜索文章",
     "home.posts.searchPlaceholder": "搜索标题、标签或摘要",
     "home.posts.viewAll": "浏览全部文章 →",
-    "home.posts.post1.title": "从简历网站到机器人作品集",
-    "home.posts.post1.copy": "为什么作品集应在一页简历之外展示项目证据、个人贡献与反思。",
-    "home.posts.post2.title": "机器人方向个人网站的技术栈选择",
-    "home.posts.post2.copy": "在当前阶段，轻量静态站足以承载清晰的项目和可维护的写作。",
-    "home.posts.post3.title": "让笔记系统保持轻量",
-    "home.posts.post3.copy": "先记录、再整理，每次公开输出只回答一个具体问题。",
     "home.notes.kicker": "近期",
     "home.notes.heading": "近期关注",
     "home.notes.item1": "复盘已完成项目中的 ROS2、Nav2、SLAM/TF 与 MuJoCo 决策，为技术面试准备可解释的案例。",
     "home.notes.item2": "学习 PyTorch 基础，目标是独立完成训练、验证和评估闭环。",
     "home.notes.item3": "先学习 Behaviour Cloning 的闭环评测，再逐步理解 ACT、Diffusion Policy 与 VLA。",
-    "articleBuild.meta.description": "从一页简历扩展到有项目证据与个人贡献边界的机器人作品集。",
-    "articleBuild.eyebrow": "作品集 / 工作流",
-    "articleBuild.title": "从简历网站到机器人作品集",
-    "articleBuild.lead": "简历概括经历，作品集解释项目的目标、个人贡献、验证方式和局限。",
-    "articleBuild.h2a": "先说明方向与边界",
-    "articleBuild.p1": "首页应让访问者快速看清我已完成的 MuJoCo 规划评测和 ROS2 导航工作，也分清我仍在学习的 Robot Learning 方向。",
-    "articleBuild.h2b": "再展开项目证据",
-    "articleBuild.p2": "每个项目都应交代问题、方法、个人贡献和评测结果；没有可访问的仓库或报告时，不放占位链接。",
-    "articleBuild.h2c": "持续记录限制与反思",
-    "articleBuild.p3": "例如，规划可行性评测不能替代策略训练，团队机器人系统的结果也不能写成个人独立完成。明确边界能让工程证据更可信。",
-    "articleBuild.h2d": "保持易维护",
-    "articleBuild.p4": "当前版本是轻量静态站。内容多起来后，再考虑用 Markdown/MDX 管理项目与文章。",
-    "articleStack.meta.description": "机器人方向个人网站选择技术栈的判断标准。",
-    "articleStack.eyebrow": "前端 / 静态站",
-    "articleStack.title": "机器人方向个人网站的技术栈选择",
-    "articleStack.lead": "技术栈要服务项目证据、实验记录和 CPD 反思，而不是一开始就追求复杂应用能力。",
-    "articleStack.h2a": "适合 Astro 的情况",
-    "articleStack.p1": "如果网站以项目页、文章和静态证据材料为主，Astro 很合适。它默认输出轻量页面，Markdown 管理也自然。",
-    "articleStack.h2b": "适合 Next.js 的情况",
-    "articleStack.p2": "如果未来要加入后台、数据库、复杂交互或动态项目管理，Next.js 的扩展空间更大。",
-    "articleStack.h2c": "我的建议",
-    "articleStack.p3": "个人作品集第一版优先选择低维护方案。先把项目证据、设计和反思结构跑通，再决定是否需要更重的框架。",
-    "articleNotes.meta.description": "记录、整理并分享轻量技术笔记的原则。",
-    "articleNotes.eyebrow": "笔记 / 写作",
-    "articleNotes.title": "让笔记系统保持轻量",
-    "articleNotes.lead": "笔记系统的价值不是复杂分类，而是降低记录和回看的阻力。",
-    "articleNotes.h2a": "先记录，再整理",
-    "articleNotes.p1": "不要让分类系统挡在输入之前。一个收集入口和一个每周整理节奏，通常比复杂标签更可靠。",
-    "articleNotes.h2b": "公开输出要更小",
-    "articleNotes.p2": "短笔记可以只回答一个问题、解释一个概念，或记录一次决策。小而完整的输出更容易持续。"
   },
   en: {
     pageTitles: {
-      home: "Mingyang Xu | Robot Planning & ROS2",
-      articleBuild: "From Resume Site to Robotics Portfolio | Mingyang Xu",
-      articleStack: "Tech Stack for a Robotics Personal Website | Mingyang Xu",
-      articleNotes: "Keeping a Note-Taking System Lightweight | Mingyang Xu"
+      home: "Alpaca | Robotics, code & notes",
     },
-    "common.name": "Mingyang Xu",
-    "common.homeLabel": "Mingyang Xu home",
+    "common.name": "Alpaca",
+    "common.homeLabel": "Alpaca home",
     "common.primaryNav": "Primary navigation",
     "common.location": "Manchester, UK",
     "common.themeToggle": "Toggle dark mode",
-    "common.footer": "© 2026 Mingyang Xu. Robotics, AI and CPD portfolio.",
+    "common.footer": "© 2026 Alpaca. Robotics, code & notes.",
     "nav.profile": "Profile",
     "nav.projects": "Projects",
     "nav.experience": "Experience",
     "nav.cpd": "CPD",
     "nav.posts": "Writing",
     "nav.about": "About",
-    "home.meta.description": "Mingyang Xu's work on environment-aware LLM planning in MuJoCo and ROS2 mobile robot navigation.",
+    "home.meta.description": "Alpaca's personal space for robot planning, simulation experiments, code, and notes from the learning process.",
     "home.hero.alt": "Quiet technical writing desk illustration",
     "home.hero.sectionLabel": "Introduction",
     "home.hero.eyebrow": "Robot Planning · MuJoCo · ROS2",
@@ -183,7 +147,7 @@ const translations = {
     "home.hero.secondary": "Get in Touch",
     "home.profile.kicker": "Profile",
     "home.profile.heading": "Grounding robot plans in the environment.",
-    "home.profile.avatarAlt": "Portrait of Mingyang Xu",
+    "home.profile.avatarAlt": "Portrait of Alpaca",
     "home.profile.p1": "I am completing an MSc in Robotics at the University of Manchester (expected December 2026), following a dual degree in Software Engineering / Computer Science & Software Engineering from Fuzhou University and Maynooth University.",
     "home.profile.p2": "My dissertation evaluates whether local LLMs can recognise when a tabletop instruction is feasible, infeasible or ambiguous before a robot executes it. In the V.I.S.O.R. team project, I focused on testing and tuning SLAM and Nav2 navigation on a Leo Rover.",
     "home.profile.p3": "I am interested in embodied intelligence, robot learning and reliable robotic systems. This portfolio separates work I have completed from topics I am still learning.",
@@ -259,52 +223,16 @@ const translations = {
     "home.posts.searchLabel": "Search articles",
     "home.posts.searchPlaceholder": "Search titles, tags, or summaries",
     "home.posts.viewAll": "Browse all writing →",
-    "home.posts.post1.title": "From Resume Site to Robotics Portfolio",
-    "home.posts.post1.copy": "Why a portfolio needs to show project evidence, contribution and reflection beyond a one-page CV.",
-    "home.posts.post2.title": "Choosing a Tech Stack for a Robotics Portfolio",
-    "home.posts.post2.copy": "A lightweight static site is enough while the priority is clear projects and maintainable writing.",
-    "home.posts.post3.title": "Keeping a Note-Taking System Lightweight",
-    "home.posts.post3.copy": "Capture first, organise later, and publish small notes that answer one question at a time.",
     "home.notes.kicker": "Now",
     "home.notes.heading": "Current Focus",
     "home.notes.item1": "Reviewing ROS2, Nav2, SLAM/TF and MuJoCo decisions from completed projects for technical interviews.",
     "home.notes.item2": "Working through PyTorch fundamentals toward an independent train–validate–evaluate loop.",
     "home.notes.item3": "Learning behaviour cloning with closed-loop evaluation before moving toward ACT, diffusion policies and VLA.",
-    "articleBuild.meta.description": "Moving from a one-page CV to a robotics portfolio with project evidence and clear contribution boundaries.",
-    "articleBuild.eyebrow": "Portfolio / Workflow",
-    "articleBuild.title": "From Resume Site to Robotics Portfolio",
-    "articleBuild.lead": "A CV summarises experience; a portfolio explains project goals, personal contributions, validation and limits.",
-    "articleBuild.h2a": "State the direction and the boundaries",
-    "articleBuild.p1": "The homepage should quickly show my completed MuJoCo planning evaluation and ROS2 navigation work, while distinguishing robot-learning topics I am still studying.",
-    "articleBuild.h2b": "Develop the project evidence",
-    "articleBuild.p2": "Each project needs its question, method, personal contribution and evaluation. If a repository or report is not accessible, I leave out the placeholder link.",
-    "articleBuild.h2c": "Record limitations and reflection",
-    "articleBuild.p3": "Planning-feasibility evaluation is not policy training, and a team robotics result is not an individual implementation. Clear boundaries make the evidence more credible.",
-    "articleBuild.h2d": "Keep it maintainable",
-    "articleBuild.p4": "This version is a lightweight static site. If the content grows, Markdown/MDX can manage projects and articles later.",
-    "articleStack.meta.description": "How to choose a tech stack for a robotics-focused personal website.",
-    "articleStack.eyebrow": "Frontend / Static Site",
-    "articleStack.title": "Choosing a Tech Stack for a Robotics Portfolio",
-    "articleStack.lead": "The stack should serve project evidence, experiment notes and CPD reflection instead of becoming a complex app too early.",
-    "articleStack.h2a": "When Astro Fits",
-    "articleStack.p1": "If the site is mostly project pages, writing and static evidence, Astro is a strong fit. It outputs lightweight pages and handles Markdown naturally.",
-    "articleStack.h2b": "When Next.js Fits",
-    "articleStack.p2": "If the site later needs a dashboard, database, complex interactions or dynamic project management, Next.js leaves more room to grow.",
-    "articleStack.h2c": "My Recommendation",
-    "articleStack.p3": "For the first version of a personal portfolio, prefer low maintenance. Get the project evidence, design and reflection structure working before choosing a heavier framework.",
-    "articleNotes.meta.description": "A lightweight approach to capturing, organising and sharing technical notes.",
-    "articleNotes.eyebrow": "Notes / Writing",
-    "articleNotes.title": "Keeping a Note-Taking System Lightweight",
-    "articleNotes.lead": "The value of notes is not elaborate categories; it is reducing the friction of recording and revisiting ideas.",
-    "articleNotes.h2a": "Capture first, organise later",
-    "articleNotes.p1": "Do not let classification block input. One capture point and a weekly review are often more reliable than a complex tag system.",
-    "articleNotes.h2b": "Keep public notes small",
-    "articleNotes.p2": "A short note can answer one question, explain one concept or record one decision. Small, complete pieces are easier to sustain."
   }
 };
 
 const getPreferredLanguage = () => {
-  const savedLanguage = localStorage.getItem(langStorageKey);
+  const savedLanguage = readPreference(langStorageKey);
 
   if (savedLanguage === "zh" || savedLanguage === "en") {
     return savedLanguage;
@@ -349,7 +277,11 @@ const applyLanguage = (language) => {
   root.lang = language === "zh" ? "zh-CN" : "en";
   root.dataset.lang = language;
 
-  document.title = dictionary.pageTitles[page] || dictionary.pageTitles.home;
+  document.title = root.getAttribute(`data-page-title-${language}`) || dictionary.pageTitles[page] || dictionary.pageTitles.home;
+  document.querySelector('meta[property="og:title"]')?.setAttribute("content", document.title);
+  document.querySelectorAll("[data-localized-zh]").forEach((meta) => {
+    meta.setAttribute("content", meta.getAttribute(`data-localized-${language}`));
+  });
   setText("[data-i18n]", "i18n", language);
   setText("[data-i18n-html]", "i18nHtml", language);
   setAttribute("[data-i18n-placeholder]", "i18nPlaceholder", "placeholder", language);
@@ -366,6 +298,7 @@ const applyLanguage = (language) => {
   });
 
   document.querySelectorAll(".lang-toggle").forEach((button) => {
+    button.hidden = false;
     button.textContent = language === "zh" ? "EN" : "中文";
     button.setAttribute("aria-label", language === "zh" ? "Switch to English" : "切换到中文");
     button.setAttribute("title", language === "zh" ? "Switch to English" : "切换到中文");
@@ -375,7 +308,7 @@ const applyLanguage = (language) => {
 document.querySelectorAll(".lang-toggle").forEach((button) => {
   button.addEventListener("click", () => {
     const nextLanguage = root.dataset.lang === "zh" ? "en" : "zh";
-    localStorage.setItem(langStorageKey, nextLanguage);
+    savePreference(langStorageKey, nextLanguage);
     applyLanguage(nextLanguage);
   });
 });
@@ -383,7 +316,7 @@ document.querySelectorAll(".lang-toggle").forEach((button) => {
 document.querySelector(".theme-toggle")?.addEventListener("click", () => {
   const nextTheme = root.dataset.theme === "dark" ? "light" : "dark";
   root.dataset.theme = nextTheme;
-  localStorage.setItem(themeStorageKey, nextTheme);
+  savePreference(themeStorageKey, nextTheme);
 });
 
 applyLanguage(getPreferredLanguage());

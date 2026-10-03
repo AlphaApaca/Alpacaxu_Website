@@ -1,6 +1,7 @@
 ---
 import SiteHeader from "../components/SiteHeader.astro";
 import SiteFooter from "../components/SiteFooter.astro";
+import WorkspaceTools from "../components/WorkspaceTools.astro";
 
 interface Props {
   title: string;
@@ -9,6 +10,7 @@ interface Props {
   page?: string;
   bodyClass?: string;
   legacyI18n?: boolean;
+  localizedMeta?: Record<"zh" | "en", { title: string; description: string }>;
   pageType?: "website" | "article";
   canonical?: boolean;
   noindex?: boolean;
@@ -21,6 +23,7 @@ const {
   page = "content",
   bodyClass,
   legacyI18n = false,
+  localizedMeta,
   pageType = "website",
   canonical = true,
   noindex = false
@@ -30,28 +33,58 @@ const canonicalUrl = new URL(Astro.url.pathname, Astro.site ?? "https://www.alpa
 ---
 
 <!doctype html>
-<html lang={lang} data-page={page}>
+<html lang={lang} data-page={page} data-content-lang={lang} data-legacy-i18n={legacyI18n ? "true" : undefined} data-page-title-zh={localizedMeta?.zh.title} data-page-title-en={localizedMeta?.en.title}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="description" content={description} data-i18n-meta={legacyI18n ? "home.meta.description" : undefined} />
+    <meta name="description" content={description} data-localized-zh={localizedMeta?.zh.description} data-localized-en={localizedMeta?.en.description} />
     <title>{title}</title>
     {canonical && <link rel="canonical" href={canonicalUrl} />}
     {noindex && <meta name="robots" content="noindex, nofollow" />}
     <meta property="og:type" content={pageType} />
     <meta property="og:title" content={title} />
-    <meta property="og:description" content={description} />
+    <meta property="og:description" content={description} data-localized-zh={localizedMeta?.zh.description} data-localized-en={localizedMeta?.en.description} />
     {canonical && <meta property="og:url" content={canonicalUrl} />}
     <meta name="twitter:card" content="summary" />
+    <script is:inline>
+      // Apply the saved appearance before styles paint, rather than flashing light on every visit.
+      (() => {
+        const root = document.documentElement;
+        let savedTheme;
+        let savedLanguage;
+        try {
+          savedTheme = localStorage.getItem("alpaca-theme");
+          savedLanguage = localStorage.getItem("alpaca-lang");
+        } catch { /* Reading the site also works when storage is unavailable. */ }
+        root.dataset.theme = savedTheme === "dark" || savedTheme === "light"
+          ? savedTheme
+          : window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+        const language = savedLanguage === "zh" ? "zh" : "en";
+        root.lang = language === "zh" ? "zh-CN" : "en";
+        root.dataset.lang = language;
+        if (root.dataset.pageTitleZh) {
+          document.title = root.getAttribute(`data-page-title-${language}`);
+          document.querySelector('meta[property="og:title"]')?.setAttribute("content", document.title);
+          document.querySelectorAll("[data-localized-zh]").forEach((meta) => {
+            meta.setAttribute("content", meta.getAttribute(`data-localized-${language}`));
+          });
+        }
+      })();
+    </script>
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    {legacyI18n && <link rel="preload" href="/script.js" as="script" />}
+    <link rel="modulepreload" href="/workspace.js" />
     <link rel="stylesheet" href="/styles.css" />
     <link rel="stylesheet" href="/astro.css" />
+    <link rel="stylesheet" href="/workspace.css" />
+    <link rel="stylesheet" href="/pointer-effects.css" />
     <slot name="head" />
   </head>
   <body class={bodyClass}>
-    <SiteHeader showLanguageToggle={legacyI18n} />
+    <SiteHeader />
     <slot />
-    <SiteFooter legacyI18n={legacyI18n} />
+    <SiteFooter />
+    <WorkspaceTools />
     {
       legacyI18n ? (
         <script is:inline src="/script.js"></script>
@@ -59,17 +92,15 @@ const canonicalUrl = new URL(Astro.url.pathname, Astro.site ?? "https://www.alpa
         <script is:inline>
           const root = document.documentElement;
           const storageKey = "alpaca-theme";
-          const savedTheme = localStorage.getItem(storageKey);
-          if (savedTheme || window.matchMedia("(prefers-color-scheme: dark)").matches) {
-            root.dataset.theme = savedTheme || "dark";
-          }
           document.querySelector(".theme-toggle")?.addEventListener("click", () => {
             const nextTheme = root.dataset.theme === "dark" ? "light" : "dark";
             root.dataset.theme = nextTheme;
-            localStorage.setItem(storageKey, nextTheme);
+            try { localStorage.setItem(storageKey, nextTheme); } catch { /* Theme still changes without storage. */ }
           });
         </script>
       )
     }
+    <script type="module" is:inline src="/workspace.js"></script>
+    <script type="module" is:inline src="/pointer-effects.js"></script>
   </body>
 </html>

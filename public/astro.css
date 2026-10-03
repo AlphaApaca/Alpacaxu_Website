@@ -93,7 +93,7 @@
   color: var(--bg);
 }
 
-.writing-categories a span {
+.writing-categories a > span:not([data-workspace-zh]) {
   font-size: 0.75rem;
   font-variant-numeric: tabular-nums;
   opacity: 0.8;

@@ -1,27 +1,31 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
 import GiscusComments from "../components/GiscusComments.astro";
+import { site } from "../data/site.mjs";
 
-const description = "Mingyang Xu 的个人介绍、研究方向与留言板。";
+const localizedMeta = {
+  zh: { title: `关于我 | ${site.name}`, description: `${site.name} 的个人介绍、研究方向与留言板。` },
+  en: { title: `About | ${site.name}`, description: `About ${site.name}: robotics projects, learning notes and a guestbook.` },
+};
 ---
 
-<BaseLayout title="About | Mingyang Xu" description={description} lang="zh-CN" page="about" bodyClass="about-page">
+<BaseLayout title={localizedMeta.zh.title} description={localizedMeta.zh.description} localizedMeta={localizedMeta} lang="zh-CN" page="about" bodyClass="about-page">
   <Fragment slot="head">
     <meta name="giscus:backlink" content="https://www.alpacaxu.cn/about/" />
   </Fragment>
   <main class="article-shell about-shell">
-    <a class="article-back" href="/">← 首页 / Home</a>
-    <p class="eyebrow">About / 关于我</p>
-    <h1>Mingyang Xu</h1>
-    <p class="article-lead">机器人、AI、软件工程，以及持续学习中的笔记。</p>
+    <a class="article-back" href="/" data-astro-prefetch data-workspace-zh="← 首页" data-workspace-en="← Home">← 首页</a>
+    <p class="eyebrow" data-workspace-zh="关于我" data-workspace-en="About">关于我</p>
+    <h1>{site.name}</h1>
+    <p class="article-lead" data-workspace-zh="机器人、AI、软件工程，以及持续学习中的笔记。" data-workspace-en="Robotics, AI, software engineering, and notes from learning along the way.">机器人、AI、软件工程，以及持续学习中的笔记。</p>
 
     <div class="about-profile">
-      <img src="/assets/avatar.png" alt="Mingyang Xu 个人照片" width="180" height="225" />
+      <img src="/assets/portrait.png" alt={`${site.name} 的个人照片`} data-workspace-alt-zh={`${site.name} 的个人照片`} data-workspace-alt-en={`Portrait of ${site.name}`} width="180" height="225" decoding="async" />
       <div class="article-content">
-        <p>我目前在曼彻斯特大学攻读机器人学硕士，预计于 2026 年 12 月毕业。本科阶段取得福州大学软件工程与梅努斯大学 Computer Science &amp; Software Engineering 双学位。</p>
-        <p>我关注具身智能、Robot Learning 与可靠机器人系统。这个网站既展示项目，也记录学习过程、技术笔记和思考。</p>
+        <p data-workspace-zh="我目前在曼彻斯特大学攻读机器人学硕士，预计于 2026 年 12 月毕业。本科阶段取得福州大学软件工程与梅努斯大学 Computer Science & Software Engineering 双学位。" data-workspace-en="I'm studying for an MSc in Robotics at the University of Manchester, with graduation expected in December 2026. I hold dual undergraduate degrees in Software Engineering from Fuzhou University and Computer Science & Software Engineering from Maynooth University.">我目前在曼彻斯特大学攻读机器人学硕士，预计于 2026 年 12 月毕业。本科阶段取得福州大学软件工程与梅努斯大学 Computer Science &amp; Software Engineering 双学位。</p>
+        <p data-workspace-zh="我关注具身智能、Robot Learning 与可靠机器人系统。这个网站既展示项目，也记录学习过程、技术笔记和思考。" data-workspace-en="I'm interested in embodied intelligence, robot learning and reliable robotic systems. This site is a home for my projects, learning process, technical notes and thoughts.">我关注具身智能、Robot Learning 与可靠机器人系统。这个网站既展示项目，也记录学习过程、技术笔记和思考。</p>
         <div class="contact-row">
-          <a href="mailto:mingyang.xu.0111@outlook.com">Email ↗</a>
+          <a href={`mailto:${site.email}`}>Email ↗</a>
           <a href="https://github.com/AlphaApaca" target="_blank" rel="noopener noreferrer">GitHub ↗</a>
           <span>Manchester, UK</span>
         </div>
@@ -29,12 +33,12 @@ const description = "Mingyang Xu 的个人介绍、研究方向与留言板。";
     </div>
 
     <section class="article-content about-focus" aria-labelledby="about-focus-heading">
-      <h2 id="about-focus-heading">正在探索</h2>
-      <p>硕士论文通过 MuJoCo 任务评估本地 LLM 能否在执行前识别可行、不可行或有歧义的指令。在 V.I.S.O.R. 团队项目中，我主要负责 Leo Rover 的 SLAM 与 Nav2 导航验证和调优。</p>
-      <p>目前也在学习 PyTorch 基础，逐步建立训练、验证和评估闭环，并进一步理解机器人模仿学习。</p>
+      <h2 id="about-focus-heading" data-workspace-zh="正在探索" data-workspace-en="Currently exploring">正在探索</h2>
+      <p data-workspace-zh="硕士论文通过 MuJoCo 任务评估本地 LLM 能否在执行前识别可行、不可行或有歧义的指令。在 V.I.S.O.R. 团队项目中，我主要负责 Leo Rover 的 SLAM 与 Nav2 导航验证和调优。" data-workspace-en="My MSc dissertation uses MuJoCo tasks to evaluate whether local LLMs can identify feasible, infeasible or ambiguous instructions before execution. In the V.I.S.O.R. team project, I mainly worked on validating and tuning SLAM and Nav2 navigation on the Leo Rover.">硕士论文通过 MuJoCo 任务评估本地 LLM 能否在执行前识别可行、不可行或有歧义的指令。在 V.I.S.O.R. 团队项目中，我主要负责 Leo Rover 的 SLAM 与 Nav2 导航验证和调优。</p>
+      <p data-workspace-zh="目前也在学习 PyTorch 基础，逐步建立训练、验证和评估闭环，并进一步理解机器人模仿学习。" data-workspace-en="I'm also learning the PyTorch fundamentals, gradually building a training, validation and evaluation loop, and working towards a better understanding of robot imitation learning.">目前也在学习 PyTorch 基础，逐步建立训练、验证和评估闭环，并进一步理解机器人模仿学习。</p>
       <div class="about-links">
-        <a href="/#projects">项目 / Projects →</a>
-        <a href="/writing/">文章 / Writing →</a>
+        <a href="/#projects" data-astro-prefetch data-workspace-zh="项目 →" data-workspace-en="Projects →">项目 →</a>
+        <a href="/writing/" data-astro-prefetch data-workspace-zh="文章 →" data-workspace-en="Writing →">文章 →</a>
       </div>
     </section>
 
