@@ -1,0 +1,66 @@
+---
+import BaseLayout from "./BaseLayout.astro";
+import GiscusComments from "../components/GiscusComments.astro";
+import { categoryLabel } from "../lib/content";
+
+interface Props {
+  title: string;
+  summary: string;
+  date: string;
+  category: string;
+  tags: string[];
+  lang?: string;
+  sourceUrl?: string;
+  sourceCommit?: string;
+  comments?: boolean;
+  commentTerm: string;
+}
+
+const {
+  title,
+  summary,
+  date,
+  category,
+  tags,
+  lang = "zh-CN",
+  sourceUrl,
+  sourceCommit,
+  comments = false,
+  commentTerm
+} = Astro.props;
+
+const formattedDate = new Intl.DateTimeFormat(lang, {
+  year: "numeric",
+  month: "long",
+  day: "numeric",
+  timeZone: "UTC"
+}).format(new Date(`${date}T00:00:00Z`));
+---
+
+<BaseLayout title={`${title} | Mingyang Xu`} description={summary} lang={lang} page="writing" bodyClass="article-page" pageType="article">
+  <Fragment slot="head">
+    {comments && <meta name="giscus:backlink" content={new URL(commentTerm, Astro.site ?? "https://www.alpacaxu.cn")} />}
+  </Fragment>
+  <main class="article-shell synced-article">
+    <a class="article-back" href="/#posts">← Writing</a>
+    <p class="eyebrow">{categoryLabel(category)}</p>
+    <h1>{title}</h1>
+    <p class="article-lead">{summary}</p>
+    <div class="post-meta article-meta">
+      <time datetime={date}>{formattedDate}</time>
+      {sourceCommit && <span title={sourceCommit}>repytorch · {sourceCommit.slice(0, 7)}</span>}
+    </div>
+    {tags.length > 0 && <div class="tags">{tags.map((tag) => <span>{tag}</span>)}</div>}
+    <article class="article-content">
+      <slot />
+    </article>
+    {
+      sourceUrl && (
+        <p class="article-source">
+          <a href={sourceUrl} target="_blank" rel="noopener noreferrer">View the source Markdown on GitHub ↗</a>
+        </p>
+      )
+    }
+    {comments && <GiscusComments term={commentTerm} lang={lang} />}
+  </main>
+</BaseLayout>

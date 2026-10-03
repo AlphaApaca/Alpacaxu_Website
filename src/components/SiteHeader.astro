@@ -1,0 +1,27 @@
+---
+interface Props {
+  showLanguageToggle?: boolean;
+}
+
+const { showLanguageToggle = true } = Astro.props;
+---
+
+<header class="site-header">
+  <a class="brand" href="/" aria-label="Mingyang Xu home" data-i18n-aria-label={showLanguageToggle ? "common.homeLabel" : undefined}>
+    <span class="brand-mark">MX</span>
+    <span data-i18n={showLanguageToggle ? "common.name" : undefined}>Mingyang Xu</span>
+  </a>
+  <nav class="nav-links" aria-label="Primary navigation" data-i18n-aria-label={showLanguageToggle ? "common.primaryNav" : undefined}>
+    <a href="/#projects" data-i18n={showLanguageToggle ? "nav.projects" : undefined}>Projects</a>
+    <a href="/#experience" data-i18n={showLanguageToggle ? "nav.experience" : undefined}>Experience</a>
+    <a href="/#posts" data-i18n={showLanguageToggle ? "nav.posts" : undefined}>Writing</a>
+    <a href="/about/" data-i18n={showLanguageToggle ? "nav.about" : undefined}>About</a>
+  </nav>
+  <div class="header-actions">
+    {showLanguageToggle && <button class="lang-toggle" type="button" aria-label="切换到中文" title="切换到中文">中文</button>}
+    <button class="icon-button theme-toggle" type="button" aria-label="Toggle dark mode" title="Toggle dark mode" data-i18n-aria-label={showLanguageToggle ? "common.themeToggle" : undefined} data-i18n-title={showLanguageToggle ? "common.themeToggle" : undefined}>
+      <span class="sun" aria-hidden="true">☀</span>
+      <span class="moon" aria-hidden="true">☾</span>
+    </button>
+  </div>
+</header>

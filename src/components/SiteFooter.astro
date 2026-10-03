@@ -1,0 +1,12 @@
+---
+interface Props {
+  legacyI18n?: boolean;
+}
+
+const { legacyI18n = false } = Astro.props;
+---
+
+<footer class="site-footer">
+  <p data-i18n={legacyI18n ? "common.footer" : undefined}>© 2026 Mingyang Xu. Robotics, AI and CPD portfolio.</p>
+  <a href="mailto:mingyang.xu.0111@outlook.com">mingyang.xu.0111@outlook.com</a>
+</footer>

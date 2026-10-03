@@ -1,0 +1,66 @@
+name: Preview HTTP acceptance
+
+on:
+  deployment_status:
+  workflow_dispatch:
+    inputs:
+      preview_url:
+        description: "Public blogofalpaca HTTPS preview origin (no page path)"
+        required: true
+        type: string
+      article_path:
+        description: "Optional published article route; blank selects from the snapshot"
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: preview-http-${{ github.event.deployment.sha || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  http:
+    if: >-
+      github.repository == 'AlphaApaca/Alpacaxu_Website' &&
+      (github.event_name == 'workflow_dispatch' ||
+       (github.event.deployment_status.state == 'success' &&
+        github.event.deployment.environment == 'Preview' &&
+        github.event.deployment.production_environment != true &&
+        github.event.deployment.creator.login == 'vercel[bot]'))
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Check out trusted acceptance code
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4, verified 2026-10-03
+        with:
+          # Deployment callbacks never execute code from the deployed branch.
+          # Manual runs use the explicitly selected website revision.
+          ref: ${{ github.event_name == 'deployment_status' && 'main' || github.sha }}
+          persist-credentials: false
+      - name: Check whether trusted acceptance is installed
+        id: ready
+        run: |
+          if [ -f scripts/check-preview.mjs ] && [ -f .nvmrc ]; then
+            printf 'available=true\n' >> "$GITHUB_OUTPUT"
+          else
+            printf 'available=false\n' >> "$GITHUB_OUTPUT"
+            printf 'Deployment callback deferred: trusted acceptance code is not on main yet. The PR push workflow performs the current exact-commit check; this callback has NOT passed HTTP acceptance.\n' >> "$GITHUB_STEP_SUMMARY"
+          fi
+      - name: Set up Node
+        if: steps.ready.outputs.available == 'true'
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4, verified 2026-10-03
+        with:
+          node-version-file: .nvmrc
+      - name: Check homepage, writing, real custom 404 and preview noindex
+        if: steps.ready.outputs.available == 'true'
+        run: node scripts/check-preview.mjs
+        env:
+          PREVIEW_URL: ${{ inputs.preview_url || github.event.deployment_status.environment_url }}
+          PREVIEW_ARTICLE_PATH: ${{ inputs.article_path }}
+          PREVIEW_COMMIT: ${{ github.event.deployment.sha }}
+          GITHUB_TOKEN: ${{ github.token }}
+      - name: Record acceptance
+        if: success() && steps.ready.outputs.available == 'true'
+        run: printf 'Homepage, writing index, published article, custom HTTP 404 and noindex checks passed.\n' >> "$GITHUB_STEP_SUMMARY"
