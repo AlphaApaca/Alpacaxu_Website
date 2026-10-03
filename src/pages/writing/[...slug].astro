@@ -17,7 +17,7 @@ interface Props {
 }
 
 const { post } = Astro.props;
-const { Content } = await render(post);
+const { Content, headings } = await render(post);
 ---
 
 <ArticleLayout
@@ -31,6 +31,7 @@ const { Content } = await render(post);
   sourceCommit={post.data.sourceCommit}
   comments={post.data.comments}
   commentTerm={`/writing/${post.data.permalink}/`}
+  headings={headings}
 >
   <Content />
 </ArticleLayout>

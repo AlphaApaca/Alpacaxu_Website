@@ -1,0 +1,36 @@
+---
+interface Props {
+  headings: { depth: number; slug: string; text: string }[];
+  lang?: string;
+}
+
+const { headings, lang = "zh-CN" } = Astro.props;
+const outline = headings.filter(({ depth }) => depth === 2 || depth === 3);
+const chinese = lang.toLowerCase().startsWith("zh");
+const title = chinese ? "文章目录" : "On this page";
+const progressLabel = chinese ? "阅读进度" : "Reading progress";
+---
+
+<aside class="article-reader" data-article-reader>
+  <details class="article-reader-panel" open>
+    <summary>
+      <span data-reader-title>{title}</span>
+      <span class="reader-percentage" data-reader-value hidden>0%</span>
+    </summary>
+    <div class="reader-progress" data-reader-progress hidden>
+      <span data-reader-progress-label>{progressLabel}</span>
+      <progress data-reader-bar max="100" value="0" aria-label={progressLabel}>0%</progress>
+    </div>
+    <nav class="reader-toc" data-reader-nav aria-label={title} hidden={outline.length === 0}>
+      <ol>
+        {outline.map(({ depth, slug, text }) => (
+          <li class="reader-item" data-depth={depth}>
+            <a data-reader-link href={`#${slug}`}>{text}</a>
+          </li>
+        ))}
+      </ol>
+    </nav>
+    {outline.length === 0 && <p class="reader-empty" data-reader-empty>{chinese ? "正文没有分节标题。" : "No section headings in this article."}</p>}
+  </details>
+</aside>
+<script is:inline type="module" src="/article-reader.js"></script>
