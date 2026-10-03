@@ -7,6 +7,7 @@
     <title>从简历网站到机器人作品集 | Mingyang Xu</title>
     <link rel="icon" href="../favicon.svg" type="image/svg+xml">
     <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="/article-reader.css">
   </head>
   <body class="article-page">
     <header class="site-header">
@@ -26,26 +27,50 @@
       </div>
     </header>
 
-    <main class="article-shell">
-      <p class="eyebrow" data-i18n="articleBuild.eyebrow">作品集 / 工作流</p>
-      <h1 data-i18n="articleBuild.title">从简历网站到机器人作品集</h1>
-      <p class="article-lead" data-i18n="articleBuild.lead">简历概括经历，作品集解释项目的目标、个人贡献、验证方式和局限。</p>
+    <main class="article-shell article-with-reader">
+      <div class="article-heading">
+        <p class="eyebrow" data-i18n="articleBuild.eyebrow">作品集 / 工作流</p>
+        <h1 data-i18n="articleBuild.title">从简历网站到机器人作品集</h1>
+        <p class="article-lead" data-i18n="articleBuild.lead">简历概括经历，作品集解释项目的目标、个人贡献、验证方式和局限。</p>
+      </div>
 
-      <article class="article-content">
-        <h2 data-i18n="articleBuild.h2a">先说明方向与边界</h2>
-        <p data-i18n="articleBuild.p1">首页应让访问者快速看清我已完成的 MuJoCo 规划评测和 ROS2 导航工作，也分清我仍在学习的 Robot Learning 方向。</p>
+      <div class="article-reading-layout">
+        <div class="article-main">
+          <article class="article-content">
+            <h2 id="articleBuild-h2a" data-i18n="articleBuild.h2a">先说明方向与边界</h2>
+            <p data-i18n="articleBuild.p1">首页应让访问者快速看清我已完成的 MuJoCo 规划评测和 ROS2 导航工作，也分清我仍在学习的 Robot Learning 方向。</p>
 
-        <h2 data-i18n="articleBuild.h2b">再展开项目证据</h2>
-        <p data-i18n="articleBuild.p2">每个项目都应交代问题、方法、个人贡献和评测结果；没有可访问的仓库或报告时，不放占位链接。</p>
+            <h2 id="articleBuild-h2b" data-i18n="articleBuild.h2b">再展开项目证据</h2>
+            <p data-i18n="articleBuild.p2">每个项目都应交代问题、方法、个人贡献和评测结果；没有可访问的仓库或报告时，不放占位链接。</p>
 
-        <h2 data-i18n="articleBuild.h2c">持续记录限制与反思</h2>
-        <p data-i18n="articleBuild.p3">例如，规划可行性评测不能替代策略训练，团队机器人系统的结果也不能写成个人独立完成。明确边界能让工程证据更可信。</p>
+            <h2 id="articleBuild-h2c" data-i18n="articleBuild.h2c">持续记录限制与反思</h2>
+            <p data-i18n="articleBuild.p3">例如，规划可行性评测不能替代策略训练，团队机器人系统的结果也不能写成个人独立完成。明确边界能让工程证据更可信。</p>
 
-        <h2 data-i18n="articleBuild.h2d">保持易维护</h2>
-        <p data-i18n-html="articleBuild.p4">当前版本是轻量静态站。内容多起来后，再考虑用 Markdown/MDX 管理项目与文章。</p>
-      </article>
+            <h2 id="articleBuild-h2d" data-i18n="articleBuild.h2d">保持易维护</h2>
+            <p data-i18n-html="articleBuild.p4">当前版本是轻量静态站。内容多起来后，再考虑用 Markdown/MDX 管理项目与文章。</p>
+          </article>
+        </div>
+        <aside class="article-reader" data-article-reader>
+          <details class="article-reader-panel" open>
+            <summary><span data-reader-title>文章目录</span><span class="reader-percentage" data-reader-value hidden>0%</span></summary>
+            <div class="reader-progress" data-reader-progress hidden>
+              <span data-reader-progress-label>阅读进度</span>
+              <progress data-reader-bar max="100" value="0" aria-label="阅读进度"></progress>
+            </div>
+            <nav class="reader-toc" data-reader-nav aria-label="文章目录">
+              <ol>
+                <li class="reader-item" data-depth="2"><a data-reader-link href="#articleBuild-h2a">先说明方向与边界</a></li>
+                <li class="reader-item" data-depth="2"><a data-reader-link href="#articleBuild-h2b">再展开项目证据</a></li>
+                <li class="reader-item" data-depth="2"><a data-reader-link href="#articleBuild-h2c">持续记录限制与反思</a></li>
+                <li class="reader-item" data-depth="2"><a data-reader-link href="#articleBuild-h2d">保持易维护</a></li>
+              </ol>
+            </nav>
+          </details>
+        </aside>
+      </div>
     </main>
 
     <script src="../script.js"></script>
+    <script type="module" src="/article-reader.js"></script>
   </body>
 </html>

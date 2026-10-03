@@ -1,6 +1,7 @@
 ---
 import BaseLayout from "./BaseLayout.astro";
 import GiscusComments from "../components/GiscusComments.astro";
+import ArticleReader from "../components/ArticleReader.astro";
 import { categoryLabel } from "../lib/content";
 import { writingFilterUrl } from "../lib/writing.mjs";
 
@@ -15,6 +16,7 @@ interface Props {
   sourceCommit?: string;
   comments?: boolean;
   commentTerm: string;
+  headings: { depth: number; slug: string; text: string }[];
 }
 
 const {
@@ -27,7 +29,8 @@ const {
   sourceUrl,
   sourceCommit,
   comments = false,
-  commentTerm
+  commentTerm,
+  headings
 } = Astro.props;
 
 const formattedDate = new Intl.DateTimeFormat(lang, {
@@ -40,28 +43,36 @@ const formattedDate = new Intl.DateTimeFormat(lang, {
 
 <BaseLayout title={`${title} | Mingyang Xu`} description={summary} lang={lang} page="writing" bodyClass="article-page" pageType="article">
   <Fragment slot="head">
+    <link rel="stylesheet" href="/article-reader.css" />
     {comments && <meta name="giscus:backlink" content={new URL(commentTerm, Astro.site ?? "https://www.alpacaxu.cn")} />}
   </Fragment>
-  <main class="article-shell synced-article">
-    <a class="article-back" href="/writing/">← Writing · 全部文章</a>
-    <p class="eyebrow"><a href={writingFilterUrl({ category })}>{categoryLabel(category)}</a></p>
-    <h1>{title}</h1>
-    <p class="article-lead">{summary}</p>
-    <div class="post-meta article-meta">
-      <time datetime={date}>{formattedDate}</time>
-      {sourceCommit && <span title={sourceCommit}>repytorch · {sourceCommit.slice(0, 7)}</span>}
+  <main class="article-shell synced-article article-with-reader">
+    <div class="article-heading">
+      <a class="article-back" href="/writing/">← Writing · 全部文章</a>
+      <p class="eyebrow"><a href={writingFilterUrl({ category })}>{categoryLabel(category)}</a></p>
+      <h1>{title}</h1>
+      <p class="article-lead">{summary}</p>
+      <div class="post-meta article-meta">
+        <time datetime={date}>{formattedDate}</time>
+        {sourceCommit && <span title={sourceCommit}>repytorch · {sourceCommit.slice(0, 7)}</span>}
+      </div>
+      {tags.length > 0 && <div class="tags">{tags.map((tag) => <a href={writingFilterUrl({ tag })}>{tag}</a>)}</div>}
     </div>
-    {tags.length > 0 && <div class="tags">{tags.map((tag) => <a href={writingFilterUrl({ tag })}>{tag}</a>)}</div>}
-    <article class="article-content">
-      <slot />
-    </article>
-    {
-      sourceUrl && (
-        <p class="article-source">
-          <a href={sourceUrl} target="_blank" rel="noopener noreferrer">View the source Markdown on GitHub ↗</a>
-        </p>
-      )
-    }
-    {comments && <GiscusComments term={commentTerm} lang={lang} />}
+    <div class="article-reading-layout">
+      <div class="article-main">
+        <article class="article-content">
+          <slot />
+        </article>
+        {
+          sourceUrl && (
+            <p class="article-source">
+              <a href={sourceUrl} target="_blank" rel="noopener noreferrer">View the source Markdown on GitHub ↗</a>
+            </p>
+          )
+        }
+        {comments && <GiscusComments term={commentTerm} lang={lang} />}
+      </div>
+      <ArticleReader headings={headings} lang={lang} />
+    </div>
   </main>
 </BaseLayout>
