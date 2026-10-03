@@ -1,8 +1,8 @@
 ---
 import legacyDocument from "../../index.html?raw";
-import { getCollection } from "astro:content";
 import BaseLayout from "../layouts/BaseLayout.astro";
-import { categoryLabel, postPath } from "../lib/content";
+import { categoryLabel, postPath, getPublishedPosts } from "../lib/content";
+import { writingFilterUrl } from "../lib/writing.mjs";
 
 const mainMatch = legacyDocument.match(/<main>([\s\S]*?)<\/main>/i);
 
@@ -17,13 +17,11 @@ const escapeHtml = (value: string) => value
   .replaceAll('"', "&quot;")
   .replaceAll("'", "&#39;");
 
-const posts = (await getCollection("posts", ({ data }) => data.publish)).sort(
-  (left, right) => right.data.date.localeCompare(left.data.date)
-);
+const posts = await getPublishedPosts();
 
 const syncedCards = posts.map((post) => {
   const search = [post.data.title, post.data.summary, post.data.category, ...post.data.tags].join(" ");
-  const tags = post.data.tags.map((tag) => `<span>${escapeHtml(tag)}</span>`).join("");
+  const tags = post.data.tags.map((tag) => `<a href="${escapeHtml(writingFilterUrl({ tag }))}">${escapeHtml(tag)}</a>`).join("");
 
   return `
     <article class="post-card" data-search="${escapeHtml(search)}">

@@ -14,7 +14,7 @@ const { showLanguageToggle = true } = Astro.props;
   <nav class="nav-links" aria-label="Primary navigation" data-i18n-aria-label={showLanguageToggle ? "common.primaryNav" : undefined}>
     <a href="/#projects" data-i18n={showLanguageToggle ? "nav.projects" : undefined}>Projects</a>
     <a href="/#experience" data-i18n={showLanguageToggle ? "nav.experience" : undefined}>Experience</a>
-    <a href="/#posts" data-i18n={showLanguageToggle ? "nav.posts" : undefined}>Writing</a>
+    <a href="/writing/" aria-current={Astro.url.pathname.startsWith("/writing/") ? "page" : undefined} data-i18n={showLanguageToggle ? "nav.posts" : undefined}>Writing</a>
     <a href="/about/" data-i18n={showLanguageToggle ? "nav.about" : undefined}>About</a>
   </nav>
   <div class="header-actions">

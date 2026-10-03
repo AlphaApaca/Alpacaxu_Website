@@ -6,6 +6,8 @@
 
 - `src/pages/`：Astro 页面，包括首页、写作索引、文章路由、About 留言板和 404
 - `src/content/posts/repytorch/`：由同步脚本生成并提交到 Git 的文章快照
+- `src/content/posts/essays/`：手动维护的杂文 Markdown，与自动同步内容分开存放
+- `docs/writing.md`、`docs/essay-template.md`：杂文写作说明与可复制的草稿模板，不会成为网站文章
 - `scripts/sync-repytorch.mjs`：从固定 GitHub 提交读取、校验并转换文章
 - `src/content/posts/repytorch/snapshot.json`：来源提交与文章网址清单，包括零篇已发布文章的情况
 - `.github/workflows/`：回归检查、定时同步提 PR、真实预览 HTTP 验收
@@ -64,6 +66,22 @@ pnpm build
 同步器会把生成快照写入 `src/content/posts/repytorch/`。请检查差异后将快照与网站变更一同提交。普通 `pnpm build` 只读取已提交快照，因此构建是可复现的，也不会因为 GitHub 暂时不可用而失败。
 
 `pnpm sync:repytorch:check` 会读取快照中记录的固定提交并验证内容没有漂移；它不会用后来变化的 `main` 作为比较基准。
+
+## 在网站仓库写杂文
+
+杂文不需要放到 `repytorch`。复制 [`docs/essay-template.md`](docs/essay-template.md) 到 `src/content/posts/essays/`，给文件起一个名字，再填写标题、日期、简介和标签。具体步骤见 [`docs/writing.md`](docs/writing.md)。
+
+新文章默认 `publish: false`，不会进入文章列表，也不会生成文章页面。写好后改为 `publish: true`，检查本地预览与构建，提交到网站仓库的新分支，并通过 PR 预览和人工合并发布。公开仓库中的草稿仍可在 GitHub 被读取，`publish: false` 不是保密措施。
+
+本地文章用 `permalink` 明确指定稳定网址，例如 `my-first-essay` 对应 `/writing/my-first-essay/`；它不是同步来源中的可选 `slug`。发布后尽量保持不变，避免旧链接和评论关联失效。不要直接编辑 `src/content/posts/repytorch/`，那里仍由同步脚本维护。
+
+## 文章索引
+
+`/writing/` 统一展示已发布的本地文章、GitHub 同步文章与保留的旧文章。分类包括学习日志、技术笔记和杂文；标签可以筛选，关键词搜索匹配标题、简介和标签，暂不搜索正文。分类、标签和关键词可以组合使用，筛选状态保留在网址参数 `category`、`tag`、`q` 中，便于分享同一组结果。
+
+旧文章仍使用原来的 `/articles/*.html` 网址，未记录发布日期的文章标为“旧文”，不会补造日期。没有 JavaScript 时仍能浏览全部文章和正文，交互筛选需要 JavaScript。已有分类以外的新 `category` 值也会自动出现在索引里；同一标签的大小写和全角差异按同一个筛选值处理。
+
+工作流固定使用 `ubuntu-24.04` 和完整提交 SHA 的 Node 24 兼容 Actions，避免运行环境静默升级；网站构建本身仍使用 `.nvmrc` 指定的 Node 22.13.0。定时同步、权限、草稿 PR 与手动合并规则均保持不变。
 
 ## 同步安全规则
 

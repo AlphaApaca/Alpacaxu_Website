@@ -1,32 +1,183 @@
 ---
-import { getCollection } from "astro:content";
 import BaseLayout from "../../layouts/BaseLayout.astro";
-import { categoryLabel, postPath } from "../../lib/content";
+import { getWritingPosts, categoryLabel } from "../../lib/content";
+import { DEFAULT_CATEGORIES, normalizeSearch, writingFilterUrl } from "../../lib/writing.mjs";
 
-const posts = (await getCollection("posts", ({ data }) => data.publish)).sort(
-  (left, right) => right.data.date.localeCompare(left.data.date)
-);
+const posts = await getWritingPosts();
+const categories = [...new Set([...DEFAULT_CATEGORIES, ...posts.map((post) => post.category)])];
+const uniqueTags = new Map<string, string>();
+posts.forEach((post) => post.tags.forEach((tag) => {
+  if (!uniqueTags.has(normalizeSearch(tag))) uniqueTags.set(normalizeSearch(tag), tag);
+}));
+const tags = [...uniqueTags.values()].sort((left, right) => left.localeCompare(right, "zh-CN"));
 ---
 
-<BaseLayout title="Writing | Mingyang Xu" description="Learning logs and technical notes by Mingyang Xu." page="writing">
-  <main class="section writing-index">
-    <p class="section-kicker">Writing</p>
-    <h1>Learning logs and technical notes</h1>
-    <p class="section-intro">Published from the public repytorch repository.</p>
-    <div class="post-list">
-      {
-        posts.map((post) => (
-          <article class="post-card">
-            <div class="post-meta">
-              <time datetime={post.data.date}>{post.data.date}</time>
-              <span>{categoryLabel(post.data.category)}</span>
-            </div>
-            <h2><a href={postPath(post.data.permalink)}>{post.data.title}</a></h2>
-            <p>{post.data.summary}</p>
-            <div class="tags">{post.data.tags.map((tag) => <span>{tag}</span>)}</div>
-          </article>
-        ))
-      }
+<BaseLayout title="Writing · 文章 | Mingyang Xu" description="Mingyang Xu 的学习日志、技术笔记与杂文。按分类、标签和关键词浏览全部文章。" lang="zh-CN" page="writing">
+  <main class="section writing-index" data-writing-index>
+    <header class="writing-heading">
+      <p class="section-kicker">Writing / Archive</p>
+      <h1>记录、整理，<br />偶尔想远一点。</h1>
+      <p class="section-intro">学习日志、技术笔记，还有一些随想。中英混写，留在同一个地方。</p>
+    </header>
+
+    <form class="writing-controls" method="get" action="/writing/" data-writing-enhanced hidden>
+      <label class="writing-search" for="writingSearch">
+        <span>搜索文章 <small>SEARCH</small></span>
+        <input id="writingSearch" name="q" type="search" placeholder="搜索标题、摘要或标签" autocomplete="off" />
+      </label>
+      <label class="writing-tag-select" for="writingTag">
+        <span>标签 <small>TAG</small></span>
+        <select id="writingTag" name="tag">
+          <option value="">全部标签</option>
+          {tags.map((tag) => <option value={tag}>{tag}</option>)}
+        </select>
+      </label>
+      <input type="hidden" name="category" value="" />
+      <button class="writing-reset" type="reset">清除筛选</button>
+    </form>
+
+    <nav class="writing-categories" aria-label="文章分类" data-writing-enhanced hidden>
+      <a href="/writing/" data-writing-category="" aria-current="true">全部 <span>{posts.length}</span></a>
+      {categories.map((category) => (
+        <a href={writingFilterUrl({ category })} data-writing-category={category}>
+          {categoryLabel(category)} <span>{posts.filter((post) => post.category === category).length}</span>
+        </a>
+      ))}
+    </nav>
+
+    <div class="writing-list-heading">
+      <p id="writingResults" role="status" aria-live="polite" aria-atomic="true">共 {posts.length} 篇文章</p>
+      <span>有日期的文章按新到旧排列 · 无日期旧文列于后方</span>
     </div>
+    <noscript><p class="writing-noscript">以下为全部已发布文章。分类、标签和关键词筛选需要启用 JavaScript；文章阅读不受影响。</p></noscript>
+
+    <div class="post-list" id="writingList">
+      {posts.map((post) => (
+        <article class="post-card" data-writing-post data-category={post.category} data-tags={JSON.stringify(post.tags)} data-search={post.searchText}>
+          <div class="post-meta">
+            {post.date ? <time datetime={post.date}>{post.date}</time> : <span>旧文 · Archive</span>}
+            <a href={writingFilterUrl({ category: post.category })} data-writing-category={post.category}>{categoryLabel(post.category)}</a>
+          </div>
+          <h2><a href={post.url}>{post.title}</a></h2>
+          <p>{post.summary}</p>
+          <div class="tags">{post.tags.map((tag) => <a href={writingFilterUrl({ tag })} data-writing-tag={tag}>{tag}</a>)}</div>
+        </article>
+      ))}
+    </div>
+    <div class="writing-empty" id="writingEmpty" hidden>
+      <p class="section-kicker">No matching entries</p>
+      <h2>这里暂时还没有文章。</h2>
+      <p id="writingEmptyHint">换个关键词，或清除分类和标签试试。</p>
+      <button class="writing-reset" type="button" data-writing-clear>查看全部文章</button>
+    </div>
+    <footer class="writing-index-footer">
+      <span>学习日志来自 repytorch，杂文独立记录。只展示明确发布的文章。</span>
+      <a href="/about/">关于我 / About →</a>
+    </footer>
   </main>
 </BaseLayout>
+
+<script>
+  import { matchesWriting, normalizeSearch, readWritingFilters, writingFilterUrl } from "../../lib/writing.mjs";
+
+  const index = document.querySelector<HTMLElement>("[data-writing-index]");
+  if (index) {
+    const form = index.querySelector<HTMLFormElement>("form")!;
+    const search = form.querySelector<HTMLInputElement>("[name=q]")!;
+    const category = form.querySelector<HTMLInputElement>("[name=category]")!;
+    const tag = form.querySelector<HTMLSelectElement>("[name=tag]")!;
+    const results = index.querySelector<HTMLElement>("#writingResults")!;
+    const empty = index.querySelector<HTMLElement>("#writingEmpty")!;
+    const emptyHint = index.querySelector<HTMLElement>("#writingEmptyHint")!;
+    const cards = [...index.querySelectorAll<HTMLElement>("[data-writing-post]")].map((element) => ({
+      element,
+      category: element.dataset.category!,
+      tags: JSON.parse(element.dataset.tags!) as string[],
+      searchText: element.dataset.search!,
+    }));
+
+    const state = () => ({ q: search.value, category: category.value, tag: tag.value });
+    const render = () => {
+      const filters = state();
+      let count = 0;
+      cards.forEach((post) => {
+        post.element.hidden = !matchesWriting(post, filters);
+        if (!post.element.hidden) count += 1;
+      });
+      results.textContent = `显示 ${count} / ${cards.length} 篇文章`;
+      empty.hidden = count > 0;
+      emptyHint.textContent = filters.category === "essay" && !filters.q && !filters.tag
+        ? "这里还没有已发布的杂文。留一些位置，给以后的随想。"
+        : "换个关键词，或清除分类和标签试试。";
+      index.querySelectorAll<HTMLAnchorElement>(".writing-categories [data-writing-category]").forEach((link) => {
+        if (link.dataset.writingCategory === filters.category) link.setAttribute("aria-current", "true");
+        else link.removeAttribute("aria-current");
+      });
+      index.querySelectorAll<HTMLAnchorElement>("[data-writing-category]").forEach((link) => {
+        link.href = writingFilterUrl({ ...filters, category: link.dataset.writingCategory! });
+      });
+      index.querySelectorAll<HTMLAnchorElement>("[data-writing-tag]").forEach((link) => {
+        link.href = writingFilterUrl({ ...filters, tag: link.dataset.writingTag! });
+      });
+    };
+    const setTag = (value: string) => {
+      tag.querySelectorAll("[data-transient]").forEach((option) => option.remove());
+      const matching = [...tag.options].find((option) => normalizeSearch(option.value) === normalizeSearch(value));
+      if (value && !matching) {
+        const option = new Option(`${value}（未收录）`, value);
+        option.dataset.transient = "true";
+        tag.add(option);
+      }
+      tag.value = matching?.value ?? value;
+    };
+    const restore = () => {
+      const filters = readWritingFilters(location.search);
+      search.value = filters.q;
+      category.value = filters.category;
+      setTag(filters.tag);
+      render();
+    };
+    const update = (mode: "pushState" | "replaceState") => {
+      const url = new URL(location.href);
+      // Keep unrelated parameters and fragments; only own the three filter keys.
+      const next = new URL(writingFilterUrl(state()), url.origin);
+      ["q", "category", "tag"].forEach((key) => {
+        url.searchParams.delete(key);
+        const value = next.searchParams.get(key);
+        if (value) url.searchParams.set(key, value);
+      });
+      if (url.href !== location.href) history[mode](null, "", url);
+      render();
+    };
+    const clear = () => {
+      search.value = "";
+      category.value = "";
+      tag.value = "";
+      update("pushState");
+    };
+
+    let searchTimer: ReturnType<typeof setTimeout> | undefined;
+    search.addEventListener("input", () => {
+      render();
+      clearTimeout(searchTimer);
+      searchTimer = setTimeout(() => update("replaceState"), 200);
+    });
+    tag.addEventListener("change", () => update("pushState"));
+    form.addEventListener("submit", (event) => { event.preventDefault(); update("pushState"); });
+    form.addEventListener("reset", (event) => { event.preventDefault(); clearTimeout(searchTimer); clear(); });
+    index.querySelector("[data-writing-clear]")!.addEventListener("click", clear);
+    index.addEventListener("click", (event) => {
+      if (!(event instanceof MouseEvent) || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+      const link = (event.target as HTMLElement).closest<HTMLAnchorElement>("a[data-writing-category], a[data-writing-tag]");
+      if (!link) return;
+      event.preventDefault();
+      clearTimeout(searchTimer);
+      if (link.dataset.writingCategory !== undefined) category.value = link.dataset.writingCategory;
+      if (link.dataset.writingTag !== undefined) setTag(link.dataset.writingTag);
+      update("pushState");
+    });
+    window.addEventListener("popstate", () => { clearTimeout(searchTimer); restore(); });
+    restore();
+    index.querySelectorAll<HTMLElement>("[data-writing-enhanced]").forEach((element) => { element.hidden = false; });
+  }
+</script>
