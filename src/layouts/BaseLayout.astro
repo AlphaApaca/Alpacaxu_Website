@@ -5,6 +5,7 @@ import WorkspaceTools from "../components/WorkspaceTools.astro";
 import legacyScript from "../../public/script.js?raw";
 import { evidenceMarkup } from "../lib/evidence-copy.mjs";
 import { firstPaintScript } from "../lib/first-paint.mjs";
+import { motionCheckScript } from "../lib/motion-check.mjs";
 
 interface Props {
   title: string;
@@ -38,6 +39,7 @@ const canonicalUrl = new URL(Astro.url.pathname, Astro.site ?? "https://www.alpa
 const renderedContent = await Astro.slots.render("default");
 const pageContent = legacyI18n ? evidenceMarkup(legacyScript, renderedContent) : renderedContent;
 const bootstrap = firstPaintScript({ writingManifest });
+const motionCheck = motionCheckScript();
 ---
 
 <!doctype html>
@@ -54,6 +56,7 @@ const bootstrap = firstPaintScript({ writingManifest });
     <meta property="og:description" content={description} data-localized-zh={localizedMeta?.zh.description} data-localized-en={localizedMeta?.en.description} />
     {canonical && <meta property="og:url" content={canonicalUrl} />}
     <meta name="twitter:card" content="summary" />
+    <script is:inline set:html={motionCheck}></script>
     <script is:inline set:html={bootstrap}></script>
     <!-- Capture a complete main, not an early streamed header/background frame. -->
     <link rel="expect" blocking="render" href="#page-content-ready" />
@@ -71,6 +74,11 @@ const bootstrap = firstPaintScript({ writingManifest });
     <span id="page-content-ready" hidden aria-hidden="true"></span>
     <SiteFooter />
     <WorkspaceTools />
+    <aside id="motion-check-panel" class="motion-check-panel" hidden aria-label="Transition diagnostics">
+      <p data-motion-check-status role="status" aria-live="polite"></p>
+      <p data-motion-check-detail></p>
+      <button type="button" data-motion-check-close>Close diagnostics</button>
+    </aside>
     <script is:inline>
       const root = document.documentElement;
       const storageKey = "alpaca-theme";

@@ -67,3 +67,14 @@ test("reduced motion disables native navigation and every named transition", () 
   }
   assert.match(reduced, /animation:\s*none !important;/);
 });
+
+test("acceptance diagnostics are early, hidden by default and prolong only incoming snapshots", () => {
+  const head = layout.match(/<head>[\s\S]*?<\/head>/)?.[0] ?? "";
+  assert.match(head, /<script is:inline set:html=\{motionCheck\}><\/script>/);
+  assert.ok(head.indexOf("set:html={motionCheck}") < head.indexOf("set:html={bootstrap}"));
+  assert.match(layout, /<aside id="motion-check-panel" class="motion-check-panel" hidden/);
+  assert.match(layout, /data-motion-check-status role="status" aria-live="polite"/);
+  assert.match(css, /html\[data-motion-check="true"\]::view-transition-new\(root\),\s*html\[data-motion-check="true"\]::view-transition-new\(page-content\),\s*html\[data-motion-check="true"\]::view-transition-group\(page-content\)\s*\{\s*animation-duration:\s*600ms;/);
+  assert.match(css, /\.motion-check-panel\[hidden\]\s*\{\s*display:\s*none !important;/);
+  assert.match(css, /\.motion-check-panel\s*\{\s*position:\s*fixed;/);
+});

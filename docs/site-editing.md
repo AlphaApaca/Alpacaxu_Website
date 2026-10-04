@@ -40,3 +40,5 @@ GitHub 学习日志/笔记继续在 `repytorch` 写，按原有 `publish: true` 
 语言、主题以及文章网址中的筛选条件，在首屏由 `src/lib/first-paint.mjs` 初始化；顶栏和筛选区预留位置。后续中英切换仍由 `public/workspace.js` 处理。旧项目/经历字典由 `src/lib/evidence-copy.mjs` 在构建时转换，不再作为另一套首页浏览器脚本运行。修改文案的位置不变，详情和验收边界见 `docs/first-paint-checks.md`。
 
 技术依据：[Astro 预取](https://docs.astro.build/en/guides/prefetch/)、[原生跨文档过渡](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/At-rules/@view-transition)。过渡改善视觉连贯性，不等于实测网络速度变快。
+
+修复分支另提供临时验收参数 `?motion-check=1`，将当前标签页淡入延长到 600ms 并显示事件结果；普通访问不启用。请点击站内链接测试而不是刷新，结束后看提示，再点击“关闭调试”。详见 `docs/first-paint-checks.md` 的“临时动画验收模式”；验收后需移除这段辅助代码。

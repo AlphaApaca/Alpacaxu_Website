@@ -20,6 +20,18 @@ body > main { view-transition-name: page-content; }
 ::view-transition-group(site-header) { animation: none; }
 ::view-transition-old(site-header) { animation: none; opacity: 1; mix-blend-mode: normal; }
 ::view-transition-new(site-header) { animation: none; mix-blend-mode: normal; background: var(--bg); }
+/* Explicit, tab-local acceptance mode; ordinary visits keep the 300ms duration. */
+html[data-motion-check="true"]::view-transition-new(root),
+html[data-motion-check="true"]::view-transition-new(page-content),
+html[data-motion-check="true"]::view-transition-group(page-content) { animation-duration: 600ms; }
+.motion-check-panel[hidden] { display: none !important; }
+.motion-check-panel { position: fixed; right: 16px; bottom: 16px; z-index: 1000; width: min(360px, calc(100vw - 32px)); padding: 16px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); color: var(--text); box-shadow: var(--shadow); font-size: 0.78rem; line-height: 1.65; }
+.motion-check-panel p { margin: 0 0 10px; }
+.motion-check-panel [data-motion-check-status] { font-weight: 550; }
+.motion-check-panel [data-motion-check-detail] { color: var(--muted); }
+.motion-check-panel button { padding: 6px 10px; border: 1px solid var(--line); border-radius: 4px; background: var(--bg); color: var(--text); font: inherit; cursor: pointer; }
+.motion-check-panel button:disabled { opacity: 0.5; cursor: wait; }
+.motion-check-panel button:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 .brand { font-weight: 550; line-height: 1.35; min-width: 0; }
 .site-header > .brand { justify-self: start; }
 .site-header .brand span:last-child { display: inline; }
