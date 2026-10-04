@@ -30,6 +30,7 @@ const copy = () => {
     button.setAttribute("aria-label", toggle.action);
     button.setAttribute("title", toggle.action);
     button.hidden = false;
+    button.disabled = false;
   });
   document.querySelectorAll("[data-workspace-article-open]").forEach((element) => {
     const title = element.closest("article")?.querySelector("h3")?.textContent ?? "";
@@ -39,15 +40,13 @@ const copy = () => {
 };
 copy();
 
-// Home still owns its evidence translations; other pages share the same saved UI preference.
-if (root.dataset.legacyI18n !== "true") {
-  document.querySelectorAll(".lang-toggle").forEach((button) => button.addEventListener("click", () => {
-    const next = chinese() ? "en" : "zh";
-    try { localStorage.setItem("alpaca-lang", next); } catch { /* Switching also works without storage. */ }
-    root.lang = next === "zh" ? "zh-CN" : "en";
-    root.dataset.lang = next;
-  }));
-}
+// All pages share one handler; the old homepage browser script is not loaded.
+document.querySelectorAll(".lang-toggle").forEach((button) => button.addEventListener("click", () => {
+  const next = chinese() ? "en" : "zh";
+  try { localStorage.setItem("alpaca-lang", next); } catch { /* Switching also works without storage. */ }
+  root.lang = next === "zh" ? "zh-CN" : "en";
+  root.dataset.lang = next;
+}));
 
 const map = document.querySelector("[data-workspace-map]");
 if (map) {

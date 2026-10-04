@@ -26,11 +26,16 @@ const localizedCategory = (category: string) => Object.hasOwn(categoryCopy, cate
   : { zh: categoryLabel(category), en: categoryLabel(category) };
 ---
 
-<BaseLayout title={localizedMeta.zh.title} description={localizedMeta.zh.description} localizedMeta={localizedMeta} lang="zh-CN" page="writing" bodyClass="editorial-writing">
+<BaseLayout title={localizedMeta.zh.title} description={localizedMeta.zh.description} localizedMeta={localizedMeta} lang="zh-CN" page="writing" bodyClass="editorial-writing" writingManifest={posts.map(({ category, tags, searchText }) => ({ category, tags, searchText }))}>
   <Fragment slot="head">
     <link rel="stylesheet" href="/writing-editorial.css" />
+    <noscript>
+      <style is:inline>
+        [data-writing-index] [data-writing-enhanced] { display: none !important; }
+      </style>
+    </noscript>
   </Fragment>
-  <main class="section writing-index" data-writing-index>
+  <main class="section writing-index" data-writing-index data-writing-total={posts.length}>
     <header class="writing-heading">
       <div class="writing-heading-copy">
         <p class="section-kicker" data-workspace-zh="文章 / 私人档案" data-workspace-en="Writing / Personal archive">文章 / 私人档案</p>
@@ -45,7 +50,7 @@ const localizedCategory = (category: string) => Object.hasOwn(categoryCopy, cate
       </div>
     </header>
 
-    <form class="writing-controls" method="get" action="/writing/" data-writing-enhanced hidden>
+    <form class="writing-controls" method="get" action="/writing/" data-writing-enhanced inert>
       <label class="writing-search" for="writingSearch">
         <span><span data-workspace-zh="搜索文章" data-workspace-en="Search writing">搜索文章</span> <small>SEARCH</small></span>
         <input id="writingSearch" name="q" type="search" placeholder="搜索标题、摘要或标签" data-workspace-placeholder-zh="搜索标题、摘要或标签" data-workspace-placeholder-en="Search titles, summaries or tags" autocomplete="off" />
@@ -61,7 +66,7 @@ const localizedCategory = (category: string) => Object.hasOwn(categoryCopy, cate
       <button class="writing-reset" type="reset" data-workspace-zh="清除筛选" data-workspace-en="Clear filters">清除筛选</button>
     </form>
 
-    <nav class="writing-categories" aria-label="文章分类" data-workspace-aria-zh="文章分类" data-workspace-aria-en="Writing categories" data-writing-enhanced hidden>
+    <nav class="writing-categories" aria-label="文章分类" data-workspace-aria-zh="文章分类" data-workspace-aria-en="Writing categories" data-writing-enhanced inert>
       <a href="/writing/" data-writing-category="" aria-current="true"><span data-workspace-zh="全部" data-workspace-en="All">全部</span> <span>{posts.length}</span></a>
       {categories.map((category) => (
         <a href={writingFilterUrl({ category })} data-writing-category={category}>
@@ -103,9 +108,8 @@ const localizedCategory = (category: string) => Object.hasOwn(categoryCopy, cate
       <a href="/about/" data-workspace-zh="关于我 →" data-workspace-en="About →">关于我 →</a>
     </footer>
   </main>
-</BaseLayout>
-
-<script>
+  <Fragment slot="body-end">
+  <script>
   import { matchesWriting, normalizeSearch, readWritingFilters, writingFilterUrl } from "../../lib/writing.mjs";
 
   const index = document.querySelector<HTMLElement>("[data-writing-index]");
@@ -211,6 +215,8 @@ const localizedCategory = (category: string) => Object.hasOwn(categoryCopy, cate
     // Translate only the archive interface; authored titles, summaries and filter values stay unchanged.
     window.addEventListener("site:language-change", () => { setTag(tag.value); render(); });
     restore();
-    index.querySelectorAll<HTMLElement>("[data-writing-enhanced]").forEach((element) => { element.hidden = false; });
+    index.querySelectorAll<HTMLElement>("[data-writing-enhanced]").forEach((element) => { element.removeAttribute("inert"); });
   }
-</script>
+  </script>
+  </Fragment>
+</BaseLayout>

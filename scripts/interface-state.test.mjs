@@ -36,7 +36,10 @@ test("all shared pages expose the language control without attaching home handle
   assert.doesNotMatch(layout, /showLanguageToggle=\{legacyI18n\}/);
   assert.match(layout, /data-content-lang=\{lang\}/);
   const script = await read("public/workspace.js");
-  assert.match(script, /root\.dataset\.legacyI18n !== "true"/);
+  assert.doesNotMatch(script, /root\.dataset\.legacyI18n/);
+  assert.doesNotMatch(layout, /src="\/script\.js"/);
+  assert.match(layout, /evidenceMarkup\(legacyScript, renderedContent\)/);
+  assert.match(script, /button\.disabled = false/);
   assert.match(script, /localStorage\.setItem\("alpaca-lang", next\)/);
   assert.match(script, /CustomEvent\("site:language-change"/);
   for (const attribute of ["aria-label", "placeholder", "alt", "title"]) assert.ok(script.includes(`"${attribute}"`));

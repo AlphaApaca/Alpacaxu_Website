@@ -33,6 +33,8 @@ GitHub 学习日志/笔记继续在 `repytorch` 写，按原有 `publish: true` 
 
 ## 跳转效果
 
-页面仍是普通多页网站，没有拦截导航。支持原生跨页过渡的浏览器会播放 150ms 淡化；不支持的浏览器正常跳转。系统设置“减少动态效果”时关闭动画。顶栏和文章入口悬停时可提前加载站内页面；省流量、慢网由 Astro 自行降级，不预取外站或 GitHub 登录。
+页面仍是普通多页网站，没有拦截导航。支持原生跨页过渡的浏览器会在站内链接跳转时播放约 200ms 的轻微正文模糊淡化，顶栏不跟随位移；刷新或从地址栏直接进入不是动画验收场景。不支持的浏览器正常跳转，系统设置“减少动态效果”时关闭动画。顶栏和文章入口悬停时可提前加载站内页面；省流量、慢网由 Astro 自行降级，不预取外站或 GitHub 登录。
+
+语言、主题以及文章网址中的筛选条件，在首屏由 `src/lib/first-paint.mjs` 初始化；顶栏和筛选区预留位置。后续中英切换仍由 `public/workspace.js` 处理。旧项目/经历字典由 `src/lib/evidence-copy.mjs` 在构建时转换，不再作为另一套首页浏览器脚本运行。修改文案的位置不变，详情和验收边界见 `docs/first-paint-checks.md`。
 
 技术依据：[Astro 预取](https://docs.astro.build/en/guides/prefetch/)、[原生跨文档过渡](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/At-rules/@view-transition)。过渡改善视觉连贯性，不等于实测网络速度变快。

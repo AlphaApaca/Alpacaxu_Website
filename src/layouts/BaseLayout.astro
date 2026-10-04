@@ -2,6 +2,9 @@
 import SiteHeader from "../components/SiteHeader.astro";
 import SiteFooter from "../components/SiteFooter.astro";
 import WorkspaceTools from "../components/WorkspaceTools.astro";
+import legacyScript from "../../public/script.js?raw";
+import { evidenceMarkup } from "../lib/evidence-copy.mjs";
+import { firstPaintScript } from "../lib/first-paint.mjs";
 
 interface Props {
   title: string;
@@ -10,6 +13,7 @@ interface Props {
   page?: string;
   bodyClass?: string;
   legacyI18n?: boolean;
+  writingManifest?: { category: string; tags: string[]; searchText: string }[];
   localizedMeta?: Record<"zh" | "en", { title: string; description: string }>;
   pageType?: "website" | "article";
   canonical?: boolean;
@@ -23,6 +27,7 @@ const {
   page = "content",
   bodyClass,
   legacyI18n = false,
+  writingManifest = [],
   localizedMeta,
   pageType = "website",
   canonical = true,
@@ -30,10 +35,13 @@ const {
 } = Astro.props;
 
 const canonicalUrl = new URL(Astro.url.pathname, Astro.site ?? "https://www.alpacaxu.cn");
+const renderedContent = await Astro.slots.render("default");
+const pageContent = legacyI18n ? evidenceMarkup(legacyScript, renderedContent) : renderedContent;
+const bootstrap = firstPaintScript({ writingManifest });
 ---
 
 <!doctype html>
-<html lang={lang} data-page={page} data-content-lang={lang} data-legacy-i18n={legacyI18n ? "true" : undefined} data-page-title-zh={localizedMeta?.zh.title} data-page-title-en={localizedMeta?.en.title}>
+<html lang={lang} data-page={page} data-content-lang={lang} data-page-title-zh={localizedMeta?.zh.title} data-page-title-en={localizedMeta?.en.title}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -42,37 +50,12 @@ const canonicalUrl = new URL(Astro.url.pathname, Astro.site ?? "https://www.alpa
     {canonical && <link rel="canonical" href={canonicalUrl} />}
     {noindex && <meta name="robots" content="noindex, nofollow" />}
     <meta property="og:type" content={pageType} />
-    <meta property="og:title" content={title} />
+    <meta property="og:title" content={title} data-localized-zh={localizedMeta?.zh.title} data-localized-en={localizedMeta?.en.title} />
     <meta property="og:description" content={description} data-localized-zh={localizedMeta?.zh.description} data-localized-en={localizedMeta?.en.description} />
     {canonical && <meta property="og:url" content={canonicalUrl} />}
     <meta name="twitter:card" content="summary" />
-    <script is:inline>
-      // Apply the saved appearance before styles paint, rather than flashing light on every visit.
-      (() => {
-        const root = document.documentElement;
-        let savedTheme;
-        let savedLanguage;
-        try {
-          savedTheme = localStorage.getItem("alpaca-theme");
-          savedLanguage = localStorage.getItem("alpaca-lang");
-        } catch { /* Reading the site also works when storage is unavailable. */ }
-        root.dataset.theme = savedTheme === "dark" || savedTheme === "light"
-          ? savedTheme
-          : window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-        const language = savedLanguage === "zh" ? "zh" : "en";
-        root.lang = language === "zh" ? "zh-CN" : "en";
-        root.dataset.lang = language;
-        if (root.dataset.pageTitleZh) {
-          document.title = root.getAttribute(`data-page-title-${language}`);
-          document.querySelector('meta[property="og:title"]')?.setAttribute("content", document.title);
-          document.querySelectorAll("[data-localized-zh]").forEach((meta) => {
-            meta.setAttribute("content", meta.getAttribute(`data-localized-${language}`));
-          });
-        }
-      })();
-    </script>
+    <script is:inline set:html={bootstrap}></script>
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    {legacyI18n && <link rel="preload" href="/script.js" as="script" />}
     <link rel="modulepreload" href="/workspace.js" />
     <link rel="stylesheet" href="/styles.css" />
     <link rel="stylesheet" href="/astro.css" />
@@ -82,25 +65,20 @@ const canonicalUrl = new URL(Astro.url.pathname, Astro.site ?? "https://www.alpa
   </head>
   <body class={bodyClass}>
     <SiteHeader />
-    <slot />
+    <Fragment set:html={pageContent} />
     <SiteFooter />
     <WorkspaceTools />
-    {
-      legacyI18n ? (
-        <script is:inline src="/script.js"></script>
-      ) : (
-        <script is:inline>
-          const root = document.documentElement;
-          const storageKey = "alpaca-theme";
-          document.querySelector(".theme-toggle")?.addEventListener("click", () => {
-            const nextTheme = root.dataset.theme === "dark" ? "light" : "dark";
-            root.dataset.theme = nextTheme;
-            try { localStorage.setItem(storageKey, nextTheme); } catch { /* Theme still changes without storage. */ }
-          });
-        </script>
-      )
-    }
+    <script is:inline>
+      const root = document.documentElement;
+      const storageKey = "alpaca-theme";
+      document.querySelector(".theme-toggle")?.addEventListener("click", () => {
+        const nextTheme = root.dataset.theme === "dark" ? "light" : "dark";
+        root.dataset.theme = nextTheme;
+        try { localStorage.setItem(storageKey, nextTheme); } catch { /* Theme still changes without storage. */ }
+      });
+    </script>
     <script type="module" is:inline src="/workspace.js"></script>
     <script type="module" is:inline src="/pointer-effects.js"></script>
+    <slot name="body-end" />
   </body>
 </html>

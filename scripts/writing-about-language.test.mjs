@@ -54,12 +54,36 @@ test("translation spans keep the archive's heading and count typography separate
   }
 });
 
+test("writing supplies only ordered filter metadata to the first-paint bootstrap", async () => {
+  const source = await read("src/pages/writing/index.astro");
+  assert.match(source, /writingManifest=\{posts\.map\(\(\{ category, tags, searchText \}\) => \(\{ category, tags, searchText \}\)\)\}/);
+  assert.match(source, /data-writing-index data-writing-total=\{posts\.length\}/);
+  assert.match(source, /data-search=\{post\.searchText\}/);
+  assert.match(source, /<Fragment slot="body-end">\s*<script>[\s\S]*?<\/script>\s*<\/Fragment>\s*<\/BaseLayout>\s*$/);
+  assert.doesNotMatch(source, /<\/BaseLayout>\s*<script/);
+});
+
+test("writing reserves the enhanced controls before modules run and has a no-JavaScript fallback", async () => {
+  const source = await read("src/pages/writing/index.astro");
+  for (const markup of source.match(/<(?:form|nav)\b[^>]*data-writing-enhanced[^>]*>/g) ?? []) {
+    assert.match(markup, /\binert\b/);
+    assert.doesNotMatch(markup, /\bhidden\b/);
+  }
+  assert.equal((source.match(/data-writing-enhanced inert/g) ?? []).length, 2);
+  assert.doesNotMatch(source, /<fieldset\b/);
+  const head = source.match(/<Fragment slot="head">([\s\S]*?)<\/Fragment>/)?.[1];
+  assert.match(head, /<noscript>\s*<style is:inline>\s*\[data-writing-index\] \[data-writing-enhanced\] \{ display: none !important; \}\s*<\/style>\s*<\/noscript>/);
+  assert.match(source, /<noscript><p class="writing-noscript">[^<]*All published writing is shown below\./);
+  assert.match(source, /restore\(\);\s*index\.querySelectorAll<HTMLElement>\("\[data-writing-enhanced\]"\)\.forEach\(\(element\) => \{ element\.removeAttribute\("inert"\); \}\)/);
+});
+
 // A small DOM fixture runs the actual compiled archive enhancement. Browser QA owns visual layout.
 class Element {
   constructor(dataset = {}) { this.dataset = dataset; this.listeners = new Map(); this.attributes = new Map(); this.hidden = false; this.textContent = ""; }
   addEventListener(type, listener) { this.listeners.set(type, listener); }
   setAttribute(name, value) { this.attributes.set(name, value); }
   removeAttribute(name) { this.attributes.delete(name); }
+  hasAttribute(name) { return this.attributes.has(name); }
 }
 
 class Option {
@@ -73,7 +97,7 @@ class Select extends Element {
   querySelectorAll() { return this.options.filter((option) => option.dataset.transient); }
 }
 
-async function archiveFixture(search = "") {
+async function archiveFixture(search = "", initialLanguage = "zh") {
   const source = await read("src/pages/writing/index.astro");
   const script = source.match(/<script>([\s\S]*?)<\/script>/)?.[1];
   assert.ok(script, "The archive enhancement must remain testable");
@@ -95,6 +119,8 @@ async function archiveFixture(search = "") {
   const categories = ["", "learning-log", "note", "essay"].map((value) => new Element({ writingCategory: value }));
   const tagLink = new Element({ writingTag: "PyTorch" });
   const enhanced = [form, new Element()];
+  enhanced.forEach((element) => element.setAttribute("inert", ""));
+  const beforeInitialization = enhanced.map((element) => ({ hidden: element.hidden, inert: element.hasAttribute("inert") }));
   form.querySelector = (selector) => ({ "[name=q]": query, "[name=category]": category, "[name=tag]": tag })[selector];
   index.querySelector = (selector) => ({ form, "#writingResults": results, "#writingEmpty": empty, "#writingEmptyHint": emptyHint, "[data-writing-clear]": clearButton })[selector];
   index.querySelectorAll = (selector) => ({
@@ -104,7 +130,7 @@ async function archiveFixture(search = "") {
     "[data-writing-tag]": [tagLink],
     "[data-writing-enhanced]": enhanced,
   })[selector];
-  const root = { dataset: { lang: "zh" }, lang: "zh-CN" };
+  const root = { dataset: { lang: initialLanguage }, lang: initialLanguage === "zh" ? "zh-CN" : "en" };
   const document = { documentElement: root, querySelector: () => index };
   const location = new URL(`https://example.com/writing/${search}`);
   const window = new Element();
@@ -113,10 +139,37 @@ async function archiveFixture(search = "") {
     historyCalls.push(mode);
     location.href = url.href;
   }]));
+  enhanced.forEach((element) => {
+    const removeAttribute = element.removeAttribute.bind(element);
+    element.removeAttribute = (name) => {
+      if (name === "inert") {
+        assert.ok(form.listeners.has("submit"));
+        assert.ok(form.listeners.has("reset"));
+        assert.ok(tag.listeners.has("change"));
+        assert.ok(window.listeners.has("popstate"));
+        assert.ok(results.textContent.length > 0, "URL restoration precedes activation");
+      }
+      removeAttribute(name);
+    };
+  });
   vm.runInNewContext(compiled, { document, window, location, history, Option, URL, matchesWriting, normalizeSearch, readWritingFilters, writingFilterUrl, setTimeout, clearTimeout });
   const language = (value) => { root.dataset.lang = value; root.lang = value === "zh" ? "zh-CN" : "en"; window.listeners.get("site:language-change")(); };
-  return { query, category, tag, results, empty, emptyHint, card, location, historyCalls, language };
+  const popstate = (url) => { location.href = url; window.listeners.get("popstate")(); };
+  return { query, category, tag, results, empty, emptyHint, card, location, historyCalls, language, beforeInitialization, enhanced, popstate };
 }
+
+test("initialization enables reserved controls only after restoring the selected language and URL", async () => {
+  const fixture = await archiveFixture("?q=PyTorch&category=learning-log&tag=pytorch&utm_source=test#saved", "en");
+  assert.deepEqual(fixture.beforeInitialization, [{ hidden: false, inert: true }, { hidden: false, inert: true }]);
+  assert.ok(fixture.enhanced.every((element) => !element.hidden && !element.hasAttribute("inert")));
+  assert.equal(fixture.results.textContent, "Showing 1 of 1 article");
+  assert.equal(fixture.category.value, "learning-log");
+  assert.equal(fixture.tag.value, "PyTorch");
+  assert.equal(fixture.location.searchParams.get("tag"), "pytorch");
+  assert.equal(fixture.location.searchParams.get("utm_source"), "test");
+  assert.equal(fixture.location.hash, "#saved");
+  assert.deepEqual(fixture.historyCalls, []);
+});
 
 test("changing archive language preserves unknown tags, searches, categories, URL and history", async () => {
   const fixture = await archiveFixture("?q=PyTorch&category=learning-log&tag=Missing&utm_source=test#saved");
@@ -163,4 +216,18 @@ test("normal filtering after a language switch still preserves unrelated URL par
   fixture.language("zh");
   assert.equal(fixture.results.textContent, "显示 1 / 1 篇文章");
   assert.deepEqual(fixture.historyCalls, ["pushState"]);
+});
+
+test("history restoration after a language switch keeps unknown tags and exact URL values", async () => {
+  const fixture = await archiveFixture("?q=PyTorch");
+  fixture.language("en");
+  fixture.popstate("https://example.com/writing/?q=PyTorch&category=learning-log&tag=Missing&utm_source=test#saved");
+  assert.equal(fixture.results.textContent, "Showing 0 of 1 article");
+  assert.equal(fixture.tag.options.at(-1).text, "Missing (not indexed)");
+  assert.equal(fixture.query.value, "PyTorch");
+  assert.equal(fixture.category.value, "learning-log");
+  assert.equal(fixture.tag.value, "Missing");
+  assert.equal(fixture.location.searchParams.get("utm_source"), "test");
+  assert.equal(fixture.location.hash, "#saved");
+  assert.deepEqual(fixture.historyCalls, []);
 });

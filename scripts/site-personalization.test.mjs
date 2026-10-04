@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { readFile, stat } from "node:fs/promises";
 import test from "node:test";
 import { homeCopy, site } from "../src/data/site.mjs";
+import { firstPaintScript } from "../src/lib/first-paint.mjs";
 
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 
@@ -52,15 +53,17 @@ test("appearance initializes in the head and native navigation remains progressi
   const layout = await read("src/layouts/BaseLayout.astro");
   const head = layout.match(/<head>[\s\S]*?<\/head>/)?.[0];
   assert.ok(head);
-  assert.match(head, /localStorage\.getItem\("alpaca-theme"\)/);
-  assert.ok(head.indexOf('localStorage.getItem("alpaca-theme")') < head.indexOf('href="/styles.css"'));
+  assert.match(head, /<script is:inline set:html=\{bootstrap\}>/);
+  assert.ok(head.indexOf('set:html={bootstrap}') < head.indexOf('href="/styles.css"'));
+  assert.match(firstPaintScript(), /read\("alpaca-theme"\)/);
+  assert.doesNotMatch(firstPaintScript(), /\bimport\b|fetch\(|setTimeout\(|requestAnimationFrame\(/);
   assert.doesNotMatch(layout, /ClientRouter|astro:transitions/);
   const config = await read("astro.config.mjs");
   assert.match(config, /prefetchAll:\s*false/);
   assert.match(config, /defaultStrategy:\s*"hover"/);
   const css = await read("public/workspace.css");
   assert.match(css, /@view-transition\s*\{\s*navigation:\s*auto/);
-  assert.match(css, /animation-duration:\s*150ms/);
+  assert.match(css, /animation-duration:\s*200ms/);
   const reducedMotion = css.slice(css.indexOf("@media (prefers-reduced-motion: reduce)"));
   assert.match(reducedMotion, /@view-transition\s*\{\s*navigation:\s*none/);
 });

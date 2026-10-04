@@ -16,7 +16,9 @@
 - `src/pages/index.astro`、`public/workspace.css`、`public/workspace.js`：实验工作台首页、主题导航与快捷导航；根目录 `index.html` 暂保留原始项目/经历证据文案
 - 根目录的 `styles.css`、`script.js` 与 public 两份：首页证据区的样式和双语桥接；翻译修改必须保持两份一致
 - `public/writing-editorial.css`：文章优先的索引排版，继续使用原有分类、标签和关键词筛选
-- `public/interface-state.js`、`public/workspace.js`：共享中英界面状态、日期与界面文案；首页证据文案继续由原有双语脚本维护
+- `src/lib/first-paint.mjs`：内联首屏初始化，不等待外部功能脚本恢复语言与筛选状态
+- `src/lib/evidence-copy.mjs`：构建时把旧项目/经历文案转换为共享双语属性；浏览器不再额外运行旧首页脚本
+- `public/interface-state.js`、`public/workspace.js`：共享中英界面状态、日期与后续语言切换；首页证据文案仍在原有双语字典中维护
 - `public/pointer-effects.js`、`public/pointer-effects.css`：短暂的点击几何脉冲，不替换系统指针，不拦截导航
 
 ## 本地开发
@@ -46,7 +48,7 @@ Astro 页面的顶栏提供 `⌘ / Ctrl + K` 快捷导航，搜索已有页面�
 
 各页面顶栏提供中英切换，记住同一浏览器的选择。首页、文章索引、About、阅读工具与评论提示随之切换；文章标题、简介、正文、标签和目录中的原始章节标题不做自动翻译。切换语言不清空文章筛选条件。点击特效只用于支持精细鼠标的桌面设备；触屏、减少动态效果、输入框、文本选择和拖动均不触发或会取消特效。
 
-三篇硬编码示例文章已撤下，其旧网址返回 404，可从 Git 历史恢复。真实 Markdown 文章、稳定网址、同步来源、目录/阅读进度及 Giscus 关联键不变。顶栏使用卡通头像，页面展示名为 Alpaca，首页和 About 保留个人照片。跨页使用浏览器原生短淡化、选择性预加载和提前恢复主题；不支持动画或减少动态效果时照常导航。此轮的本地验收记录见 [`docs/workbench-preview.md`](docs/workbench-preview.md)。
+三篇硬编码示例文章已撤下，其旧网址返回 404，可从 Git 历史恢复。真实 Markdown 文章、稳定网址、同步来源、目录/阅读进度及 Giscus 关联键不变。顶栏使用卡通头像，页面展示名为 Alpaca，首页和 About 保留个人照片。跨页使用浏览器原生短模糊淡化、选择性预加载和提前恢复主题；顶栏保持独立静止，不支持动画或减少动态效果时照常导航。视觉阶段的历史验收记录见 [`docs/workbench-preview.md`](docs/workbench-preview.md)，此次首屏修复验收见 [`docs/first-paint-checks.md`](docs/first-paint-checks.md)。
 
 ## 从 repytorch 发布文章
 
