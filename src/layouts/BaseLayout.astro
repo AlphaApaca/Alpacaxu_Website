@@ -55,6 +55,8 @@ const bootstrap = firstPaintScript({ writingManifest });
     {canonical && <meta property="og:url" content={canonicalUrl} />}
     <meta name="twitter:card" content="summary" />
     <script is:inline set:html={bootstrap}></script>
+    <!-- Capture a complete main, not an early streamed header/background frame. -->
+    <link rel="expect" blocking="render" href="#page-content-ready" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="modulepreload" href="/workspace.js" />
     <link rel="stylesheet" href="/styles.css" />
@@ -66,6 +68,7 @@ const bootstrap = firstPaintScript({ writingManifest });
   <body class={bodyClass}>
     <SiteHeader />
     <Fragment set:html={pageContent} />
+    <span id="page-content-ready" hidden aria-hidden="true"></span>
     <SiteFooter />
     <WorkspaceTools />
     <script is:inline>

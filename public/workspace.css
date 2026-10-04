@@ -7,17 +7,19 @@ html { scrollbar-gutter: stable; }
 ::view-transition { pointer-events: none; }
 body > main { view-transition-name: page-content; }
 .site-header { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); padding: 18px max(5vw, calc((100vw - 1200px) / 2)); gap: 24px; view-transition-name: site-header; }
-@keyframes page-content-leave { from { opacity: 1; filter: blur(0); } to { opacity: 0; filter: blur(2px); } }
-@keyframes page-content-enter { from { opacity: 0; filter: blur(2px); } to { opacity: 1; filter: blur(0); } }
+/* Incoming snapshots reveal over an opaque old frame; never fade both away.
+   Keep this opacity-only while verifying cold-cache snapshot timing. */
+@keyframes page-content-enter { from { opacity: 0; } to { opacity: 1; } }
 ::view-transition-group(root) { animation: none; }
-::view-transition-old(root) { animation: none; opacity: 0; }
-::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
-::view-transition-group(page-content) { animation-duration: 200ms; animation-timing-function: ease-out; }
-::view-transition-old(page-content) { animation: 180ms ease-in both page-content-leave; }
-::view-transition-new(page-content) { animation: 200ms ease-out both page-content-enter; }
+::view-transition-old(root) { animation: none; opacity: 1; mix-blend-mode: normal; }
+::view-transition-new(root) { animation: 300ms ease-out both page-content-enter; mix-blend-mode: normal; }
+::view-transition-group(page-content) { animation-duration: 300ms; animation-timing-function: ease-out; }
+::view-transition-old(page-content) { animation: none; opacity: 1; mix-blend-mode: normal; }
+/* Paint incoming empty areas too, so old text cannot linger between new blocks. */
+::view-transition-new(page-content) { animation: 300ms ease-out both page-content-enter; mix-blend-mode: normal; background: var(--bg); }
 ::view-transition-group(site-header) { animation: none; }
-::view-transition-old(site-header) { animation: none; opacity: 0; }
-::view-transition-new(site-header) { animation: none; mix-blend-mode: normal; }
+::view-transition-old(site-header) { animation: none; opacity: 1; mix-blend-mode: normal; }
+::view-transition-new(site-header) { animation: none; mix-blend-mode: normal; background: var(--bg); }
 .brand { font-weight: 550; line-height: 1.35; min-width: 0; }
 .site-header > .brand { justify-self: start; }
 .site-header .brand span:last-child { display: inline; }

@@ -63,7 +63,7 @@ test("appearance initializes in the head and native navigation remains progressi
   assert.match(config, /defaultStrategy:\s*"hover"/);
   const css = await read("public/workspace.css");
   assert.match(css, /@view-transition\s*\{\s*navigation:\s*auto/);
-  assert.match(css, /animation-duration:\s*200ms/);
+  assert.match(css, /animation-duration:\s*300ms/);
   const reducedMotion = css.slice(css.indexOf("@media (prefers-reduced-motion: reduce)"));
   assert.match(reducedMotion, /@view-transition\s*\{\s*navigation:\s*none/);
 });

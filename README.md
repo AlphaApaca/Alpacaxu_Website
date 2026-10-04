@@ -48,7 +48,7 @@ Astro 页面的顶栏提供 `⌘ / Ctrl + K` 快捷导航，搜索已有页面�
 
 各页面顶栏提供中英切换，记住同一浏览器的选择。首页、文章索引、About、阅读工具与评论提示随之切换；文章标题、简介、正文、标签和目录中的原始章节标题不做自动翻译。切换语言不清空文章筛选条件。点击特效只用于支持精细鼠标的桌面设备；触屏、减少动态效果、输入框、文本选择和拖动均不触发或会取消特效。
 
-三篇硬编码示例文章已撤下，其旧网址返回 404，可从 Git 历史恢复。真实 Markdown 文章、稳定网址、同步来源、目录/阅读进度及 Giscus 关联键不变。顶栏使用卡通头像，页面展示名为 Alpaca，首页和 About 保留个人照片。跨页使用浏览器原生短模糊淡化、选择性预加载和提前恢复主题；顶栏保持独立静止，不支持动画或减少动态效果时照常导航。视觉阶段的历史验收记录见 [`docs/workbench-preview.md`](docs/workbench-preview.md)，此次首屏修复验收见 [`docs/first-paint-checks.md`](docs/first-paint-checks.md)。
+三篇硬编码示例文章已撤下，其旧网址返回 404，可从 Git 历史恢复。真实 Markdown 文章、稳定网址、同步来源、目录/阅读进度及 Giscus 关联键不变。顶栏使用卡通头像，页面展示名为 Alpaca，首页和 About 保留个人照片。跨页等待主内容解析完后使用浏览器原生短淡入，旧画面保留作兜底，暂不叠加模糊；顶栏保持独立静止，不支持动画或减少动态效果时照常导航。继续使用选择性预加载和提前恢复主题。视觉阶段的历史验收记录见 [`docs/workbench-preview.md`](docs/workbench-preview.md)，此次首屏修复验收见 [`docs/first-paint-checks.md`](docs/first-paint-checks.md)。
 
 ## 从 repytorch 发布文章
 
