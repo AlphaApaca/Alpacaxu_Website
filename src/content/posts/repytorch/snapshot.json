@@ -1,6 +1,6 @@
 {
   "sourceRepo": "AlphaApaca/repytorch",
-  "sourceCommit": "4afeb222e921d9eb3610c09e06a4d07b4a2f9ae5",
+  "sourceCommit": "89fba16cc63f43a938e32f71c1ee4008201c513b",
   "articles": [
     {
       "sourcePath": "learning_log/2026-09-21-setup.md",
@@ -21,6 +21,10 @@
     {
       "sourcePath": "learning_log/2026-10-03-transforms.md",
       "permalink": "2026-10-03-transforms"
+    },
+    {
+      "sourcePath": "learning_log/2026-10-04-build-model.md",
+      "permalink": "2026-10-04-build-model"
     },
     {
       "sourcePath": "notes/datasets-and-dataloaders.md",
