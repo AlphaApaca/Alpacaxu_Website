@@ -2,6 +2,16 @@
 
 基于 Astro 的个人网站，提供中英界面切换，展示机器人规划评测、ROS2 导航项目、实习、论文与技术笔记。同步脚本从公开仓库 [`AlphaApaca/repytorch`](https://github.com/AlphaApaca/repytorch) 导入明确标记为可发布的 Markdown，形成已提交快照；普通构建和浏览器阅读正文时不会再请求源仓库。评论与留言板按需连接 Giscus。
 
+## 正式交接与日常维护
+
+从 [`docs/maintenance-guide.md`](docs/maintenance-guide.md) 开始：包含项目基准、架构、全部直接技术栈与版本、环境/命令及账户侧设置。
+
+- [`docs/content-map.md`](docs/content-map.md)：逐个页面元素的增删改位置与示例。
+- [`docs/file-reference.md`](docs/file-reference.md)：各层目录及每个 Git 管理文件的功能、编辑边界。
+- [`docs/publishing-guide.md`](docs/publishing-guide.md)：分支/提交命名、PR 预览与发布、回退、两类文章发布及同步排障。
+
+交接基准是 2026-10-05 的已上线 `main`（`1d3bb3328d98c4e4586b97e22676359c4ae643fa`）。下方保留技术速查；日常操作优先使用交接文档，不把历史预览地址或旧调试记录当作当前入口。
+
 ## 技术结构
 
 - `src/pages/`：Astro 页面，包括首页、写作索引、文章路由、About 留言板和 404
@@ -72,7 +82,9 @@ comments: true
 
 正文仍然可以中英混写，不要求逐篇翻译。标题从正文中唯一的一级标题（`# ...`）读取；网址默认从文件名生成。如需自定义，可增加小写 kebab-case 的 `slug`。可选的 `lang` 默认是 `zh-CN`。
 
-把 Markdown push 到 `repytorch/main` 后，在本仓库运行：
+日常推荐：把 Markdown push 到 `repytorch/main` 后，等待定时同步，或去网站仓库 Actions → **Sync published repytorch writing → Run workflow**，选 `main` 手动运行。校验通过且有变化时，机器人会创建/更新内容草稿 PR；审核预览后人工合并。完整流程见 [`docs/publishing-guide.md`](docs/publishing-guide.md)。
+
+以下是可选的本地导入路径，不是每次写文章都必须手动执行的步骤：
 
 ```bash
 pnpm sync:repytorch
