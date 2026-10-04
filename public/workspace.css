@@ -8,31 +8,19 @@ html { scrollbar-gutter: stable; }
 ::view-transition { pointer-events: none; }
 body > main { view-transition-name: page-content; }
 .site-header { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); padding: 18px max(5vw, calc((100vw - 1200px) / 2)); gap: 24px; view-transition-name: site-header; }
-/* Incoming snapshots reveal over an opaque old frame; never fade both away.
-   Keep this opacity-only while verifying cold-cache snapshot timing. */
+/* The accepted 600ms fade reveals the incoming snapshots over an opaque old frame.
+   Keep the header stationary and controls clickable throughout. */
 @keyframes page-content-enter { from { opacity: 0; } to { opacity: 1; } }
 ::view-transition-group(root) { animation: none; }
 ::view-transition-old(root) { animation: none; opacity: 1; mix-blend-mode: normal; }
-::view-transition-new(root) { animation: 300ms ease-out both page-content-enter; mix-blend-mode: normal; }
-::view-transition-group(page-content) { animation-duration: 300ms; animation-timing-function: ease-out; }
+::view-transition-new(root) { animation: 600ms ease-out both page-content-enter; mix-blend-mode: normal; }
+::view-transition-group(page-content) { animation-duration: 600ms; animation-timing-function: ease-out; }
 ::view-transition-old(page-content) { animation: none; opacity: 1; mix-blend-mode: normal; }
 /* Paint incoming empty areas too, so old text cannot linger between new blocks. */
-::view-transition-new(page-content) { animation: 300ms ease-out both page-content-enter; mix-blend-mode: normal; background: var(--bg); }
+::view-transition-new(page-content) { animation: 600ms ease-out both page-content-enter; mix-blend-mode: normal; background: var(--bg); }
 ::view-transition-group(site-header) { animation: none; }
 ::view-transition-old(site-header) { animation: none; opacity: 1; mix-blend-mode: normal; }
 ::view-transition-new(site-header) { animation: none; mix-blend-mode: normal; background: var(--bg); }
-/* Explicit, tab-local acceptance mode; ordinary visits keep the 300ms duration. */
-html[data-motion-check="true"]::view-transition-new(root),
-html[data-motion-check="true"]::view-transition-new(page-content),
-html[data-motion-check="true"]::view-transition-group(page-content) { animation-duration: 600ms; }
-.motion-check-panel[hidden] { display: none !important; }
-.motion-check-panel { position: fixed; right: 16px; bottom: 16px; z-index: 1000; width: min(360px, calc(100vw - 32px)); padding: 16px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); color: var(--text); box-shadow: var(--shadow); font-size: 0.78rem; line-height: 1.65; }
-.motion-check-panel p { margin: 0 0 10px; }
-.motion-check-panel [data-motion-check-status] { font-weight: 550; }
-.motion-check-panel [data-motion-check-detail] { color: var(--muted); }
-.motion-check-panel button { padding: 6px 10px; border: 1px solid var(--line); border-radius: 4px; background: var(--bg); color: var(--text); font: inherit; cursor: pointer; }
-.motion-check-panel button:disabled { opacity: 0.5; cursor: wait; }
-.motion-check-panel button:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 .brand { font-weight: 550; line-height: 1.35; min-width: 0; }
 .site-header > .brand { justify-self: start; }
 .site-header .brand span:last-child { display: inline; }

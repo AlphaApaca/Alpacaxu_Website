@@ -13,7 +13,7 @@ test("cross-document opt-in is inline in the head before snapshots and external 
   assert.match(policy[1], /@view-transition\s*\{\s*navigation:\s*auto;\s*\}/);
   assert.match(policy[1], /@media\s*\(prefers-reduced-motion:\s*reduce\)\s*\{\s*@view-transition\s*\{\s*navigation:\s*none;\s*\}\s*\}/);
   const policyIndex = head.indexOf(policy[0]);
-  for (const marker of ['set:html={motionCheck}', 'set:html={bootstrap}', 'rel="expect"', 'rel="stylesheet"']) {
+  for (const marker of ['set:html={bootstrap}', 'rel="expect"', 'rel="stylesheet"']) {
     assert.ok(head.indexOf(marker) > policyIndex, `The navigation policy must precede ${marker}`);
   }
 });
@@ -61,9 +61,9 @@ test("cross-document motion reveals incoming content over an opaque fallback wit
     assert.match(css, new RegExp(`::view-transition-old\\(${name}\\)\\s*\\{\\s*animation:\\s*none;\\s*opacity:\\s*1;\\s*mix-blend-mode:\\s*normal;`));
   }
   for (const name of ["root", "page-content"]) {
-    assert.match(css, new RegExp(`::view-transition-new\\(${name}\\)\\s*\\{\\s*animation:\\s*300ms ease-out both page-content-enter;\\s*mix-blend-mode:\\s*normal;`));
+    assert.match(css, new RegExp(`::view-transition-new\\(${name}\\)\\s*\\{\\s*animation:\\s*600ms ease-out both page-content-enter;\\s*mix-blend-mode:\\s*normal;`));
   }
-  assert.match(css, /::view-transition-group\(page-content\)\s*\{[^}]*animation-duration:\s*300ms;[^}]*animation-timing-function:\s*ease-out;/);
+  assert.match(css, /::view-transition-group\(page-content\)\s*\{[^}]*animation-duration:\s*600ms;[^}]*animation-timing-function:\s*ease-out;/);
   assert.match(css, /::view-transition-new\(page-content\)\s*\{[^}]*background:\s*var\(--bg\);/);
   assert.match(css, /::view-transition-group\(site-header\)\s*\{\s*animation:\s*none;/);
   assert.match(css, /::view-transition-new\(site-header\)\s*\{\s*animation:\s*none;\s*mix-blend-mode:\s*normal;/);
@@ -81,13 +81,10 @@ test("reduced motion disables native navigation and every named transition", () 
   assert.match(reduced, /animation:\s*none !important;/);
 });
 
-test("acceptance diagnostics are early, hidden by default and prolong only incoming snapshots", () => {
-  const head = layout.match(/<head>[\s\S]*?<\/head>/)?.[0] ?? "";
-  assert.match(head, /<script is:inline set:html=\{motionCheck\}><\/script>/);
-  assert.ok(head.indexOf("set:html={motionCheck}") < head.indexOf("set:html={bootstrap}"));
-  assert.match(layout, /<aside id="motion-check-panel" class="motion-check-panel" hidden/);
-  assert.match(layout, /data-motion-check-status role="status" aria-live="polite"/);
-  assert.match(css, /html\[data-motion-check="true"\]::view-transition-new\(root\),\s*html\[data-motion-check="true"\]::view-transition-new\(page-content\),\s*html\[data-motion-check="true"\]::view-transition-group\(page-content\)\s*\{\s*animation-duration:\s*600ms;/);
-  assert.match(css, /\.motion-check-panel\[hidden\]\s*\{\s*display:\s*none !important;/);
-  assert.match(css, /\.motion-check-panel\s*\{\s*position:\s*fixed;/);
+test("the accepted fade is unconditional and carries no temporary diagnostics", () => {
+  assert.doesNotMatch(layout, /motionCheck|motion-check|Transition diagnostics/);
+  assert.doesNotMatch(css, /motion-check|data-motion-check|300ms/);
+  assert.match(css, /::view-transition-new\(root\)\s*\{\s*animation:\s*600ms ease-out both page-content-enter;/);
+  assert.match(css, /::view-transition-new\(page-content\)\s*\{\s*animation:\s*600ms ease-out both page-content-enter;/);
+  assert.match(css, /::view-transition-group\(page-content\)\s*\{\s*animation-duration:\s*600ms;/);
 });
