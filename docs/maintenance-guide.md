@@ -103,7 +103,7 @@ repytorch 的 learning_log / notes（publish: true）
 | --- | --- | --- |
 | DOM 事件与 JavaScript ES modules | 按钮、搜索、分类、菜单、指针反馈等交互 | `public/workspace.js` 及状态模块；依赖浏览器，不增加前端框架 |
 | `localStorage` | 记住明暗主题及中英选择 | `alpaca-theme`、`alpaca-lang`；只在同一浏览器/域名生效，存储被禁仍可切换；不同预览域名不共享偏好 |
-| `URLSearchParams` / History API | `category`、`tag`、`q` 筛选状态，可分享网址、后退恢复 | Writing 页面和 `public/interface-state.js`；没有正文全文搜索接口 |
+| `URLSearchParams` / History API | `category`、`tag`、`q` 筛选状态，可分享网址、后退恢复 | `src/pages/writing/index.astro` 与 `src/lib/writing.mjs`，首屏恢复在 `src/lib/first-paint.mjs`；没有正文全文搜索接口 |
 | `MutationObserver` / `ResizeObserver` / `requestAnimationFrame` | 解析期提前本地化、主题/语言更新、目录与阅读进度 | `src/lib/first-paint.mjs`、`public/article-reader.js`；不是遥测或后台轮询 |
 | CSS Grid / Flex、CSS 变量与媒体查询 | 桌面居中导航、移动端布局、明暗色彩、标签控件 | `public/workspace.css`、`public/writing-editorial.css`、`public/article-reader.css` 等 |
 | 原生 `@view-transition` / `view-transition-name` | 普通站内跨页导航的 600ms 单向淡入 | head 内联策略在 `BaseLayout.astro`，动画在 `public/workspace.css`；没有 SPA `ClientRouter`、没有全屏等待遮罩 |
