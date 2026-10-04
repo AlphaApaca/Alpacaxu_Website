@@ -9,6 +9,8 @@ test("writing tag filter retains its native labelled select and change behavior"
   assert.match(page, /<label class="writing-tag-select" for="writingTag">/);
   assert.match(page, /<select id="writingTag" name="tag">/);
   assert.match(page, /<option value=""/);
+  assert.match(page, /<form\b[^>]*data-writing-enhanced inert>/);
+  assert.doesNotMatch(page, /<fieldset\b/);
   assert.match(page, /tag\.addEventListener\("change", \(\) => update\("pushState"\)\)/);
   assert.doesNotMatch(page, /role="(?:combobox|listbox)"/);
 });

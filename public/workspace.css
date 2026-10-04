@@ -1,21 +1,41 @@
 /* Shared chrome, followed by homepage-only rules. Reader geometry is untouched. */
-/* Native cross-document transitions: no navigation interception or artificial delay. */
+/* Parsing a long page must not shift the header when its scrollbar appears. */
+html { scrollbar-gutter: stable; }
+/* Also inlined in BaseLayout before external CSS: opt-in must exist at first render.
+   Native cross-document transitions: no navigation interception or artificial delay. */
 @view-transition { navigation: auto; }
 /* The snapshot overlay is visual only; newly loaded controls stay clickable. */
 ::view-transition { pointer-events: none; }
-::view-transition-old(root), ::view-transition-new(root) { animation-duration: 150ms; animation-timing-function: ease-out; }
-.site-header { padding: 18px max(5vw, calc((100vw - 1200px) / 2)); gap: 24px; }
+body > main { view-transition-name: page-content; }
+.site-header { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); padding: 18px max(5vw, calc((100vw - 1200px) / 2)); gap: 24px; view-transition-name: site-header; }
+/* The accepted 600ms fade reveals the incoming snapshots over an opaque old frame.
+   Keep the header stationary and controls clickable throughout. */
+@keyframes page-content-enter { from { opacity: 0; } to { opacity: 1; } }
+::view-transition-group(root) { animation: none; }
+::view-transition-old(root) { animation: none; opacity: 1; mix-blend-mode: normal; }
+::view-transition-new(root) { animation: 600ms ease-out both page-content-enter; mix-blend-mode: normal; }
+::view-transition-group(page-content) { animation-duration: 600ms; animation-timing-function: ease-out; }
+::view-transition-old(page-content) { animation: none; opacity: 1; mix-blend-mode: normal; }
+/* Paint incoming empty areas too, so old text cannot linger between new blocks. */
+::view-transition-new(page-content) { animation: 600ms ease-out both page-content-enter; mix-blend-mode: normal; background: var(--bg); }
+::view-transition-group(site-header) { animation: none; }
+::view-transition-old(site-header) { animation: none; opacity: 1; mix-blend-mode: normal; }
+::view-transition-new(site-header) { animation: none; mix-blend-mode: normal; background: var(--bg); }
 .brand { font-weight: 550; line-height: 1.35; min-width: 0; }
+.site-header > .brand { justify-self: start; }
 .site-header .brand span:last-child { display: inline; }
 .brand-avatar { display: block; width: 40px; height: 40px; flex: 0 0 40px; border-radius: 50%; object-fit: cover; background: #fff; border: 1px solid var(--line); }
 .workspace-brand-caption { display: block; margin-top: 4px; color: var(--muted); font: 400 0.68rem/1.2 ui-monospace, monospace; }
 .nav-links { font-size: 0.82rem; gap: 28px; }
+.site-header > .nav-links { justify-self: center; }
 .nav-links a { padding: 7px 0; }
-.header-actions { flex-shrink: 0; }
-.lang-toggle { min-width: 40px; font-weight: 500; border-radius: 4px; }
+.header-actions { min-width: max-content; justify-self: end; flex-shrink: 0; }
+.lang-toggle { display: inline-grid; place-items: center; min-width: 40px; font-weight: 500; border-radius: 4px; }
 .icon-button { border-radius: 4px; font-size: 1rem; }
-.workspace-command-trigger { min-height: 38px; padding: 5px 10px; border: 1px solid var(--line); border-radius: 4px; background: var(--surface); color: var(--muted); font: 400 0.75rem/1.4 ui-monospace, monospace; cursor: pointer; }
-.workspace-command-trigger[hidden], .lang-toggle[hidden], .workspace-command [hidden], .workspace-main [hidden] { display: none !important; }
+.workspace-command-trigger { display: inline-flex; align-items: center; justify-content: center; min-height: 38px; padding: 5px 10px; border: 1px solid var(--line); border-radius: 4px; background: var(--surface); color: var(--muted); font: 400 0.75rem/1.4 ui-monospace, monospace; cursor: pointer; }
+.site-header .workspace-command-trigger[hidden] { display: inline-flex !important; visibility: hidden; pointer-events: none; }
+.site-header .lang-toggle[hidden] { display: inline-grid !important; visibility: hidden; pointer-events: none; }
+.workspace-command [hidden], .workspace-main [hidden] { display: none !important; }
 .site-footer { flex-wrap: wrap; font-size: 0.75rem; padding: 27px max(5vw, calc((100vw - 1200px) / 2)); }
 .workspace-footer-note { font-family: ui-monospace, monospace; font-size: 0.7rem; }
 .site-header :focus-visible, .workspace-main :focus-visible, .workspace-command :focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
@@ -149,7 +169,7 @@
   .workspace-about-link { margin-left: 136px; }
 }
 @media (max-width: 680px) {
-  .site-header { flex-wrap: wrap; padding: 14px 5vw 8px; gap: 10px 12px; }
+  .site-header { display: flex; flex-wrap: wrap; padding: 14px 5vw 8px; gap: 10px 12px; }
   .brand { margin-right: auto; font-size: 0.85rem; }
   .workspace-brand-caption { font-size: 0.6rem; }
   .workspace-brand-caption { display: none; }
@@ -183,7 +203,10 @@
 }
 @media (prefers-reduced-motion: reduce) {
   @view-transition { navigation: none; }
-  ::view-transition-old(root), ::view-transition-new(root) { animation: none !important; }
+  ::view-transition-group(root), ::view-transition-group(site-header), ::view-transition-group(page-content),
+  ::view-transition-old(root), ::view-transition-new(root),
+  ::view-transition-old(site-header), ::view-transition-new(site-header),
+  ::view-transition-old(page-content), ::view-transition-new(page-content) { animation: none !important; }
   html { scroll-behavior: auto; }
   .workspace-main *, .workspace-main *::before, .workspace-command * { animation: none !important; transition: none !important; }
   .workspace-map-nodes a:hover { transform: none; }
