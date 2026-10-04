@@ -239,6 +239,23 @@ test("parser completion without pagereveal reports unobserved; an entry without 
   assert.equal(page.phase(), "none");
 });
 
+test("inline opt-in parsing is separate from animation evidence and blocked CSSOM stays safe", () => {
+  for (const variant of ["parsed", "discarded", "blocked"]) {
+    const page = fixture();
+    const original = page.document.getElementById;
+    page.document.getElementById = (id) => {
+      if (id !== "page-transition-policy") return original(id);
+      if (variant === "blocked") return { get sheet() { throw new Error("Blocked CSSOM"); } };
+      return { sheet: { cssRules: variant === "parsed" ? [{ cssText: "@view-transition { navigation: auto; }" }] : [] } };
+    };
+    page.window.emit("pagereveal", { viewTransition: null });
+    assert.equal(page.phase(), "none");
+    const value = variant === "parsed" ? "yes" : variant === "discarded" ? "no" : "unconfirmed";
+    assert.match(page.detail.textContent, new RegExp(`Transition opt-in parsed: ${value}`));
+    assert.doesNotMatch(page.status.textContent, /Content fade played/);
+  }
+});
+
 test("ready and finished are observed without fabricating any animation event", async () => {
   const page = fixture();
   const attempt = reveal(page);

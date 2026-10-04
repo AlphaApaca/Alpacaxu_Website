@@ -37,10 +37,17 @@ export function initializeMotionCheck({ window, document, location, history, Mut
   let panel;
   let parseObserver;
   let state = {};
+  const inspectPolicy = () => {
+    try {
+      const sheet = document.getElementById("page-transition-policy")?.sheet;
+      if (!sheet) return null;
+      return Array.from(sheet.cssRules).some(rule => /^\s*@view-transition(?:\s|\{)/.test(rule.cssText) && /navigation:\s*auto\b/.test(rule.cssText));
+    } catch { return null; }
+  };
   const reset = () => {
     cycle += 1;
     state = { revealSeen: false, hasTransition: false, ready: false, started: false, ended: false,
-      finished: false, skipped: "", reduced: media.matches, loaded: document.readyState !== "loading", durationMs: 0 };
+      finished: false, skipped: "", reduced: media.matches, loaded: document.readyState !== "loading", durationMs: 0, policy: inspectPolicy() };
   };
   reset();
   const copy = {
@@ -52,6 +59,8 @@ export function initializeMotionCheck({ window, document, location, history, Mut
       "no-animation": "事件缺失：过渡已结束，未观测到正文动画", skipped: "过渡被跳过",
       detail: "验收模式 600ms · 请点击顶栏，在首页、文章、关于之间切换；刷新不会触发。",
       storage: "本标签存储不可用，验收模式无法自动延续到下一页。",
+      policy: "浏览器识别过渡开关：", policyYes: "是", policyNo: "否", policyUnknown: "无法确认",
+      policyNote: "（不代表动画已播放）",
       close: "关闭调试"
     },
     en: {
@@ -62,6 +71,8 @@ export function initializeMotionCheck({ window, document, location, history, Mut
       "no-animation": "Transition finished; no content animation observed", skipped: "Transition skipped",
       detail: "600ms acceptance mode · Use the top navigation between Home, Writing and About; reloading does not trigger a transition.",
       storage: "Tab storage is unavailable; this mode cannot persist to the next page.",
+      policy: "Transition opt-in parsed: ", policyYes: "yes", policyNo: "no", policyUnknown: "unconfirmed",
+      policyNote: " (not playback evidence)",
       close: "Close diagnostics"
     }
   };
@@ -75,7 +86,8 @@ export function initializeMotionCheck({ window, document, location, history, Mut
     let label = strings[phase];
     if (phase === "played") label += ` · ${Math.round(state.durationMs)}ms`;
     if (phase === "skipped") label += ` · ${state.skipped}`;
-    const explanation = strings.detail + (storageAvailable ? "" : ` ${strings.storage}`);
+    const policy = state.policy === true ? strings.policyYes : state.policy === false ? strings.policyNo : strings.policyUnknown;
+    const explanation = strings.detail + ` ${strings.policy}${policy}${strings.policyNote}` + (storageAvailable ? "" : ` ${strings.storage}`);
     if (status.textContent !== label) status.textContent = label;
     if (detail.textContent !== explanation) detail.textContent = explanation;
     if (button.textContent !== strings.close) button.textContent = strings.close;

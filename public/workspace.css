@@ -1,7 +1,8 @@
 /* Shared chrome, followed by homepage-only rules. Reader geometry is untouched. */
 /* Parsing a long page must not shift the header when its scrollbar appears. */
 html { scrollbar-gutter: stable; }
-/* Native cross-document transitions: no navigation interception or artificial delay. */
+/* Also inlined in BaseLayout before external CSS: opt-in must exist at first render.
+   Native cross-document transitions: no navigation interception or artificial delay. */
 @view-transition { navigation: auto; }
 /* The snapshot overlay is visual only; newly loaded controls stay clickable. */
 ::view-transition { pointer-events: none; }

@@ -47,6 +47,13 @@ const motionCheck = motionCheckScript();
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- Opt in before streamed HTML can finish; do not wait for an external stylesheet. -->
+    <style is:inline id="page-transition-policy">
+      @view-transition { navigation: auto; }
+      @media (prefers-reduced-motion: reduce) {
+        @view-transition { navigation: none; }
+      }
+    </style>
     <meta name="description" content={description} data-localized-zh={localizedMeta?.zh.description} data-localized-en={localizedMeta?.en.description} />
     <title>{title}</title>
     {canonical && <link rel="canonical" href={canonicalUrl} />}

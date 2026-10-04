@@ -5,6 +5,19 @@ import test from "node:test";
 const css = await readFile(new URL("../public/workspace.css", import.meta.url), "utf8");
 const layout = await readFile(new URL("../src/layouts/BaseLayout.astro", import.meta.url), "utf8");
 
+test("cross-document opt-in is inline in the head before snapshots and external styles", () => {
+  const head = layout.match(/<head>[\s\S]*?<\/head>/)?.[0] ?? "";
+  const policy = head.match(/<style\s+is:inline\s+id="page-transition-policy"\s*>([\s\S]*?)<\/style>/);
+  assert.ok(policy, "Astro must keep the critical navigation policy inline in the head");
+  assert.equal((layout.match(/id="page-transition-policy"/g) ?? []).length, 1);
+  assert.match(policy[1], /@view-transition\s*\{\s*navigation:\s*auto;\s*\}/);
+  assert.match(policy[1], /@media\s*\(prefers-reduced-motion:\s*reduce\)\s*\{\s*@view-transition\s*\{\s*navigation:\s*none;\s*\}\s*\}/);
+  const policyIndex = head.indexOf(policy[0]);
+  for (const marker of ['set:html={motionCheck}', 'set:html={bootstrap}', 'rel="expect"', 'rel="stylesheet"']) {
+    assert.ok(head.indexOf(marker) > policyIndex, `The navigation policy must precede ${marker}`);
+  }
+});
+
 test("every page waits for the closed main before capturing its incoming snapshot", () => {
   const head = layout.match(/<head>[\s\S]*?<\/head>/)?.[0] ?? "";
   assert.match(head, /<link rel="expect" blocking="render" href="#page-content-ready"\s*\/>/);
