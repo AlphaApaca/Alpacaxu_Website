@@ -1,6 +1,6 @@
 # 自己改一点网站内容
 
-这是视觉调整期间的预备说明，是否发布以 PR 合并及正式部署为准。等视觉和交互验收完成，再一起做正式交接。
+这是常用字段的简短速查。视觉与交互已完成验收，完整正式交接从 [维护总手册](maintenance-guide.md) 开始；逐个元素看 [页面修改地图](content-map.md)，文章与版本发布看 [发布指南](publishing-guide.md)。修改是否上线仍以 PR 合并及对应正式部署成功为准。
 
 ## 改首页开场与昵称
 
@@ -43,4 +43,4 @@ GitHub 学习日志/笔记继续在 `repytorch` 写，按原有 `publish: true` 
 
 技术依据：[Astro 预取](https://docs.astro.build/en/guides/prefetch/)、[原生跨文档过渡](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/At-rules/@view-transition)。过渡改善视觉连贯性，不等于实测网络速度变快。
 
-用户已在远程 Chrome 中确认正文淡入实际播放，并认可 600ms 的效果。修复仍需按上面的预览、PR 与合并流程发布；此前的临时诊断记录保留在 `docs/first-paint-checks.md`，不再作为日常使用入口。
+用户已在远程 Chrome 中确认正文淡入实际播放，并认可 600ms 的效果；修复已合并到交接基准的 `main`。后续变更仍按上面的预览、PR 与合并流程发布；此前的临时诊断记录保留在 `docs/first-paint-checks.md`，不再作为日常使用入口。
