@@ -13,7 +13,7 @@ export interface WritingPost {
   date: string;
   searchText: string;
   kind: "markdown";
-  metrics: { chineseCharacters: number; words: number; readingMinutes: number };
+  metrics: { wordCount: number };
 }
 
 export function postPath(permalink: string) {

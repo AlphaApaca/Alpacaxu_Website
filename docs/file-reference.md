@@ -2,7 +2,7 @@
 
 这是正式交接的文件地图，核对基准为网站 `main` 提交 `1d3bb3328d98c4e4586b97e22676359c4ae643fa`（2026-10-05）。该版本有 92 个 Git 管理文件、9 篇同步文章；本次另外提供 4 份交接手册。以后新文件、新文章或依赖升级会改变清单，应以当时的 `git ls-files` 为准。
 
-后续补充（2026-10-13）：阅读统计新增 4 个文件，连同 4 份交接手册共列出 100 个项目文件；原来的 92 个文件与 9 篇文章数字保留为交接基准记录。统计功能不新增或修改文章快照文件。
+后续补充（2026-10-13）：文字量统计新增 4 个文件，连同 4 份交接手册共列出 100 个项目文件；原来的 92 个文件与 9 篇文章数字保留为交接基准记录。统计功能不新增或修改文章快照文件。
 
 先从 [维护总指南](maintenance-guide.md) 看技术栈与本地运行，从 [内容修改地图](content-map.md) 找具体页面元素，从 [版本与文章发布指南](publishing-guide.md) 看发布操作。本文件用于回答“这个目录/文件是什么、能不能改、谁在使用它”，不是要求日常逐个打开所有文件。
 
@@ -36,7 +36,7 @@ Alpacaxu_Website/
 │   │           └── notes/           已发布技术笔记快照
 │   ├── data/                        可集中修改的身份/首页文案
 │   ├── layouts/                     所有页面及文章的外层布局
-│   ├── lib/                         内容、筛选、阅读统计、双语首屏等共享逻辑
+│   ├── lib/                         内容、筛选、文字量统计、双语首屏等共享逻辑
 │   └── pages/                       URL 对应的页面入口
 │       └── writing/                 /writing/ 索引和文章动态路由
 ├── index.html                       仍被 Astro 抽取内容的旧首页桥接源
@@ -102,7 +102,7 @@ Alpacaxu_Website/
 | --- | --- | --- | --- |
 | `docs/maintenance-guide.md` | 本次交接总入口：技术栈、运行方式、维护边界及其他手册导航。 | 内容可改；版本升级、运行方式变化时更新。 | README 和其他交接文档互相链接；不被内容集合扫描。 |
 | `docs/content-map.md` | 本次页面元素的增删改地图：文案、图片、项目、导航、文章、样式与交互。 | 内容可改；修改位置迁移后同步更新地图。 | 指向真实源码、资源和上游内容来源。 |
-| `docs/file-reference.md` | 本文件：全部受管文件说明、目录层级、历史副本和生成文件边界。 | 内容可改；新增/移动/删除文件时更新，核对 `git ls-files`。 | 覆盖基准提交全部 92 个文件、4 份交接手册和后续 4 个阅读统计文件，共 100 个。 |
+| `docs/file-reference.md` | 本文件：全部受管文件说明、目录层级、历史副本和生成文件边界。 | 内容可改；新增/移动/删除文件时更新，核对 `git ls-files`。 | 覆盖基准提交全部 92 个文件、4 份交接手册和后续 4 个文字量统计文件，共 100 个。 |
 | `docs/publishing-guide.md` | 本次版本控制与发布流程：分支、提交、PR、回退、新文章和同步排错。 | 内容可改；自动化、命名或合并规则改变后更新。 | Git、GitHub Actions、PR、Vercel 与 repytorch 流程。 |
 | `docs/writing.md` | 网站仓库杂文的详细写法、frontmatter 字段、草稿与稳定 permalink 注意事项。 | 内容可改；内容 schema 改动后同步更新。 | `docs/essay-template.md`、`src/content/posts/essays/`、内容校验。 |
 | `docs/essay-template.md` | 合法、未发布的杂文复制模板，正文从二级标题开始。 | 内容可改；复制到 essays 后填实际日期/标题/permalink，不要把模板本身当文章发布。 | `scripts/essay-template.test.mjs` 校验；不被文章集合扫描。 |
@@ -158,23 +158,23 @@ Alpacaxu_Website/
 
 | 文件 | 实际功能 | 如何修改 | 依赖/引用 |
 | --- | --- | --- | --- |
-| `src/pages/index.astro` | 现行 `/` 首页：新开场、主题内容地图、折叠项目证据、最新 4 篇文章（仅显示预计阅读时间）、profile/经历/背景。抽取根 index 的 7 个 section，添加新项目 ID。 | 内容/技术可改；开场先改 `site.mjs`，旧证据先改根 index/双语字典，新增板块再改此文件。 | BaseLayout、ReadingMetrics、`content.ts`、`writing.mjs`、`site.mjs`、根 index raw 文本。 |
+| `src/pages/index.astro` | 现行 `/` 首页：新开场、主题内容地图、折叠项目证据、最新 4 篇文章（显示文字量总数）、profile/经历/背景。抽取根 index 的 7 个 section，添加新项目 ID。 | 内容/技术可改；开场先改 `site.mjs`，旧证据先改根 index/双语字典，新增板块再改此文件。 | BaseLayout、ReadingMetrics、`content.ts`、`writing.mjs`、`site.mjs`、根 index raw 文本。 |
 | `src/pages/about.astro` | `/about/`：双语个人介绍、照片、研究方向、联系链接、独立留言板。 | 内容可改；写在 `data-workspace-zh/en` 里的两种文案都要更新。 | BaseLayout、Giscus、`site.mjs`、portrait；留言板 term 固定 `about-guestbook`。 |
 | `src/pages/404.astro` | 自定义 404 页面，返回首页/文章入口；robots noindex，不写 canonical。 | 内容/技术可改；不要删自定义页面标记与 noindex 边界。 | BaseLayout、`site.mjs`；HTTP 验收确认真实 404 而不是 200 错误页面。 |
-| `src/pages/writing/index.astro` | `/writing/`：所有已发布文章、卡片文字量/预计阅读时间、分类计数、标签、关键词、组合筛选；客户端增强逻辑在文件末尾。URL 记录 q/category/tag。 | 内容/技术可改；只改界面文字在模板，筛选行为改末尾模块并运行行为测试。 | BaseLayout、ReadingMetrics、`content.ts`、`writing.mjs`、`site.mjs`、editorial CSS、首屏筛选 manifest。 |
-| `src/pages/writing/[...slug].astro` | 根据已发布集合生成稳定文章路由；Astro render 取得正文与真实目录标题，并计算正文阅读统计，传给 ArticleLayout。 | 技术可改；日常文章正文不改路由文件。 | `getPublishedPosts()`、reading-metrics、Astro 内容渲染、ArticleLayout；评论键 `/writing/{permalink}/`。 |
+| `src/pages/writing/index.astro` | `/writing/`：所有已发布文章、卡片文字量总数、分类计数、标签、关键词、组合筛选；客户端增强逻辑在文件末尾。URL 记录 q/category/tag。 | 内容/技术可改；只改界面文字在模板，筛选行为改末尾模块并运行行为测试。 | BaseLayout、ReadingMetrics、`content.ts`、`writing.mjs`、`site.mjs`、editorial CSS、首屏筛选 manifest。 |
+| `src/pages/writing/[...slug].astro` | 根据已发布集合生成稳定文章路由；Astro render 取得正文与真实目录标题，并计算正文文字量，传给 ArticleLayout。 | 技术可改；日常文章正文不改路由文件。 | `getPublishedPosts()`、reading-metrics、Astro 内容渲染、ArticleLayout；评论键 `/writing/{permalink}/`。 |
 
 ### 7.2 布局与可复用组件
 
 | 文件 | 实际功能 | 如何修改 | 依赖/引用 |
 | --- | --- | --- | --- |
 | `src/layouts/BaseLayout.astro` | 全文档骨架、SEO/分享 meta、canonical、顶栏/页脚、静态样式/模块、首屏内联脚本、主题按钮、完整 main 快照等待标记。 | 技术可改；内联过渡策略顺序、`page-content-ready` 唯一 ID、完整正文等待是首屏保护。 | 所有页面与 ArticleLayout 使用；组件、first-paint、evidence-copy、public 静态资源。 |
-| `src/layouts/ArticleLayout.astro` | Markdown 文章统一标题、简介、日期、文字量/预计阅读时间、标签、来源 SHA/链接、正文、目录与按需评论双列布局。 | 技术/界面内容可改；正文去 Markdown 修改，不改稳定评论 term。 | BaseLayout、ReadingMetrics、ArticleReader、Giscus、writing/content、`site.mjs`；动态路由调用。 |
+| `src/layouts/ArticleLayout.astro` | Markdown 文章统一标题、简介、日期、文字量总数、标签、来源 SHA/链接、正文、目录与按需评论双列布局。 | 技术/界面内容可改；正文去 Markdown 修改，不改稳定评论 term。 | BaseLayout、ReadingMetrics、ArticleReader、Giscus、writing/content、`site.mjs`；动态路由调用。 |
 | `src/components/SiteHeader.astro` | 全站品牌头像/昵称、Projects/Writing/About、当前页状态、快捷导航/语言/主题按钮。 | 内容/技术可改；名称/头像先改 site，改链接在此文件；保留增强按钮占位。 | BaseLayout 调用；`site.mjs`、workspace.js/CSS、首屏 bootstrap。 |
 | `src/components/SiteFooter.astro` | 全站版权年、口号、联系邮箱链接。 | 内容可改；年份目前写死 2026，需自己更新，不会自动随年份变化。 | BaseLayout 调用；昵称/邮箱来自 `site.mjs`。 |
 | `src/components/WorkspaceTools.astro` | ⌘/Ctrl+K dialog 模板、4 个固定页面目的地、自动加入全部已发布文章。 | 固定入口文案可改；文章列表不要手写，会从内容集合自动生成。 | BaseLayout、`getWritingPosts()`、workspace 浏览器模块。 |
 | `src/components/ArticleReader.astro` | 构建时生成真实 h2/h3 目录、原生锚点和隐藏增强进度控件。 | 技术/阅读工具界面可改；保留无需 JS 的目录链接。 | ArticleLayout 提供 headings；加载 article-reader.js。 |
-| `src/components/ReadingMetrics.astro` | 构建时输出双语文字量与预计阅读时间；正文/Writing 使用完整模式，首页 `compact` 模式仅时间；内含 scoped 排版样式。 | 技术/提示文案可改；文案和口径优先去 reading-metrics 模块，不新增客户端统计脚本。 | 三种页面共用；导入 `reading-metrics.mjs` 的文案，复用现有 `data-workspace-*` 语言机制。 |
+| `src/components/ReadingMetrics.astro` | 构建时输出文字量总数，中英文仅单位与提示不同；三处显示内容相同，首页 `compact` 只调整字体/间距；内含 scoped 排版样式。 | 技术/提示文案可改；文案和口径优先去 reading-metrics 模块，不新增客户端统计脚本。 | 三种页面共用；导入 `reading-metrics.mjs` 的文案，复用现有 `data-workspace-*` 语言机制。 |
 | `src/components/GiscusComments.astro` | 评论/留言板展示、按需加载按钮、GitHub Discussions 链接、repo/category IDs、语言/主题跟随与错误重试。 | 技术/提示文案可改；日常文章开关改 comments 字段；不要随意更换 term/repo/category。 | ArticleLayout 与 About 调用；外部 `https://giscus.app/client.js` 仅点击后加载，GitHub 登录发言。 |
 
 ### 7.3 内容配置、数据与共享逻辑
@@ -183,9 +183,9 @@ Alpacaxu_Website/
 | --- | --- | --- | --- |
 | `src/content.config.ts` | `posts` 集合与 Zod schema：扫描 Markdown、发布开关、必填标题/稳定网址/简介、合法日期/语言、标签、来源元数据。 | 技术可改；调整字段需同步写作模板、同步器和文档，不为单篇报错随意放宽。 | Astro 内容构建；`content.ts` 获取集合。 |
 | `src/data/site.mjs` | 网站昵称、卡通头像路径、邮箱，中文/英文首页 title/description/两行标题/intro。 | 内容可改；JS 引号逗号括号保留，两个语言可独立表达。 | 首页、顶栏、页脚、About、文章标题和404等使用；不是旧证据全部文案唯一来源。 |
-| `src/lib/content.ts` | 读取已发布文章、检查重复网址、排序，给首页/索引/快捷导航提供统一精简列表与构建时阅读统计。 | 技术可改；不要重新拼接三篇已撤下静态旧文，不把统计写回文章元数据。 | Astro content API、writing/reading-metrics 工具；页面、WorkspaceTools、动态路由。 |
+| `src/lib/content.ts` | 读取已发布文章、检查重复网址、排序，给首页/索引/快捷导航提供统一精简列表与构建时文字量统计。 | 技术可改；不要重新拼接三篇已撤下静态旧文，不把统计写回文章元数据。 | Astro content API、writing/reading-metrics 工具；页面、WorkspaceTools、动态路由。 |
 | `src/lib/writing.mjs` | 默认分类/显示名、搜索标准化、组合匹配、筛选 URL、查询恢复、重复网址检查、确定性排序。 | 技术可改；新增分类显示名在这里与索引双语 categoryCopy 配套。 | 内容列表、索引客户端、首页链接、首屏脚本与写作测试共用。 |
-| `src/lib/reading-metrics.mjs` | 解析正文可读文字，排除 YAML/标记/URL/图片替代文本/代码块/行内代码，分别计中文汉字及英文等字母词；按 300 汉字/分钟、200 词/分钟估算并向上取整，生成中英文展示文案；零可读正文显示不足 1 分钟。 | 技术可改；不统计行数、不手填 YAML，不修改同步快照；规则变更跑对应测试。 | 构建期内容列表与文章路由、ReadingMetrics 共用；复用现有 Markdown 解析依赖。 |
+| `src/lib/reading-metrics.mjs` | 解析正文可读文字，排除 YAML/标记/URL/图片替代文本/代码块/行内代码；汉字和英文等字母词各计 1 后相加为统一总数。`calculateReadingMetrics()` 返回 `{ wordCount }`，文案函数生成中英 `volume` / `description`，零正文显示 0。 | 技术可改；不统计行数或阅读时间、不手填 YAML，不修改同步快照；规则变更跑对应测试。 | 构建期内容列表与文章路由、ReadingMetrics 共用；复用现有 Markdown 解析依赖。 |
 | `src/lib/evidence-copy.mjs` | 用 TypeScript AST 安全读取旧字典静态字符串；给抽取的旧证据 HTML 加统一双语属性，转义属性值，不执行旧脚本。 | 技术可改；双语文案仍去两份 script.js 修改。 | BaseLayout 在 `legacyI18n` 首页构建时调用；evidence-copy 测试验证安全。 |
 | `src/lib/first-paint.mjs` | 序列化到 head 的首屏初始化：提前恢复语言、主题、界面文本/日期、文章 URL 筛选；解析结束停止观察。 | 技术可改；不引入外部请求、等待计时、整页隐藏或改写文章正文。 | BaseLayout 内联；共用 writing 纯函数，后续 workspace/索引模块接管。 |
 
@@ -227,8 +227,8 @@ Alpacaxu_Website/
 | `scripts/interface-state.test.mjs` | 语言/存储/按钮提示/UTC日期、全站共享控件、正文与评论键独立、过渡层不阻挡按钮。 | 技术可改；导入 interface-state，读取共享页面和样式。 |
 | `scripts/legacy-posts.test.mjs` | 防止三篇撤下示例文章/索引副本被恢复；确认只收明确发布的 Markdown、首页不链接旧文。 | 技术可改；检查旧路径不存在，读取内容逻辑与两个首页文件。 |
 | `scripts/pointer-effects.test.mjs` | 脉冲允许条件、普通左键、选择/拖动取消、数量/寿命、被动事件和不改变指针/导航。 | 技术可改；直接导入 pointer-effects 导出函数，读取 JS/CSS。 |
-| `scripts/reading-metrics.test.mjs` | 阅读统计纯函数回归：中英混写、正文与代码/元数据边界、时间估算及双语文案。 | 技术可改；直接导入 reading-metrics 模块，不为每篇文章手写一组统计数字。 |
-| `scripts/reading-metrics-markup.test.mjs` | 共享组件、三种页面传值、首页精简模式、完整文字量/时间、双语属性与无需客户端计数的展示回归。 | 技术可改；读取 ReadingMetrics、内容列表、文章路由与页面/布局，不代替浏览器视觉验收。 |
+| `scripts/reading-metrics.test.mjs` | 文字量纯函数回归：中英混写统一计数、正文与代码/元数据边界、零正文及双语单位/提示文案。 | 技术可改；直接导入 reading-metrics 模块，不为每篇文章手写一组统计数字。 |
+| `scripts/reading-metrics-markup.test.mjs` | 共享组件、三种页面传值、相同文字量显示、首页紧凑样式、双语属性与无需客户端计数的展示回归。 | 技术可改；读取 ReadingMetrics、内容列表、文章路由与页面/布局，不代替浏览器视觉验收。 |
 | `scripts/site-personalization.test.mjs` | 独立中英文开场/身份完整、无真实姓名及缩写、头像大小/尺寸、提前主题恢复与渐进导航。 | 技术可改；读取 site、页面、旧字典、favicon、布局与样式；改昵称/资源时同步验证约束。 |
 | `scripts/sync-repytorch.test.mjs` | 白名单、明确发布元数据、日期/语言/网址、唯一 H1、链接/图片/引用重写、危险路径协议、原始 HTML、GFM、本机路径行号、零篇来源清单。 | 技术可改；直接导入同步器纯函数；不自动运行写入同步。 |
 | `scripts/workspace-state.test.mjs` | 快捷导航 Unicode/大小写/多词匹配、安全锚点，首页旧区块/真实项目/文章入口，发布/阅读边界和两份桥接 JS 一致。 | 技术可改；直接导入 workspace-state，读取首页/组件/布局/桥接脚本。两份 CSS 一致目前需人工核对。 |

@@ -2,7 +2,7 @@
 import { readingMetricsCopy } from "../lib/reading-metrics.mjs";
 
 interface Props {
-  metrics: { chineseCharacters: number; words: number; readingMinutes: number };
+  metrics: { wordCount: number };
   compact?: boolean;
 }
 
@@ -13,14 +13,12 @@ const copy = readingMetricsCopy(metrics);
 <div
   class:list={["reading-metrics", { "reading-metrics-compact": compact }]}
   data-reading-metrics
+  data-word-count={metrics.wordCount}
   title={copy.zh.description}
   data-workspace-title-zh={copy.zh.description}
   data-workspace-title-en={copy.en.description}
 >
-  {!compact && (
-    <span data-reading-volume data-workspace-zh={copy.zh.volume} data-workspace-en={copy.en.volume}>{copy.zh.volume}</span>
-  )}
-  <span data-reading-time data-workspace-zh={copy.zh.time} data-workspace-en={copy.en.time}>{copy.zh.time}</span>
+  <span data-reading-volume data-workspace-zh={copy.zh.volume} data-workspace-en={copy.en.volume}>{copy.zh.volume}</span>
 </div>
 
 <style>
@@ -41,12 +39,6 @@ const copy = readingMetricsCopy(metrics);
 
   .reading-metrics > span {
     min-width: 0;
-  }
-
-  .reading-metrics:not(.reading-metrics-compact) > [data-reading-time]::before {
-    content: "·";
-    margin-right: 12px;
-    opacity: 0.65;
   }
 
   .reading-metrics-compact {

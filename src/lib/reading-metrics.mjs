@@ -93,43 +93,27 @@ function visibleMarkdownText(markdown) {
   return chunks.join("");
 }
 
-/** Build-time prose metrics; code and Markdown/HTML metadata never add reading time. */
+/** Build-time prose count; each Han character and each non-Han word contributes one. */
 export function calculateReadingMetrics(markdown = "") {
   const text = visibleMarkdownText(markdown);
   const chineseCharacters = [...text.matchAll(HAN_CHARACTER)]
     .filter(([character]) => !NUMBER_CHARACTER.test(character)).length;
   const withoutHan = text.replace(HAN_CHARACTER, " ");
   const words = [...withoutHan.matchAll(WORD)].length;
-  // Integer weights avoid rounding a mathematically exact minute upwards.
-  const readingMinutes = Math.max(1, Math.ceil((chineseCharacters * 200 + words * 300) / 60_000));
-  return { chineseCharacters, words, readingMinutes };
+  return { wordCount: chineseCharacters + words };
 }
 
-/** Bilingual UI copy; the zero-prose case is explicitly an under-one-minute estimate. */
-export function readingMetricsCopy({ chineseCharacters, words, readingMinutes }) {
-  const charactersText = chineseCharacters.toLocaleString("en-US");
-  const wordsText = words.toLocaleString("en-US");
-  const zhParts = [];
-  const enParts = [];
-  if (chineseCharacters) {
-    zhParts.push(`${charactersText} 字`);
-    enParts.push(`${charactersText} Chinese character${chineseCharacters === 1 ? "" : "s"}`);
-  }
-  if (words) {
-    zhParts.push(`${wordsText} 词`);
-    enParts.push(`${wordsText} word${words === 1 ? "" : "s"}`);
-  }
-  const empty = !chineseCharacters && !words;
+/** One combined total, with localized labels rather than language subtotals. */
+export function readingMetricsCopy({ wordCount }) {
+  const total = wordCount.toLocaleString("en-US");
   return {
     zh: {
-      volume: zhParts.join(" + ") || "0 字",
-      time: empty ? "不足 1 分钟" : `约 ${readingMinutes} 分钟`,
-      description: "中文按汉字、英文等按单词统计；不计代码、图片替代文字和元数据。按每分钟 300 字或 200 词估算正文浏览时间，不含理解难点、运行代码和实验练习。",
+      volume: `${total} 字`,
+      description: "中文按汉字、英文等按单词合计；纯数字、代码、网址、图片替代文字和元数据不计。",
     },
     en: {
-      volume: enParts.join(" + ") || "0 words",
-      time: empty ? "<1 min" : `~${readingMinutes} min`,
-      description: "Chinese characters and prose words are counted separately; code, image alt text and metadata are excluded. Estimated at 300 Chinese characters or 200 words per minute; excludes studying difficult concepts, running code and experiments.",
+      volume: `${total} word${wordCount === 1 ? "" : "s"}`,
+      description: "Han characters and prose words are combined; standalone numbers, code, URLs, image alt text and metadata are excluded.",
     },
   };
 }

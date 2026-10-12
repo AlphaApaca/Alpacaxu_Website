@@ -9,7 +9,7 @@ import { matchesWriting, normalizeSearch, readWritingFilters } from "../src/lib/
 
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 
-test("article size and reading time come from the Markdown body at build time", async () => {
+test("the combined article word count comes from the Markdown body at build time", async () => {
   const content = await read("src/lib/content.ts");
   const route = await read("src/pages/writing/[...slug].astro");
   for (const source of [content, route]) {
@@ -17,11 +17,11 @@ test("article size and reading time come from the Markdown body at build time", 
     assert.match(source, /calculateReadingMetrics\([^)]*(?:post\.)?body\s*\?\?\s*["']["']\)/);
     assert.doesNotMatch(source, /calculateReadingMetrics\([^)]*(?:summary|title|sourceUrl)/);
   }
-  assert.match(content, /metrics:\s*\{\s*chineseCharacters:\s*number;\s*words:\s*number;\s*readingMinutes:\s*number\s*\}/);
+  assert.match(content, /metrics:\s*\{\s*wordCount:\s*number\s*\}/);
   assert.match(route, /<ArticleLayout\b[\s\S]*?metrics=\{metrics\}/);
 });
 
-test("all writing surfaces reuse the same metrics, with only time on homepage cards", async () => {
+test("all writing surfaces reuse the same combined word count, including compact homepage cards", async () => {
   const home = await read("src/pages/index.astro");
   const writing = await read("src/pages/writing/index.astro");
   const layout = await read("src/layouts/ArticleLayout.astro");
@@ -34,6 +34,9 @@ test("all writing surfaces reuse the same metrics, with only time on homepage ca
   assert.doesNotMatch(writing.match(/<ReadingMetrics\b[^>]*\/>/)?.[0] ?? "", /\bcompact\b/);
   assert.match(layout, /<ReadingMetrics\b[^>]*metrics=\{metrics\}[^>]*\/>/);
   assert.doesNotMatch(layout.match(/<ReadingMetrics\b[^>]*\/>/)?.[0] ?? "", /\bcompact\b/);
+  const component = await read("src/components/ReadingMetrics.astro");
+  assert.match(component, /<span\b[^>]*data-reading-volume/);
+  assert.doesNotMatch(component, /!compact\s*&&|compact\s*\?[^\n]*data-reading-volume/);
 });
 
 test("article metrics stay in the heading and do not enter authored body translation exclusions", async () => {
@@ -46,22 +49,21 @@ test("article metrics stay in the heading and do not enter authored body transla
   assert.doesNotMatch(layout.slice(body, layout.indexOf("</article>", body)), /ReadingMetrics/);
 });
 
-test("metrics are static bilingual markup with no line count or additional browser dependency", async () => {
+test("the combined count is static bilingual markup with no time, line count or browser dependency", async () => {
   const component = await read("src/components/ReadingMetrics.astro");
   assert.match(component, /const\s*\{\s*metrics,\s*compact\s*=\s*false\s*\}\s*=\s*Astro\.props/);
   assert.match(component, /readingMetricsCopy\(metrics\)/);
+  assert.match(component, /metrics:\s*\{\s*wordCount:\s*number\s*\}/);
   assert.match(component, /data-reading-metrics/);
-  assert.match(component, /!compact\s*&&\s*\(\s*<span\b[^>]*data-reading-volume/);
-  for (const item of ["volume", "time"]) {
-    const element = component.match(new RegExp(`<span\\b[^>]*data-reading-${item}[^>]*>`))?.[0] ?? "";
-    assert.match(element, new RegExp(`data-workspace-zh=\\{copy\\.zh\\.${item}\\}`));
-    assert.match(element, new RegExp(`data-workspace-en=\\{copy\\.en\\.${item}\\}`));
-  }
+  assert.match(component, /data-word-count=\{metrics\.wordCount\}/);
+  const element = component.match(/<span\b[^>]*data-reading-volume[^>]*>/)?.[0] ?? "";
+  assert.match(element, /data-workspace-zh=\{copy\.zh\.volume\}/);
+  assert.match(element, /data-workspace-en=\{copy\.en\.volume\}/);
   for (const language of ["zh", "en"]) {
     assert.ok(component.includes(`data-workspace-title-${language}={copy.${language}.description}`));
   }
   assert.match(component, /title=\{copy\.zh\.description\}/);
-  assert.doesNotMatch(component, /<script\b|fetch\(|setTimeout\(|requestAnimationFrame\(|localStorage|data-reading-lines|(?:source|code)?[Ll]ineCount|sourceLines/);
+  assert.doesNotMatch(component, /<script\b|fetch\(|setTimeout\(|requestAnimationFrame\(|localStorage|data-reading-lines|(?:source|code)?[Ll]ineCount|sourceLines|data-reading-time|readingMinutes|copy\.(?:zh|en)\.time/);
 });
 
 test("the shared component can wrap on narrow screens without a second public stylesheet", async () => {
@@ -108,14 +110,13 @@ class Element {
 function metricsFixture(language) {
   const root = new Element();
   const wrapper = new Element({
-    "data-reading-metrics": "", title: "预计浏览正文，不包括练习。",
-    "data-workspace-title-zh": "预计浏览正文，不包括练习。",
-    "data-workspace-title-en": "Estimated time to browse the text, excluding practice.",
+    "data-reading-metrics": "", title: "中文汉字与英文等单词合计；不计代码和元数据。",
+    "data-workspace-title-zh": "中文汉字与英文等单词合计；不计代码和元数据。",
+    "data-workspace-title-en": "Combined Chinese characters and prose words; excludes code and metadata.",
   });
-  const volume = new Element({ "data-workspace-zh": "120 字 · 34 词", "data-workspace-en": "120 Chinese characters · 34 words" }, "120 字 · 34 词");
-  const time = new Element({ "data-workspace-zh": "约 1 分钟", "data-workspace-en": "About 1 min" }, "约 1 分钟");
+  const volume = new Element({ "data-workspace-zh": "1,631 字", "data-workspace-en": "1,631 words" }, "1,631 字");
   const toggle = new Element({ class: "lang-toggle" });
-  wrapper.children.push(volume, time);
+  wrapper.children.push(volume);
   root.children.push(wrapper, toggle);
   const document = {
     documentElement: root, readyState: "loading", title: "Untouched",
@@ -134,16 +135,14 @@ function metricsFixture(language) {
     document, storage: { getItem: (key) => storage.get(key) }, matchMedia: () => ({ matches: false }),
     MutationObserver, location: { search: "" }, matchesWriting, normalizeSearch, readWritingFilters,
   });
-  return { root, document, wrapper, volume, time, toggle, storage, MutationObserver, observer: () => observer };
+  return { root, document, wrapper, volume, toggle, storage, MutationObserver, observer: () => observer };
 }
 
 for (const language of ["zh", "en"]) {
-  test(`saved ${language} localizes metric units and estimate tooltip before external scripts run`, () => {
+  test(`saved ${language} localizes the combined count and its tooltip before external scripts run`, () => {
     const fixture = metricsFixture(language);
     assert.equal(fixture.root.dataset.lang, language);
-    for (const element of [fixture.volume, fixture.time]) {
-      assert.equal(element.textContent, element.getAttribute(`data-workspace-${language}`));
-    }
+    assert.equal(fixture.volume.textContent, fixture.volume.getAttribute(`data-workspace-${language}`));
     assert.equal(fixture.wrapper.getAttribute("title"), fixture.wrapper.getAttribute(`data-workspace-title-${language}`));
   });
 }
@@ -166,9 +165,7 @@ test("the existing language toggle updates metric text and tooltip together with
     fixture.observer().callback();
     assert.equal(fixture.root.dataset.lang, language);
     assert.equal(fixture.storage.get("alpaca-lang"), language);
-    for (const element of [fixture.volume, fixture.time]) {
-      assert.equal(element.textContent, element.getAttribute(`data-workspace-${language}`));
-    }
+    assert.equal(fixture.volume.textContent, fixture.volume.getAttribute(`data-workspace-${language}`));
     assert.equal(fixture.wrapper.getAttribute("title"), fixture.wrapper.getAttribute(`data-workspace-title-${language}`));
   }
 });
