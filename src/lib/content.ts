@@ -1,5 +1,6 @@
 import { getCollection } from "astro:content";
 import { assertUniqueWritingPaths, categoryLabel, sortWriting, writingSearchText } from "./writing.mjs";
+import { calculateReadingMetrics } from "./reading-metrics.mjs";
 
 export { categoryLabel };
 
@@ -12,6 +13,7 @@ export interface WritingPost {
   date: string;
   searchText: string;
   kind: "markdown";
+  metrics: { chineseCharacters: number; words: number; readingMinutes: number };
 }
 
 export function postPath(permalink: string) {
@@ -26,7 +28,7 @@ export async function getPublishedPosts() {
 
 export async function getWritingPosts(): Promise<WritingPost[]> {
   const posts = await getPublishedPosts();
-  const entries: WritingPost[] = posts.map(({ data }) => ({
+  const entries: WritingPost[] = posts.map(({ data, body }) => ({
     url: postPath(data.permalink),
     title: data.title,
     summary: data.summary,
@@ -35,6 +37,7 @@ export async function getWritingPosts(): Promise<WritingPost[]> {
     date: data.date,
     searchText: writingSearchText(data),
     kind: "markdown",
+    metrics: calculateReadingMetrics(body ?? ""),
   }));
   assertUniqueWritingPaths(entries);
   return sortWriting(entries);

@@ -1,0 +1,56 @@
+---
+import { readingMetricsCopy } from "../lib/reading-metrics.mjs";
+
+interface Props {
+  metrics: { chineseCharacters: number; words: number; readingMinutes: number };
+  compact?: boolean;
+}
+
+const { metrics, compact = false } = Astro.props;
+const copy = readingMetricsCopy(metrics);
+---
+
+<div
+  class:list={["reading-metrics", { "reading-metrics-compact": compact }]}
+  data-reading-metrics
+  title={copy.zh.description}
+  data-workspace-title-zh={copy.zh.description}
+  data-workspace-title-en={copy.en.description}
+>
+  {!compact && (
+    <span data-reading-volume data-workspace-zh={copy.zh.volume} data-workspace-en={copy.en.volume}>{copy.zh.volume}</span>
+  )}
+  <span data-reading-time data-workspace-zh={copy.zh.time} data-workspace-en={copy.en.time}>{copy.zh.time}</span>
+</div>
+
+<style>
+  .reading-metrics {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 4px 16px;
+    min-width: 0;
+    margin: 12px 0;
+    color: var(--muted);
+    font-size: 0.76rem;
+    font-weight: 400;
+    line-height: 1.7;
+    font-variant-numeric: tabular-nums;
+    overflow-wrap: anywhere;
+  }
+
+  .reading-metrics > span {
+    min-width: 0;
+  }
+
+  .reading-metrics:not(.reading-metrics-compact) > [data-reading-time]::before {
+    content: "·";
+    margin-right: 12px;
+    opacity: 0.65;
+  }
+
+  .reading-metrics-compact {
+    margin: 0;
+    font-size: inherit;
+  }
+</style>

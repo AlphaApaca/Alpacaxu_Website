@@ -109,6 +109,8 @@ Astro 入口把从 `.metric-row` 或 `.project-detail` 开始、直到 `.evidenc
 
 新首页 `section#posts` 的卡片自动从已发布内容生成。当前 `const posts = (await getWritingPosts()).slice(0, 4)` 展示按日期排序的前 4 篇；要改变数量改这里。标题、简介、日期、分类和标签来自 Markdown 资料，不在首页手写。
 
+首页每张文章卡片只展示预计阅读时间，不显示文字量。渲染由 [`ReadingMetrics.astro`](../src/components/ReadingMetrics.astro) 的 `compact` 模式负责；首页不另算一份数字。正文或源文章更新并重新构建后，时间会自动更新。具体统计口径与修改入口见下方 4.4。
+
 “一点点建立自己的理解”等标题与按钮在首页 `workspace-writing` 标记下双语属性中；底部三条分类链接位于 `.workspace-writing-topics`。新分类不会自动加入这三条固定首页快捷入口，要手工增加。根 HTML 里的旧 `section#posts` 不参与这个自动列表，三篇旧静态文章已经退役，不要复制旧卡片回来。
 
 ## 4. Writing：文章内容、分类和阅读界面
@@ -148,6 +150,25 @@ repytorch 源文档的标题来自正文中**恰好一个**一级标题 `# …`�
 移动端会把目录移到正文上方并折叠，桌面端在右侧；断点在阅读 CSS 和 JS 中均为 `1050px`，改断点时两者同步。目录 / 进度的中文英文标签在 `ArticleReader.astro`、`article-reader.js`、首屏 `first-paint.mjs` 中各有用途，改标签要检查三处。
 
 发布后尽量不改源 `slug` / 本地 `permalink`：网址 `/writing/{标识}/` 同时是文章评论关联键。修改文件名不必改变固定标识。若确实要迁移 URL，应先设计旧 URL 到新 URL 的永久重定向及评论迁移方案；当前没有自动完成这项迁移的功能。
+
+### 4.4 文字量与预计阅读时间（2026-10-13 补充）
+
+这两项是网站构建时从 Markdown 正文计算的展示信息，不是文章作者要填写的 YAML 字段。**不统计行数**，也不将统计数字写回 repytorch 源文或网站同步快照。
+
+| 页面 / 想改的内容 | 编辑位置 / 当前规则 |
+| --- | --- |
+| 正文标题下方的统计 | `src/layouts/ArticleLayout.astro` 使用共享 `ReadingMetrics.astro`，显示文字量和预计阅读时间 |
+| Writing 列表卡片的统计 | `src/pages/writing/index.astro` 使用同一组件，显示文字量和预计阅读时间 |
+| 首页最新文章卡片的统计 | `src/pages/index.astro` 使用组件的 `compact` 模式，只显示预计阅读时间 |
+| 文字量规则、阅读速度、数字与提示文案 | [`src/lib/reading-metrics.mjs`](../src/lib/reading-metrics.mjs)；统一计算，不在三处页面各自复制算法 |
+| 两项之间的间距、字体、窄屏换行 | `ReadingMetrics.astro` 内的 scoped 样式；不要为了缩短卡片把统计内容塞进标题 |
+| 构建数据传递 | [`src/lib/content.ts`](../src/lib/content.ts) 提供列表数据；`src/pages/writing/[...slug].astro` 将正文统计传给文章布局 |
+
+文字量分别显示中文汉字数与英文等单词数，不把它们合并成一个含糊的“总字数”。词数按非汉字的 Unicode 字母词统计，所以也能涵盖少量其他语言的词语；纯数字不当作词。只计正文可读文字；YAML、Markdown 标记、链接 URL、图片替代文本、代码块和行内代码不计入，链接显示文字仍可计入。切换界面语言只改变这些信息的标签和提示，不翻译原文或重新计算数量。
+
+时间按约 **300 个中文汉字/分钟 + 200 个英文等单词/分钟** 的混合阅读量粗估，向上取整后作为“预计阅读时间”显示；有可读文字时至少显示约 1 分钟，没有可读文字（例如仅代码）则显示不足 1 分钟。不代表理解难点、运行代码或完成实验所需时间。三处调用同一个统计模块和组件，并复用现有 `data-workspace-*` 语言机制，没有新增客户端统计脚本，也不会等页面加载后再补数字。
+
+日常只改文章正文并按原发布流程构建即可。需要调整计数规则、阅读速度或显示文案时，同步运行 `scripts/reading-metrics.test.mjs` 和 `scripts/reading-metrics-markup.test.mjs`，再检查中英、首页精简模式及窄屏排版；不要手改同步 Markdown 来“修正”统计。
 
 ## 5. About、导航、页脚、评论和 SEO
 
