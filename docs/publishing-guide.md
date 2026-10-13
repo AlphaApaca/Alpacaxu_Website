@@ -1,6 +1,6 @@
 # 版本控制与文章发布指南
 
-交接日期：2026-10-05。本文按交接时仓库中的配置整理，未来修改工作流或托管设置后，也应同步更新这份说明。今天的新文章已上线；下面的错误排查是以后遇到同类情况时的处理方法，不表示当前仍有故障。
+初次交接日期：2026-10-05。维护核对：2026-10-13，功能基准为 `93e131c0de09b163075a7e946f922c753be99fff`。本文按仓库中的实际配置整理，未来修改工作流或托管设置后，也应同步更新这份说明。首次交接时的文章发布已经完成；下面的错误排查是遇到同类情况时的处理方法，不表示这些故障目前仍存在。
 
 ## 1. 先区分两种更新
 
@@ -175,13 +175,28 @@ git push -u origin codex/content-about-intro
 1. 在网站 GitHub 仓库点击 **Compare & pull request**，检查 **base: main**、**compare: 你的任务分支**。
 2. 还在调试就选 **Create draft pull request**；已经完成也可以直接普通 PR。Draft 是“暂不合并”的状态，不代表内容保密，也不阻止预览部署。
 3. 写明改了什么、如何检查、是否影响网址/评论/同步；确认 Files changed 没有无关文件。
-4. 等 `Site checks` 与 Vercel 预览结果。对 `codex/**` 的人工 push，检查还会找同一个完整 SHA 的成功 Preview，验收页面 HTTP 状态、404 与 noindex。注意 `validate` 成功但预览 HTTP 检查失败，不等于全部验收通过。
+4. 等 `Site checks` 与 Vercel 预览结果。`validate` 检查测试、固定源快照、Astro 与构建，不访问线上预览；对 `codex/**` 的人工 push，另一个检查会找同一个完整 SHA 的成功 Preview，验收页面 HTTP 状态、404 与 noindex。注意 `validate` 成功但预览 HTTP 检查失败，不等于全部验收通过。PR 事件中的对应预览项显示 **skipped** 是正常设计：这项精确提交检查只在该分支的 push 事件运行，不会在 PR 事件重复执行。
 5. 打开本次 commit 的预览，在桌面 Chrome 与手机尺寸检查中英切换、主题、顶栏、首页/文章/About 跳转；按需检查筛选、文章目录、正文链接、图片。600ms 淡入只适用于浏览器支持且未启用减少动态效果的正常跨页导航，刷新与第一次打开不要求有动画。
 6. 确认满意后点 **Ready for review**（如果仍是 Draft），再人工合并。不要仅因 CI 全绿就跳过文章或视觉检查。
 
 建议在 PR 说明保存“本次 SHA + 唯一部署 URL”。Vercel 的 `blogofalpaca-<hash>-…vercel.app` 是某次部署，`blogofalpaca-git-<branch>-…vercel.app` 是会随分支更新的地址；已经打开的旧部署不会因 `main` 合并而变成最新设计。两者的区别见 [Vercel 生成网址说明](https://vercel.com/docs/deployments/generated-urls)。
 
 预览如果跳到登录或保护页，自动 HTTP 检查不能证明实际页面通过。先核对本项目部署保护设置与预览访问权限，不能把登录页的 HTTP 200 当作文章页面正常，也不需要为日常维护随意扩大账号权限。
+
+#### 4.4.1 构建通过，但精确提交预览检查是红色
+
+先点失败的 job，区别“还没找到可验收的部署”和“已经访问页面但验收失败”。本项目的 [CI 工作流](../.github/workflows/ci.yml)先完成 `validate`，再由[预览检查脚本](../scripts/check-preview.mjs)查找本次完整 SHA 的成功 Preview；查找最多等待 **90 秒**，约每 5 秒查询一次。工作流 job 的总超时是 3 分钟，不等于会等待部署整整 3 分钟。
+
+如果第一条错误是 **No successful public Preview deployment ... was found within 90 seconds**，表示尚未找到符合条件的成功部署，**还没有开始页面 HTTP、404 或 noindex 验收**。它不等于代码错误，也不证明网站真的出现了 404；部署未触发、等待授权、构建失败，或成功状态回传较晚，都需要进一步查记录确认。
+
+处理顺序：
+
+1. 记下失败 run 与 PR 当前的完整 SHA；在 Vercel 中找到**同一个 SHA** 的 Preview。确认它确实为 **Ready**，并检查 GitHub 是否已收到该 SHA 的成功部署状态。不能用另一提交、旧部署或会移动的分支别名代替。
+2. 如果部署稍后成功，[独立的 `Preview HTTP acceptance` 工作流](../.github/workflows/preview-acceptance.yml)可能收到 `deployment_status` 回调。若有对应运行，核对其部署 SHA 和 URL，并展开实际检查日志，确认首页、Writing、About、文章（如有）以及自定义 404 的 `PASS` 和 noindex 结果；只看到工作流名称旁的绿色图标不足以证明这些步骤真的执行并通过。
+3. 回到**原来失败的 push `Site checks` run**，选择 **Re-run jobs → Re-run failed jobs**。同 SHA 的独立回调即使已经通过，也不会自动消除先前 push run 的红叉；重跑才会更新原检查结果。重跑前确认 PR 没有新增提交；若有，应检查新 SHA 的运行与部署。
+4. 没有回调记录不必一直等待：确认同 SHA 的部署 Ready 且 GitHub 成功状态已回传后，可以直接重跑原 push 检查。也可以手动运行可信网站 `main` 上的 `Preview HTTP acceptance`，输入经核对属于本次 SHA 的唯一部署 origin，补齐 HTTP 验收证据。手动输入 URL 不会替你验证它属于哪个提交，也不会清除原 push 检查的红叉，仍应把 SHA 与 URL 对应关系记录在 PR 中。
+
+如果日志已经报具体页面 HTTP 状态、noindex、授权/登录重定向、保护页，或 Vercel 构建失败，就先解决该实际原因，再重新验收；不要只反复点重跑。无须为了消除红叉发空提交，不使用旧预览、随意关闭保护或删除检查来让结果变绿。这里的“成功 Preview”是查找成功状态的条件，不会代替后续真实页面访问验收。
 
 ### 4.5 合并后确认正式部署，再清理自己的分支
 
@@ -415,6 +430,10 @@ git diff -- src/content/posts/repytorch
 | Managed sync branch contains manual or unexpected changes | `codex/repytorch-sync` 的作者与文件差异 | 停止；保留、审阅人工改动，必要时迁到普通分支后再处理托管分支，不手工覆盖它 |
 | PR 检查不开始 | 机器人 PR 审批横幅 | 点 Approve workflows to run；注意 Draft 状态与审批是两件事 |
 | Vercel 没有预览 | 当前 SHA 的 deployment 状态、授权与构建日志 | 等成功或处理明确失败；不能把旧 URL 当本次部署 |
+| `validate` 通过，但 Preview 检查失败 | 失败步骤是查部署，还是访问页面 | 构建与远程验收是两件事；按第 4.4.1 节核对，不直接当作代码或 404 故障 |
+| No successful public Preview deployment ... within 90 seconds | 同 SHA 的 Vercel Ready 与 GitHub 成功回传 | 尚未开始 HTTP 验收；处理部署/授权原因，部署就绪后重跑原 push 失败 job |
+| PR 的 Exact-commit preview 项是 skipped | 事件类型及分支 | 正常：该项只在人工 `codex/**` push 执行；查对应 push run，不能把 skip 当验收通过 |
+| 独立 Preview HTTP acceptance 成功，原 Site checks 仍红 | 两个 run 是否对应同 SHA，回调是否实际打印页面 `PASS` | 独立运行不会自动改旧状态；核对证据后在原 push run 选 Re-run jobs → Re-run failed jobs |
 | 新 PR 预览仍是旧布局 | 浏览器地址是否为旧部署，该分支是否包含最新 main | 人工分支合入最新 `origin/main` 后重测；机器人分支重新运行同步，不手工 merge |
 | 预览 HTTP 检查失败，网页似乎能开 | 是否为保护/登录页、预览是否对应 exact SHA、404/noindex | 查检查日志具体失败项，核对部署访问设置，不绕过 TLS 或发送凭据给未知地址 |
 | Generated repytorch content is out of date | 快照是否被手改、当前固定源 SHA | 先确认来源与生成器版本；只在专门同步流程重新生成，不改生成文章“糊过去” |
@@ -422,7 +441,7 @@ git diff -- src/content/posts/repytorch
 | 正式站没有新内容 | Production 部署是否成功、是否打开旧 preview、文章发布开关 | 对上 main 合并 SHA、正式域名与新部署；普通 build 不会主动拉源新文章 |
 | 新评论没对应 Discussion | 是否真的有评论/回应提交，comments 是否开启 | 首次有效评论或回应才创建讨论；无需为了验收发送无意义测试留言 |
 
-目前自动 HTTP 验收涵盖首页、写作索引、About、选取的一篇同步文章、真实 404 与预览 noindex，并不是逐个外部链接、每张图片或所有交互的全面测试。同步快照零篇已发布文章时，默认跳过文章路由，不请求已经撤下的旧文章。作者仍要人工看本次变更文章。可在 [Preview HTTP acceptance](https://github.com/AlphaApaca/Alpacaxu_Website/actions/workflows/preview-acceptance.yml) 手动选网站 `main`，输入本项目 HTTPS Preview **origin**（不带文章路径、查询参数或锚点）；文章路径可留空由快照选择，也可填实际 `/writing/.../` 路由。该检查器只接受本项目指定格式预览域名，不能输入正式域名来冒充预览验收。
+目前自动 HTTP 验收涵盖首页、写作索引、About、选取的一篇同步文章、真实 404 与预览 noindex，并不是逐个外部链接、每张图片或所有交互的全面测试。同步快照零篇已发布文章时，默认跳过文章路由，不请求已经撤下的旧文章。作者仍要人工看本次变更文章。可在 [Preview HTTP acceptance](https://github.com/AlphaApaca/Alpacaxu_Website/actions/workflows/preview-acceptance.yml) 手动选网站 `main`，输入本项目 HTTPS Preview **origin**（不带文章路径、查询参数或锚点）；先人工核对该唯一部署属于本次完整 SHA，文章路径可留空由 `main` 快照选择，也可填实际 `/writing/.../` 路由。若本次分支文章不同于 `main`，填写本次部署实际存在的文章路径。该检查器只接受本项目指定格式预览域名，不能输入正式域名或旧提交预览来冒充本次验收。手动补验收与原 push 检查重跑的区别见第 4.4.1 节。
 
 ## 9. 每次发布的最短检查单
 
