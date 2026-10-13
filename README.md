@@ -12,6 +12,8 @@
 
 交接基准是 2026-10-05 的已上线 `main`（`1d3bb3328d98c4e4586b97e22676359c4ae643fa`）。下方保留技术速查；日常操作优先使用交接文档，不把历史预览地址或旧调试记录当作当前入口。
 
+后续维护核对：2026-10-13，[PR #12](https://github.com/AlphaApaca/Alpacaxu_Website/pull/12) 已合并，功能基准为 `93e131c0de09b163075a7e946f922c753be99fff`。首页、Writing 和正文统一显示文字量，不再显示阅读时间或中英文分项；计数规则、文件索引与维护说明已同步补充。这个 SHA 是本次核对记录，不是以后必须固定的正式版本。
+
 ## 技术结构
 
 - `src/pages/`：Astro 页面，包括首页、写作索引、文章路由、About 留言板和 404
@@ -30,6 +32,8 @@
 - `src/lib/evidence-copy.mjs`：构建时把旧项目/经历文案转换为共享双语属性；浏览器不再额外运行旧首页脚本
 - `public/interface-state.js`、`public/workspace.js`：共享中英界面状态、日期与后续语言切换；首页证据文案仍在原有双语字典中维护
 - `public/pointer-effects.js`、`public/pointer-effects.css`：短暂的点击几何脉冲，不替换系统指针，不拦截导航
+- `src/lib/reading-metrics.mjs`：构建时统计正文文字量，提供统一总数与中英单位/提示文案
+- `src/components/ReadingMetrics.astro`：首页、Writing 卡片和正文共用的文字量展示；首页 `compact` 仅调整样式
 
 ## 本地开发
 
@@ -118,6 +122,10 @@ Markdown 文章提供文章目录、阅读进度和当前章节高亮。目录�
 
 进度只计算 `.article-content` 正文，不把来源链接、评论或页脚算进去；短文正文底部进入视口时显示 100%，并非阅读时间或已读证明。目录链接在 JavaScript 不可用时仍可使用；实时进度和章节高亮需要 JavaScript。减少动态效果的系统偏好会关闭文章页面的平滑滚动。
 
+首页文章卡片、Writing 列表和正文标题下方显示相同的文字量总数，例如中文 `1,631 字`、英文 `1,631 words`。每个汉字计 1、每个英文等字母词计 1 后相加；纯数字、代码块、行内代码、网址、图片替代文字、YAML 和 Markdown 标记不计入，链接显示文字仍计入。切换语言只改单位和提示，不重新计算或翻译原文。没有可读正文时显示 `0 字` / `0 words`，不统计行数或预计阅读时间。
+
+统计随构建自动更新，不需要手填 YAML，也不写回源文章或同步快照。计数规则和文案改 `src/lib/reading-metrics.mjs`，排版改 `src/components/ReadingMetrics.astro`；三处页面不复制统计算法。详细维护入口见[内容修改地图](docs/content-map.md)第 4.4 节。
+
 ## 同步安全规则
 
 - 只有 `publish: true` 的文件会进入网站
@@ -144,6 +152,8 @@ GitHub Actions 自带令牌的机器人 push 不触发其他 push 工作流；�
 `Preview HTTP acceptance` 合入 main 后也能在成功的 Vercel Preview 部署回调中验收，或从 Actions 页面手动输入本项目的 HTTPS 预览 origin。文章路径可留空，检查器会从对应版本的 `snapshot.json` 选取；零篇已发布文章时，只检查索引而不误请求已撤下的文章。
 
 只允许本项目的 `blogofalpaca-…-alpacaxus-projects.vercel.app` 预览域名，不发送 GitHub 凭据，不绕过保护页面，不关闭 TLS 校验。部署尚未成功、访问受保护或连接失败都会明确失败，不能当作验收通过。
+
+精确提交检查最多等待 90 秒寻找成功部署。若它先超时、Vercel 后来才 Ready，应核对同一 SHA 的预览，再重跑原失败运行；独立的部署回调验收成功不会自动清除旧运行的红叉。PR 事件中这项检查跳过属于当前配置的正常行为，不等于失败。完整处理顺序及实际 HTTP 错误的区别见[发布指南](docs/publishing-guide.md)第 4.4、8 节。
 
 ## 评论与留言板
 

@@ -23,9 +23,19 @@
 
 GitHub 学习日志/笔记继续在 `repytorch` 写，按原有 `publish: true` 流程同步。自己写杂文看 `docs/writing.md` 和 `docs/essay-template.md`；不要手改同步生成的 Markdown 快照。
 
+## 改文字量显示
+
+首页、Writing 列表和正文显示同一个文字量总数，例如 `1,631 字` / `1,631 words`；汉字和英文等字母词各计 1 后相加，不再显示中英文分项、行数或预计阅读时间。
+
+- 计数规则、单位和悬停说明：[`src/lib/reading-metrics.mjs`](../src/lib/reading-metrics.mjs)。`calculateReadingMetrics()` 返回 `{ wordCount }`，`readingMetricsCopy()` 提供中英文案。
+- 字体、间距和换行：[`src/components/ReadingMetrics.astro`](../src/components/ReadingMetrics.astro) 内的 scoped 样式。`compact` 只调整首页样式，不改变计数或显示内容。
+- 放置位置：首页 `src/pages/index.astro`、Writing `src/pages/writing/index.astro`、正文 `src/layouts/ArticleLayout.astro`；三处共用组件，不各写一套算法。
+
+平时改正文并照常发布即可，构建会自动更新总数；不添加字数 YAML、不手改同步快照或 `dist/`。纯数字、代码、网址、图片替代文字和元数据等不计入；完整口径见[内容修改地图](content-map.md)第 4.4 节。调整规则或样式后运行检查和两份 `scripts/reading-metrics*.test.mjs`，核对三处数字一致、中英切换及窄屏排版。
+
 ## 看效果再发布
 
-平时本地开发用 `pnpm dev`；检查用 `pnpm check`、`pnpm test`、`pnpm build`。当前已有的 `http://127.0.0.1:4175/` 是静态预览，改完需重新构建、刷新浏览器，不会自动更新正式站。
+平时本地开发用 `pnpm dev`；检查用 `pnpm check`、`pnpm test`、`pnpm build`。静态预览可在构建后运行 `pnpm preview --host 127.0.0.1 --port 4177`，再打开命令实际返回的网址。`http://127.0.0.1:4177/` 只是地址示例，不表示服务一直运行；端口可换成未占用的其他端口。静态预览改完需重新构建、刷新浏览器，不会自动更新正式站。
 
 根目录 `index.html` 是 Astro 导入的旧首页内容桥接源，不是独立预览入口；不要通过 `file://` 打开它验收。图片等资源由 Astro 从 `public/` 提供，请使用上述开发或预览服务。
 
