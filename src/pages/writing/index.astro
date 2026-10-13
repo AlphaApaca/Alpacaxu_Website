@@ -3,6 +3,7 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
 import { getWritingPosts, categoryLabel } from "../../lib/content";
 import { DEFAULT_CATEGORIES, normalizeSearch, writingFilterUrl } from "../../lib/writing.mjs";
 import { site } from "../../data/site.mjs";
+import ReadingMetrics from "../../components/ReadingMetrics.astro";
 
 const posts = await getWritingPosts();
 const categories = [...new Set([...DEFAULT_CATEGORIES, ...posts.map((post) => post.category)])];
@@ -92,6 +93,7 @@ const localizedCategory = (category: string) => Object.hasOwn(categoryCopy, cate
             {post.url === newestDatedPost?.url && <p class="writing-entry-label" data-workspace-zh="最新记录" data-workspace-en="Latest entry">最新记录</p>}
             <h2><a href={post.url} data-astro-prefetch>{post.title}<span class="writing-entry-arrow" aria-hidden="true">↗</span></a></h2>
             <p class="writing-entry-summary">{post.summary}</p>
+            <ReadingMetrics metrics={post.metrics} />
             <div class="tags">{post.tags.map((tag) => <a href={writingFilterUrl({ tag })} data-writing-tag={tag}>{tag}</a>)}</div>
           </div>
         </article>

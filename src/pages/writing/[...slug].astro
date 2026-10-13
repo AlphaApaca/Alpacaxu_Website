@@ -2,6 +2,7 @@
 import { render, type CollectionEntry } from "astro:content";
 import ArticleLayout from "../../layouts/ArticleLayout.astro";
 import { getPublishedPosts } from "../../lib/content";
+import { calculateReadingMetrics } from "../../lib/reading-metrics.mjs";
 
 export async function getStaticPaths() {
   const posts = await getPublishedPosts();
@@ -18,6 +19,7 @@ interface Props {
 
 const { post } = Astro.props;
 const { Content, headings } = await render(post);
+const metrics = calculateReadingMetrics(post.body ?? "");
 ---
 
 <ArticleLayout
@@ -32,6 +34,7 @@ const { Content, headings } = await render(post);
   comments={post.data.comments}
   commentTerm={`/writing/${post.data.permalink}/`}
   headings={headings}
+  metrics={metrics}
 >
   <Content />
 </ArticleLayout>

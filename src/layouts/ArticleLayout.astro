@@ -2,6 +2,7 @@
 import BaseLayout from "./BaseLayout.astro";
 import GiscusComments from "../components/GiscusComments.astro";
 import ArticleReader from "../components/ArticleReader.astro";
+import ReadingMetrics from "../components/ReadingMetrics.astro";
 import { categoryLabel } from "../lib/content";
 import { writingFilterUrl } from "../lib/writing.mjs";
 import { site } from "../data/site.mjs";
@@ -18,6 +19,7 @@ interface Props {
   comments?: boolean;
   commentTerm: string;
   headings: { depth: number; slug: string; text: string }[];
+  metrics: { wordCount: number };
 }
 
 const {
@@ -31,7 +33,8 @@ const {
   sourceCommit,
   comments = false,
   commentTerm,
-  headings
+  headings,
+  metrics
 } = Astro.props;
 
 const formattedDate = new Intl.DateTimeFormat(lang, {
@@ -57,6 +60,7 @@ const formattedDate = new Intl.DateTimeFormat(lang, {
         <time datetime={date} data-interface-date>{formattedDate}</time>
         {sourceCommit && <span title={sourceCommit}>repytorch · {sourceCommit.slice(0, 7)}</span>}
       </div>
+      <ReadingMetrics metrics={metrics} />
       {tags.length > 0 && <div class="tags">{tags.map((tag) => <a href={writingFilterUrl({ tag })}>{tag}</a>)}</div>}
     </div>
     <div class="article-reading-layout">

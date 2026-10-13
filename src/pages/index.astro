@@ -4,6 +4,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 import { categoryLabel, getWritingPosts } from "../lib/content";
 import { writingFilterUrl } from "../lib/writing.mjs";
 import { homeCopy } from "../data/site.mjs";
+import ReadingMetrics from "../components/ReadingMetrics.astro";
 
 // Preserve the verified evidence copy while retiring the old hero bridge.
 const section = (id: string) => {
@@ -56,7 +57,21 @@ const posts = (await getWritingPosts()).slice(0, 4);
     <section class="workspace-writing" id="posts" aria-labelledby="workspace-writing-heading">
       <header class="workspace-section-heading"><div><p class="workspace-kicker">WRITING / <span data-workspace-zh="留下的记录" data-workspace-en="Field notes">留下的记录</span></p><h2 id="workspace-writing-heading" data-workspace-zh="一点点建立自己的理解。" data-workspace-en="Building understanding, one note at a time.">一点点建立自己的理解。</h2></div><a class="workspace-inline-link" href="/writing/" data-astro-prefetch><span data-workspace-zh="全部文章" data-workspace-en="All writing">全部文章</span> →</a></header>
       <div class="workspace-posts">
-        {posts.map((post) => <article class="workspace-post"><div class="workspace-post-meta">{post.date && <time datetime={post.date}>{post.date}</time>}<a href={writingFilterUrl({ category: post.category })}>{categoryLabel(post.category)}</a></div><div class="workspace-post-body"><h3><a href={post.url} data-astro-prefetch>{post.title}</a></h3><p>{post.summary}</p><div class="workspace-post-tags">{post.tags.map((tag) => <a href={writingFilterUrl({ tag })}>{tag}</a>)}</div></div><a class="workspace-post-open" href={post.url} data-astro-prefetch aria-label={`阅读：${post.title}`} data-workspace-article-open>↗</a></article>)}
+        {posts.map((post) => (
+          <article class="workspace-post">
+            <div class="workspace-post-meta">
+              {post.date && <time datetime={post.date}>{post.date}</time>}
+              <a href={writingFilterUrl({ category: post.category })}>{categoryLabel(post.category)}</a>
+              <ReadingMetrics metrics={post.metrics} compact />
+            </div>
+            <div class="workspace-post-body">
+              <h3><a href={post.url} data-astro-prefetch>{post.title}</a></h3>
+              <p>{post.summary}</p>
+              <div class="workspace-post-tags">{post.tags.map((tag) => <a href={writingFilterUrl({ tag })}>{tag}</a>)}</div>
+            </div>
+            <a class="workspace-post-open" href={post.url} data-astro-prefetch aria-label={`阅读：${post.title}`} data-workspace-article-open>↗</a>
+          </article>
+        ))}
       </div>
       <nav class="workspace-writing-topics" aria-label="文章分类" data-workspace-aria-zh="文章分类" data-workspace-aria-en="Writing categories"><a href={writingFilterUrl({ category: "learning-log" })} data-workspace-zh="学习日志" data-workspace-en="Learning logs">学习日志</a><span aria-hidden="true">/</span><a href={writingFilterUrl({ category: "note" })} data-workspace-zh="技术笔记" data-workspace-en="Technical notes">技术笔记</a><span aria-hidden="true">/</span><a href={writingFilterUrl({ category: "essay" })} data-workspace-zh="杂文" data-workspace-en="Essays">杂文</a></nav>
     </section>

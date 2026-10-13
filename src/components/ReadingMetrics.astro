@@ -1,0 +1,48 @@
+---
+import { readingMetricsCopy } from "../lib/reading-metrics.mjs";
+
+interface Props {
+  metrics: { wordCount: number };
+  compact?: boolean;
+}
+
+const { metrics, compact = false } = Astro.props;
+const copy = readingMetricsCopy(metrics);
+---
+
+<div
+  class:list={["reading-metrics", { "reading-metrics-compact": compact }]}
+  data-reading-metrics
+  data-word-count={metrics.wordCount}
+  title={copy.zh.description}
+  data-workspace-title-zh={copy.zh.description}
+  data-workspace-title-en={copy.en.description}
+>
+  <span data-reading-volume data-workspace-zh={copy.zh.volume} data-workspace-en={copy.en.volume}>{copy.zh.volume}</span>
+</div>
+
+<style>
+  .reading-metrics {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 4px 16px;
+    min-width: 0;
+    margin: 12px 0;
+    color: var(--muted);
+    font-size: 0.76rem;
+    font-weight: 400;
+    line-height: 1.7;
+    font-variant-numeric: tabular-nums;
+    overflow-wrap: anywhere;
+  }
+
+  .reading-metrics > span {
+    min-width: 0;
+  }
+
+  .reading-metrics-compact {
+    margin: 0;
+    font-size: inherit;
+  }
+</style>
